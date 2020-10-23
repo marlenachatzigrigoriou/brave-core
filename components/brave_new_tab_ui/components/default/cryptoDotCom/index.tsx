@@ -49,7 +49,7 @@ interface TickerPrice {
 interface AssetRanking {
   lastPrice: number
   pair: string
-  percentChange: number
+  percentChange: string
 }
 
 interface ChartDataPoint {
@@ -209,6 +209,11 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     })
   }
 
+  getPercentColor = (percentChange: string) => {
+    const percentChangeNum = parseFloat(percentChange)
+    return percentChangeNum === 0 ? 'light' : (percentChangeNum > 0 ? 'green' : 'red')
+  }
+
   plotData ({ data, chartHeight, chartWidth }: ChartConfig) {
     const pointsPerDay = 4
     const daysInrange = 7
@@ -248,8 +253,8 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
           <FlexItem textAlign='right' flex={1}>
             {optInBTCPrice ? (
               <>
-                {(price !== null) && <Text>{formattedNum(price)}</Text>}
-                {(percentChange !== null) && <Text textColor={percentChange > 0 ? 'green' : 'red'}>{percentChange}%</Text>}
+                {(price !== null) && <Text>{(price)}</Text>}
+                {(percentChange !== null) && <Text textColor={this.getPercentColor(percentChange)}>{percentChange}%</Text>}
               </>
             ) : (
               <PlainButton onClick={this.btcPriceOptIn} textColor='green' inline={true}>
@@ -437,7 +442,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
           >
             {formattedNum(price)} USDT
           </Text>}
-          {(percentChange !== null) && <Text inline={true} textColor={percentChange > 0 ? 'green' : 'red'}>{percentChange}%</Text>}
+          {(percentChange !== null) && <Text inline={true} textColor={this.getPercentColor(percentChange)}>{percentChange}%</Text>}
           <SVG viewBox={`0 0 ${chartWidth} ${chartHeight}`}>
             <polyline
               fill='none'
