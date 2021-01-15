@@ -195,6 +195,7 @@ declare namespace NewTab {
     tickerPrices: Record<string, any>
     losersGainers: Record<string, any>
     supportedPairs: Record<string, any>
+    tradingPairs: Array<Record<string, any>>
     charts: Record<string, any>
   }
 
