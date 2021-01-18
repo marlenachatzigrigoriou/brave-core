@@ -209,11 +209,6 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     })
   }
 
-  getPercentColor = (percentChange: string) => {
-    const percentChangeNum = parseFloat(percentChange)
-    return percentChangeNum === 0 ? 'light' : (percentChangeNum > 0 ? 'green' : 'red')
-  }
-
   plotData ({ data, chartHeight, chartWidth }: ChartConfig) {
     const pointsPerDay = 4
     const daysInrange = 7
@@ -254,7 +249,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
             {optInBTCPrice ? (
               <>
                 {(price !== null) && <Text>{(price)}</Text>}
-                {(percentChange !== null) && <Text textColor={this.getPercentColor(percentChange)}>{percentChange}%</Text>}
+                {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
               </>
             ) : (
               <PlainButton onClick={this.btcPriceOptIn} textColor='green' inline={true}>
@@ -289,7 +284,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     const { price = null, volume = null } = this.props.tickerPrices[currency] || {}
     const chartData = this.props.charts[currency] || []
     const pairs = this.props.supportedPairs[currency] || []
-
+    
     const losersGainers = transformLosersGainers(this.props.losersGainers || {})
     const { percentChange = null } = losersGainers[currency] || {}
 
@@ -338,7 +333,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
           >
             {formattedNum(price)} USDT
           </Text>}
-          {(percentChange !== null) && <Text inline={true} textColor={percentChange > 0 ? 'green' : 'red'}>{percentChange}%</Text>}
+          {(percentChange !== null) && <Text inline={true} textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
           <SVG viewBox={`0 0 ${chartWidth} ${chartHeight}`}>
             <polyline
               fill='none'
@@ -389,15 +384,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
 
   renderAssetTrade () {
     const { selectedAsset: currency } = this.state
-    const { price = null, volume = null } = this.props.tickerPrices[currency] || {}
-    const chartData = this.props.charts[currency] || []
-    const pairs = this.props.supportedPairs[currency] || []
 
-    const losersGainers = transformLosersGainers(this.props.losersGainers || {})
-    const { percentChange = null } = losersGainers[currency] || {}
-
-    const chartHeight = 100
-    const chartWidth = 309
     return (
       <Box hasPadding={false}>
         <FlexItem
@@ -421,12 +408,10 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
             </Text>
           </FlexItem>
           <FlexItem $pl={5}>
-            <ActionButton onClick={this.onClickBuyTopDetail} small={true} light={true}>
-              <Filters>
-                <FilterOption>Buy</FilterOption>
-                <FilterOption>Sell</FilterOption>
-              </Filters>
-            </ActionButton>
+            <Filters>
+              <FilterOption>Buy</FilterOption>
+              <FilterOption>Sell</FilterOption>
+            </Filters>
           </FlexItem>
         </FlexItem>
         <FlexItem
@@ -434,58 +419,13 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
           isFullWidth={true}
           hasBorder={true}
         >
-          {(price !== null) && <Text
-            inline={true}
-            large={true}
-            weight={500}
-            $mr='0.5rem'
-          >
-            {formattedNum(price)} USDT
-          </Text>}
-          {(percentChange !== null) && <Text inline={true} textColor={this.getPercentColor(percentChange)}>{percentChange}%</Text>}
-          <SVG viewBox={`0 0 ${chartWidth} ${chartHeight}`}>
-            <polyline
-              fill='none'
-              stroke='#44B0FF'
-              strokeWidth='3'
-              points={this.plotData({
-                data: chartData,
-                chartHeight,
-                chartWidth
-              })}
-            />
-          </SVG>
-        <Text small={true} textColor='xlight'>
-          {getLocale('cryptoDotComWidgetGraph')}
-        </Text>
+          <Text>10.3671 BTC available</Text>
         </FlexItem>
         <FlexItem
           hasPadding={true}
           isFullWidth={true}
         >
-          <BasicBox $mt='0.2em'>
-            <Text small={true} textColor='light' $pb='0.2rem'>
-              <UpperCaseText>
-                {getLocale('cryptoDotComWidgetVolume')}
-              </UpperCaseText>
-            </Text>
-            {volume && <Text weight={500}>{formattedNum(volume)} USDT</Text>}
-          </BasicBox>
-          <BasicBox $mt='1em'>
-            <Text small={true} textColor='light' $pb='0.2rem'>
-              <UpperCaseText>
-                {getLocale('cryptoDotComWidgetPairs')}
-              </UpperCaseText>
-            </Text>
-            {pairs.map((pair, i) => {
-              const pairName = pair.replace('_', '/')
-              return (
-                <ActionButton onClick={this.onClickBuyPair.bind(this, pairName)} key={pair} small={true} inline={true} $mr={i === 0 ? 5 : 0} $mb={5}>
-                  {pairName}
-                </ActionButton>
-              )
-            })}
-          </BasicBox>
+          <ActionButton>Sell BTC</ActionButton>
         </FlexItem>
       </Box>
     )
@@ -633,7 +573,8 @@ function TopMovers ({
       {losersGainers[filter].map((asset: Record<string, any>) => {
         const currency = asset.pair.split('_')[0];
         const { percentChange } = asset
-        const { price = null } = tickerPrices[currency] || {}
+        // const { price = null } = tickerPrices[currency] || {}
+        const price = asset.lastPrice
 
         return (
           <ListItem key={currency} isFlex={true} onClick={() => handleAssetDetailClick(currency)} $height={48}>
@@ -646,7 +587,7 @@ function TopMovers ({
             </FlexItem>
             <FlexItem textAlign='right' flex={1}>
               {(price !== null) && <Text>{formattedNum(price)}</Text>}
-              {(percentChange !== null) && <Text textColor={percentChange > 0 ? 'green' : 'red'}>{percentChange}%</Text>}
+              {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
             </FlexItem>
           </ListItem>
         )
@@ -675,7 +616,7 @@ function Trade ({ tradingPairs }: any) {
         .filter((pair: Record<string, string>) => pair.quote === filter)
         .map((pair: Record<string, string>) => {
           const price = 199
-          const percentChange = 1.8
+          const percentChange = "1.8"
 
           return (
             <ListItem key={pair.pair} isFlex={true} $height={48}>
@@ -687,7 +628,7 @@ function Trade ({ tradingPairs }: any) {
               </FlexItem>
               <FlexItem textAlign='right' flex={1}>
                 {(price !== null) && <Text>{formattedNum(price)}</Text>}
-                {(percentChange !== null) && <Text textColor={percentChange > 0 ? 'green' : 'red'}>{percentChange}%</Text>}
+                {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
               </FlexItem>
             </ListItem>
           )
@@ -730,4 +671,9 @@ function transformLosersGainers ({ losers = [], gainers = [] }: Record<string, A
       [assetName]: assetRanking
     }
   }, {})
+}
+
+function getPercentColor (percentChange: string) {
+  const percentChangeNum = parseFloat(percentChange)
+  return percentChangeNum === 0 ? 'light' : (percentChangeNum > 0 ? 'green' : 'red')
 }
