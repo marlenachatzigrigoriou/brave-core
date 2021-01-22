@@ -58,7 +58,10 @@ interface StyleProps {
   userAuthed?: boolean
   weight?: string | number
   marketView?: boolean
+  upperCase?: boolean
+  textOpacity?: number
   onClick?: Function
+  onChange?: Function
 }
 
 function getTextStyle (p: StyleProps) {
@@ -92,22 +95,23 @@ function getBoxStyle (p: StyleProps) {
   }, '')
 }
 
-const colorNameToHex = {
-  green: '#58B2A9',
-  red: '#D986A2',
+const colorNameToColor = {
+  green: 'rgba(90, 186, 175, 1)',
+  red: 'rgba(217, 134, 162, 1)',
+  'red-bright': 'rgba(234, 78, 92, 1)',
   light: 'rgba(255, 255, 255, 0.6)',
   xlight: 'rgba(255, 255, 255, 0.3)'
 }
 
 function getColor (p: any) {
-  let colorName
+  let colorName;
   if (!/(string|undefined)/.test(typeof p)) {
     const keys = Object.keys(p)
-    colorName = keys.find((key) => key in colorNameToHex)
+    colorName = keys.find((key) => key in colorNameToColor)
   } else {
     colorName = p
   }
-  return colorNameToHex[colorName]
+  return colorNameToColor[colorName]
 }
 
 export const Text = styled('p')<StyleProps>`
@@ -189,8 +193,10 @@ export const PlainButton = styled('button')<StyleProps>`
   ${getBoxStyle}
 
   ${ButtonGroup} & {
-    color: ${p => p.isActive ? p.theme.primary : getColor('light')};
-    font-weight: 600;
+    color: ${p => p.isActive
+      ? p.theme.primary
+      : getColor(p.textColor) || getColor('light')};
+    font-weight: 500;
     text-transform: uppercase;
     border-right: 1px solid rgba(255, 255, 255, 0.2);
 
@@ -277,18 +283,19 @@ export const BackArrow = styled('div')<StyleProps>`
 `
 
 export const ActionButton = styled('button')<StyleProps>`
+  --textOpacity: ${p => p.textOpacity || 1};
   font-family: ${p => p.theme.fontFamily.heading};
   font-size: ${p => (p.small ? '13px' : '15px')};
   font-weight: ${p => (p.small ? '500' : 'bold')};
   border-radius: 20px;
   width: ${p => (p.inline ? 'auto' : '100%')};
-  background: ${p => (p.light ? 'rgba(255, 255, 255, 0.21)' : p.theme.primary)};
+  background: ${p => getColor(p.$bg) || (p.light ? 'rgba(255, 255, 255, 0.21)' : p.theme.primary)};
   border: 0;
   padding: ${p => (p.small ? '6px 10px' : '10px 0px')};
   cursor: pointer;
-  color: #ffffff;
+  color: rgba(255, 255, 255, var(--textOpacity));
   line-height: 1;
-  text-transform: uppercase;
+  text-transform: ${p => !p.upperCase ? 'none' : 'uppercase'};
 
   ${getBoxStyle}
 `
@@ -344,12 +351,14 @@ export const InputWrapper = styled<StyleProps>(BasicBox)`
 
 export const InputField = styled<{}, 'input'>('input')`
   display: inline-block;
-  min-width: 215px;
+  min-width: 225px;
   border: 0;
   height: 30px;
   vertical-align: top;
   color: #000;
   padding-left: 5px;
+
+  ${getBoxStyle}
 
   &:focus {
     outline: 0;
@@ -357,14 +366,11 @@ export const InputField = styled<{}, 'input'>('input')`
 `
 
 export const AmountInputField = styled(InputField)`
-  color: #000;
-  width: 70%;
-  min-width: unset;
-  padding-left: 10px;
-  height: 29px;
-  border-right: none;
-  border-left: none;
-  border-bottom: 1px solid white;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  box-sizing: border-box;
+  border-radius: 4px;
+  color: ${getColor('light')};
 `
 
 export const Dropdown = styled<StyleProps, 'div'>('div')`

@@ -16,6 +16,7 @@ import {
 import {
   ActionAnchor,
   ActionButton,
+  AmountInputField,
   BackArrow,
   BasicBox,
   Box,
@@ -283,7 +284,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     const { price = null, volume = null } = this.props.tickerPrices[currency] || {}
     const chartData = this.props.charts[currency] || []
     const pairs = this.props.supportedPairs[currency] || []
-    
+
     const losersGainers = transformLosersGainers(this.props.losersGainers || {})
     const { percentChange = null } = losersGainers[currency] || {}
 
@@ -381,55 +382,6 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     )
   }
 
-  renderAssetTrade () {
-    const { selectedAsset: currency } = this.state
-
-    return (
-      <Box hasPadding={false}>
-        <FlexItem
-          hasPadding={true}
-          isFlex={true}
-          isFullWidth={true}
-          hasBorder={true}
-        >
-          <FlexItem>
-            <BackArrow>
-              <CaratLeftIcon onClick={this.setSelectedAsset.bind(this, '')} />
-            </BackArrow>
-          </FlexItem>
-          <FlexItem $pr={5}>
-            {renderIconAsset(currency.toLowerCase())}
-          </FlexItem>
-          <FlexItem flex={1}>
-            <Text>{currency}</Text>
-            <Text small={true} textColor='light'>
-              {currencyNames[currency]}
-            </Text>
-          </FlexItem>
-          <FlexItem $pl={5}>
-            <ButtonGroup>
-              <PlainButton>Buy</PlainButton>
-              <PlainButton>Sell</PlainButton>
-            </ButtonGroup>
-          </FlexItem>
-        </FlexItem>
-        <FlexItem
-          hasPadding={true}
-          isFullWidth={true}
-          hasBorder={true}
-        >
-          <Text>10.3671 BTC available</Text>
-        </FlexItem>
-        <FlexItem
-          hasPadding={true}
-          isFullWidth={true}
-        >
-          <ActionButton>Sell BTC</ActionButton>
-        </FlexItem>
-      </Box>
-    )
-  }
-
   renderTitle () {
     const { selectedAsset } = this.state
     const { optInMarkets, showContent } = this.props
@@ -470,10 +422,10 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     const { currentView } = this.state
     return (
       <BasicBox isFlex={true} justify="start" $mb={13.5}>
-        <PlainButton $pl="0" weight={600} textColor={currentView === MainViews.TOP ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.TOP)}>Top</PlainButton>
-        <PlainButton weight={600} textColor={currentView === MainViews.TRADE ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.TRADE)}>Trade</PlainButton>
-        <PlainButton weight={600} textColor={currentView === MainViews.EVENTS ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.EVENTS)}>Events</PlainButton>
-        <PlainButton weight={600} textColor={currentView === MainViews.BALANCE ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.BALANCE)}>Balance</PlainButton>
+        <PlainButton $pl="0" weight={500} textColor={currentView === MainViews.TOP ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.TOP)}>Top</PlainButton>
+        <PlainButton weight={500} textColor={currentView === MainViews.TRADE ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.TRADE)}>Trade</PlainButton>
+        <PlainButton weight={500} textColor={currentView === MainViews.EVENTS ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.EVENTS)}>Events</PlainButton>
+        <PlainButton weight={500} textColor={currentView === MainViews.BALANCE ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.BALANCE)}>Balance</PlainButton>
       </BasicBox>
     )
   }
@@ -489,7 +441,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       />
     }
 
-    if (currentView === MainViews.TRADE) {      
+    if (currentView === MainViews.TRADE) {
       return <Trade tradingPairs={this.props.tradingPairs} />
     }
 
@@ -503,7 +455,12 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     }
 
     if (currentAssetView === AssetViews.TRADE) {
-      return this.renderAssetTrade()
+      return <AssetTrade
+        availableBalance={10.3671}
+        base={this.state.selectedAsset}
+        quote={'USDT'}
+        handleBackClick={this.setSelectedAsset.bind(this, '')}
+      />
     }
 
     return <h4>Whoops... asset view not done yet. 😬</h4> // TODO: delete
@@ -531,8 +488,9 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
 
     return (
       <ThemeProvider theme={{
-          secondary: "rgba(15, 28, 45, 0.7)",
-          primary: "#44B0FF"
+          secondary: 'rgba(15, 28, 45, 0.7)',
+          primary: '#44B0FF',
+          danger: 'rgba(234, 78, 92, 1)'
         }}>
         <WidgetWrapper tabIndex={0}>
           {this.renderTitle()}
@@ -550,6 +508,111 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
 export const CryptoDotComWidget = createWidget(CryptoDotCom)
 
 // Supporting Components
+
+function AssetTrade ({
+  base,
+  quote,
+  availableBalance,
+  handleBackClick
+}: Record<string, any>) {
+
+  enum TradeModes {
+    BUY = 'Buy',
+    SELL = 'Sell'
+  }
+
+  enum Percentages {
+    twentyFive = 25,
+    fifty = 50,
+    seventyFive = 75,
+    onehundred = 100
+  }
+
+  const [tradeMode, setTradeMode] = React.useState(TradeModes.BUY);
+  const [tradePercentage, setTradePercentage] = React.useState<number | null>(null);
+  const [tradeAmount, setTradeAmount] = React.useState('');
+
+  const handlePercentageClick = (percentage: number) => {
+    const amount = (percentage / 100) * availableBalance
+    setTradeAmount(`${amount}`)
+    setTradePercentage(percentage)
+  }
+
+  const handleAmountChange = ({ target }: any) => {
+    const { value } = target
+    if (value === "." || !Number.isNaN(value * 1)) {
+      setTradeAmount(value)
+      setTradePercentage(null)
+    }
+  }
+
+  const getPlaceholderText = () => TradeModes.BUY ? `Trade (${base} from ${quote})` : `Trade (${base} to ${quote})`
+
+  return (
+    <Box hasPadding={false}>
+      <FlexItem
+        hasPadding={true}
+        isFlex={true}
+        isFullWidth={true}
+        hasBorder={true}
+      >
+        <FlexItem>
+          <BackArrow>
+            <CaratLeftIcon onClick={handleBackClick} />
+          </BackArrow>
+        </FlexItem>
+        <FlexItem $pr={5}>
+          {renderIconAsset(base.toLowerCase())}
+        </FlexItem>
+        <FlexItem flex={1}>
+          <Text>{base}</Text>
+          <Text small={true} textColor='light'>
+            {currencyNames[base]}
+          </Text>
+        </FlexItem>
+        <FlexItem $pl={5}>
+          <ButtonGroup>
+            <PlainButton onClick={() => setTradeMode(TradeModes.BUY)} textColor='green'>Buy</PlainButton>
+            <PlainButton onClick={() => setTradeMode(TradeModes.SELL)} textColor='red'>Sell</PlainButton>
+          </ButtonGroup>
+        </FlexItem>
+      </FlexItem>
+      <FlexItem
+        hasPadding={true}
+        isFullWidth={true}
+        hasBorder={true}
+      >
+        <Text $mt={15} center={true}>{availableBalance} {base} available</Text>
+        <AmountInputField
+          $mt={10} $mb={10}
+          placeholder={getPlaceholderText()}
+          onChange={handleAmountChange} 
+          value={tradeAmount}
+        />
+        <BasicBox isFlex={true} justify="center" $mb={13.5}>
+          {Object.values(Percentages).map(percentage => {
+            return (typeof percentage === 'number') && (
+              <PlainButton
+                key={percentage}
+                weight={500}
+                textColor={tradePercentage === percentage ? 'white' : 'light'}
+                onClick={() => handlePercentageClick(percentage)}
+              >
+                {percentage}%
+              </PlainButton>
+            )
+          })}
+        </BasicBox>
+      </FlexItem>
+      <FlexItem
+        hasPadding={true}
+        isFullWidth={true}
+      >
+        <ActionButton textOpacity={tradeAmount ? 1 : 0.6} $bg={tradeMode === TradeModes.BUY ? 'green' : 'red-bright'} upperCase={false}>{tradeMode} {base}</ActionButton>
+      </FlexItem>
+    </Box>
+  )
+}
 
 function TopMovers ({
   tickerPrices,
