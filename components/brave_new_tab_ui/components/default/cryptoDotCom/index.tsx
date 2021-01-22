@@ -21,8 +21,7 @@ import {
   Box,
   CryptoDotComIcon,
   FlexItem,
-  Filters,
-  FilterOption,
+  ButtonGroup,
   Header,
   List,
   ListItem,
@@ -408,10 +407,10 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
             </Text>
           </FlexItem>
           <FlexItem $pl={5}>
-            <Filters>
-              <FilterOption>Buy</FilterOption>
-              <FilterOption>Sell</FilterOption>
-            </Filters>
+            <ButtonGroup>
+              <PlainButton>Buy</PlainButton>
+              <PlainButton>Sell</PlainButton>
+            </ButtonGroup>
           </FlexItem>
         </FlexItem>
         <FlexItem
@@ -490,7 +489,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       />
     }
 
-    if (currentView === MainViews.TRADE) {
+    if (currentView === MainViews.TRADE) {      
       return <Trade tradingPairs={this.props.tradingPairs} />
     }
 
@@ -565,10 +564,10 @@ function TopMovers ({
   const [filter, setFilter] = React.useState(FilterValues.GAINERS);
 
   return <>
-    <Filters>
-      <FilterOption onClick={() => setFilter(FilterValues.GAINERS)} isActive={filter === FilterValues.GAINERS}>Gainers</FilterOption>
-      <FilterOption onClick={() => setFilter(FilterValues.LOSERS)} isActive={filter === FilterValues.LOSERS}>Losers</FilterOption>
-    </Filters>
+    <ButtonGroup>
+      <PlainButton onClick={() => setFilter(FilterValues.GAINERS)} isActive={filter === FilterValues.GAINERS}>Gainers</PlainButton>
+      <PlainButton onClick={() => setFilter(FilterValues.LOSERS)} isActive={filter === FilterValues.LOSERS}>Losers</PlainButton>
+    </ButtonGroup>
     <List>
       {losersGainers[filter].map((asset: Record<string, any>) => {
         const currency = asset.pair.split('_')[0];
@@ -606,11 +605,11 @@ function Trade ({ tradingPairs }: any) {
   const [filter, setFilter] = React.useState(FilterValues.BTC)
 
   return <>
-    <Filters>
-      <FilterOption onClick={() => setFilter(FilterValues.BTC)} isActive={filter === FilterValues.BTC}>BTC</FilterOption>
-      <FilterOption onClick={() => setFilter(FilterValues.CRO)} isActive={filter === FilterValues.CRO}>CRO</FilterOption>
-      <FilterOption onClick={() => setFilter(FilterValues.USDT)} isActive={filter === FilterValues.USDT}>USDT</FilterOption>
-    </Filters>
+    <ButtonGroup>
+      <PlainButton onClick={() => setFilter(FilterValues.BTC)} isActive={filter === FilterValues.BTC}>BTC</PlainButton>
+      <PlainButton onClick={() => setFilter(FilterValues.CRO)} isActive={filter === FilterValues.CRO}>CRO</PlainButton>
+      <PlainButton onClick={() => setFilter(FilterValues.USDT)} isActive={filter === FilterValues.USDT}>USDT</PlainButton>
+    </ButtonGroup>
     <List>
       {tradingPairs
         .filter((pair: Record<string, string>) => pair.quote === filter)
