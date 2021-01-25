@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as React from 'react'
+const clipboardCopy = require('clipboard-copy')
 import { ThemeProvider } from 'styled-components'
 
 import createWidget from '../widget/index'
@@ -15,6 +16,7 @@ import {
 
 import {
   SearchIcon,
+  QRIcon,
   ShowIcon,
   HideIcon
 } from '../../default/exchangeWidget/shared-assets'
@@ -331,9 +333,9 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
             </Text>
           </FlexItem>
           <FlexItem $pl={5}>
-            <ActionButton onClick={this.onClickBuyTopDetail} small={true} light={true}>
+            <ActionButton onClick={this.handleAssetClick.bind(this, currency, null, AssetViews.DEPOSIT)} small={true} light={true}>
               <UpperCaseText>
-                {getLocale('cryptoDotComWidgetBuy')}
+                Deposit
               </UpperCaseText>
             </ActionButton>
           </FlexItem>
@@ -481,6 +483,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
 
   renderAssetView () {
     const { currentAssetView } = this.state
+    
     if (currentAssetView === AssetViews.DETAILS) {
       return this.renderAssetDetail()
     }
@@ -490,6 +493,14 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
         availableBalance={10.3671}
         base={this.state.selectedBase}
         quote={this.state.selectedQuote}
+        handleBackClick={this.clearAsset}
+      />
+    }
+
+    if (currentAssetView === AssetViews.DEPOSIT) {
+      return <AssetDeposit
+        assetAddress={'38pQXo6P9ycSLsPhUViFLdi2UHspwdcUCT'}
+        base={this.state.selectedBase}
         handleBackClick={this.clearAsset}
       />
     }
@@ -539,6 +550,56 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
 export const CryptoDotComWidget = createWidget(CryptoDotCom)
 
 // Supporting Components
+
+function AssetDeposit ({
+  assetAddress,
+  base,
+  handleBackClick
+}: any) {
+  return (
+    <Box hasPadding={false}>
+      <FlexItem
+        hasPadding={true}
+        isFlex={true}
+        isFullWidth={true}
+        hasBorder={true}
+      >
+        <FlexItem>
+          <BackArrow>
+            <CaratLeftIcon onClick={handleBackClick} />
+          </BackArrow>
+        </FlexItem>
+        <FlexItem $pr={5}>
+          {renderIconAsset(base.toLowerCase())}
+        </FlexItem>
+        <FlexItem flex={1}>
+          <Text>{base}</Text>
+          <Text small={true} textColor='light'>
+            {currencyNames[base]}
+          </Text>
+        </FlexItem>
+        <FlexItem $pl={5}>
+          <PlainButton>
+            <img width={25} src={QRIcon} />
+          </PlainButton>
+        </FlexItem>
+      </FlexItem>
+      <FlexItem
+        hasPadding={true}
+        isFullWidth={true}
+        hasBorder={true}
+      >
+        <Text $fontSize={13} weight={600}>{base} Address</Text>
+        <Text $fontSize={13} breakWord={true}>{assetAddress}</Text>
+        <ActionButton onClick={() => copyToClipboard(assetAddress)} $mt={5} $mb={15} small={true} light={true} isFullWidth={false}>
+          Copy Address
+        </ActionButton>
+        <Text $fontSize={13} weight={600}>Send only {base} to this deposit address.</Text>
+        <Text $fontSize={13}>Sending coin or token other than {base} to this address may result in the loss of your deposit.</Text>
+      </FlexItem>
+    </Box>
+  )
+}
 
 function AssetTrade ({
   base,
@@ -868,4 +929,12 @@ function transformLosersGainers ({ losers = [], gainers = [] }: Record<string, A
 function getPercentColor (percentChange: string) {
   const percentChangeNum = parseFloat(percentChange)
   return percentChangeNum === 0 ? 'light' : (percentChangeNum > 0 ? 'green' : 'red')
+}
+
+async function copyToClipboard (address: string) {
+  try {
+    await clipboardCopy(address)
+  } catch (e) {
+    console.log(`Could not copy address ${e.toString()}`)
+  }
 }

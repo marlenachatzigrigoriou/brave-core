@@ -6,6 +6,7 @@ import styled from 'styled-components'
 interface StyleProps {
   as?: any
   $bg?: string
+  breakWord?: boolean
   center?: boolean
   chartWidth?: number
   chartHeight?: number
@@ -116,6 +117,7 @@ function getColor (p: any) {
 }
 
 export const Text = styled('p')<StyleProps>`
+  word-break: ${p => p.breakWord ? 'break-word' : 'normal'};
   color: ${p => getColor(p.textColor) || '#ffffff'};
   font-family: ${p => p.theme.fontFamily.heading};
   font-weight: ${p => (p.weight || (p.small ? '500' : 'normal'))};
