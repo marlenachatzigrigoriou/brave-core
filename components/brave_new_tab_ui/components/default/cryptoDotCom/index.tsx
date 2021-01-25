@@ -14,6 +14,7 @@ import {
 } from './data'
 
 import {
+  SearchIcon,
   ShowIcon,
   HideIcon
 } from '../../default/exchangeWidget/shared-assets'
@@ -31,6 +32,7 @@ import {
   FlexItem,
   ButtonGroup,
   Header,
+  InputField,
   List,
   ListItem,
   PlainButton,
@@ -449,6 +451,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     const { currentView } = this.state
     if (currentView === MainViews.TOP) {
       return <TopMovers
+        tickerPrices={this.props.tickerPrices}
         losersGainers={this.props.losersGainers}
         handleAssetClick={this.handleAssetClick}
       />
@@ -696,6 +699,7 @@ function BalanceSummary ({
 }
 
 function TopMovers ({
+  tickerPrices = {},
   losersGainers = { gainers: [], losers: [] },
   handleAssetClick
 }: any) {
@@ -715,7 +719,7 @@ function TopMovers ({
       {losersGainers[filter].map((asset: Record<string, any>) => {
         const currency = asset.pair.split('_')[0];
         const { percentChange } = asset
-        const price = asset.lastPrice
+        const { price = null } = tickerPrices[currency] || {}
 
         return (
           <ListItem key={currency} isFlex={true} onClick={() => handleAssetClick(currency)} $height={48}>
@@ -738,6 +742,8 @@ function TopMovers ({
 }
 
 function Trade ({
+  tickerPrices = {},
+  losersGainers = {},
   tradingPairs = [],
   handleAssetClick
 }: any) {
@@ -748,6 +754,21 @@ function Trade ({
   }
 
   const [filter, setFilter] = React.useState(FilterValues.BTC)
+  const [searchInput, setSearchInput] = React.useState('')
+
+  const handleSearchChange = ({ target }: any) => {
+    const { value } = target
+    setSearchInput(value)
+  }
+
+  const searchFilter = (pair: Record<string, string>) => {
+    if (searchInput) {
+      const search = new RegExp(searchInput, 'i')
+      return search.test(pair.base)
+    } else {
+      return pair;
+    }
+  }
 
   return <>
     <ButtonGroup>
@@ -755,12 +776,18 @@ function Trade ({
       <PlainButton onClick={() => setFilter(FilterValues.CRO)} isActive={filter === FilterValues.CRO}>CRO</PlainButton>
       <PlainButton onClick={() => setFilter(FilterValues.USDT)} isActive={filter === FilterValues.USDT}>USDT</PlainButton>
     </ButtonGroup>
+    <Box isFlex={true} $height={30} hasBottomBorder={false} hasPadding={true}>
+      <img width={15} src={SearchIcon} />
+      <InputField value={searchInput} onChange={handleSearchChange} placeholder='Search' />
+    </Box>
     <List>
       {tradingPairs
         .filter((pair: Record<string, string>) => pair.quote === filter)
+        .filter(searchFilter)
         .map((pair: Record<string, string>) => {
-          const price = 199
-          const percentChange = "1.8"
+          const { price = null } = tickerPrices[pair.base] || {}
+          losersGainers = transformLosersGainers(losersGainers)
+          const { percentChange = null } = losersGainers[pair.base] || {}
 
           return (
             <ListItem key={pair.pair} isFlex={true} $height={48} onClick={() => handleAssetClick(pair.base, pair.quote, AssetViews.TRADE)}

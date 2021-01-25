@@ -16,6 +16,7 @@ interface StyleProps {
   flex?: number
   $fontSize?: number
   hasBorder?: boolean
+  hasBottomBorder?: boolean
   hasPadding?: boolean
   $hasSpacing?: boolean
   $height?: number
@@ -144,6 +145,7 @@ export const BasicBox = styled('div')<StyleProps>`
 
 export const Box = styled(BasicBox)<StyleProps>`
   border: 1px solid rgba(79, 86, 97, 0.7);
+  ${p => p.hasBottomBorder === false && 'border-bottom: none;'}
   padding: ${p => (p.hasPadding ? '0.5em' : '0')};
   border-radius: 2px;
   height: ${p => (p.$height ? `${p.$height}px` : 'auto')};
@@ -367,12 +369,13 @@ export const InputWrapper = styled<StyleProps>(BasicBox)`
 `
 
 export const InputField = styled<{}, 'input'>('input')`
+  background: none;
   display: inline-block;
   min-width: 225px;
   border: 0;
   height: 30px;
   vertical-align: top;
-  color: #000;
+  color: ${getColor('light')};
   padding-left: 5px;
 
   ${getBoxStyle}
