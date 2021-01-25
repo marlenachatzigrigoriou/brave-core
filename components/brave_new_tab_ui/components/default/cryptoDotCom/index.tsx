@@ -33,6 +33,7 @@ import {
   ButtonGroup,
   Header,
   InputField,
+  Link,
   List,
   ListItem,
   PlainButton,
@@ -99,6 +100,7 @@ interface Props {
   losersGainers: Record<string, AssetRanking[]>
   supportedPairs: Record<string, string[]>
   tradingPairs: Array<Record<string, string>>
+  newsEvents: Array<Record<string, string>>
   charts: Record<string, ChartDataPoint[]>
   stackPosition: number
   onShowContent: () => void
@@ -470,6 +472,10 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       return <BalanceSummary />
     }
 
+    if (currentView === MainViews.EVENTS) {
+      return <Events newsEvents={this.props.newsEvents} />
+    }
+
     return <h4>Whoops... not done yet. 😬</h4> // TODO: delete
   }
 
@@ -807,6 +813,20 @@ function Trade ({
       })}
     </List>
   </>
+}
+
+function Events ({
+  newsEvents = []
+}: any) {
+  return <List>
+    {newsEvents.map((event: any) => (
+      <ListItem $p={10}>
+        <Text $fontSize={12} textColor='light'>{event.updated_at}</Text>
+        <Text $fontSize={12}>{event.content}</Text>
+        <Link $fontSize={12} $mt={5} inlineBlock={true} href={event.redirect_url} target='_blank'>{event.redirect_title}</Link>
+      </ListItem>
+    ))}
+  </List>
 }
 
 // Utility functions

@@ -25,6 +25,7 @@ interface StyleProps {
   hideOverflow?: boolean
   href?: string
   inline?: boolean
+  inlineBlock?: boolean
   isActive?: boolean
   isAsset?: boolean
   isAuth?: boolean
@@ -225,6 +226,16 @@ export const ActionButton = styled('button')<StyleProps>`
   ${getBoxStyle}
 `
 
+export const Link = styled('a')<StyleProps>`
+  ${p => p.inlineBlock && 'display: inline-block;'}
+  color: ${p => p.textColor
+    ? getColor(p.textColor) || getColor('light')
+    : p.theme.primary};
+
+  ${getTextStyle}
+  ${getBoxStyle}
+`
+
 export const WidgetWrapper = styled('div')<StyleProps>`
   color: white;
   padding: 6px 20px 13px 20px;
@@ -283,7 +294,7 @@ export const List = styled(Box)<StyleProps>`
 
 export const ListItem = styled('li')<StyleProps>`
   border-bottom: 1px solid rgba(79, 86, 97, 0.7);
-  padding: 5px;
+  padding: ${p => (p.$p || 5)}px;
   border-radius: 2px;
   display: ${p => (p.isFlex ? 'flex' : 'block')};
   cursor: ${p => (p.onClick ? 'pointer' : 'initial')}
