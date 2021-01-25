@@ -148,9 +148,9 @@ export const BasicBox = styled('div')<StyleProps>`
 
 export const Box = styled(BasicBox)<StyleProps>`
   border: 1px solid rgba(79, 86, 97, 0.7);
-  ${p => p.hasBottomBorder === false && 'border-bottom: none;'}
-  padding: ${p => (p.hasPadding ? '0.5em' : (p.$p ? `${p.$p}px` : '0'))};
   border-radius: 2px;
+  ${p => p.hasBottomBorder === false && 'border-bottom: none;'}
+  ${p => (!p.$p && p.$p !== 0) && 'padding: 0.5em;'}
   height: ${p => (p.$height ? `${p.$height}px` : 'auto')};
 `
 

@@ -259,7 +259,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     const { percentChange = null } = losersGainers[currency] || {}
     return (
       <>
-        <Box isFlex={true} $height={48} hasPadding={true}>
+        <Box isFlex={true} $height={48}>
           <FlexItem $pr={5}>
             {renderIconAsset(currency.toLowerCase())}
           </FlexItem>
@@ -313,7 +313,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     const chartHeight = 100
     const chartWidth = 309
     return (
-      <Box hasPadding={false}>
+      <Box $p={0}>
         <FlexItem
           hasPadding={true}
           isFlex={true}
@@ -571,7 +571,7 @@ function AssetDeposit ({
       </ActionButton>
     </Box>
   ) : (
-    <Box hasPadding={false}>
+    <Box $p={0}>
       <FlexItem
         hasPadding={true}
         isFlex={true}
@@ -599,9 +599,8 @@ function AssetDeposit ({
         </FlexItem>
       </FlexItem>
       <FlexItem
-        hasPadding={true}
+        $p='0.5em'
         isFullWidth={true}
-        hasBorder={true}
       >
         <Text $fontSize={13} weight={600}>{base} Address</Text>
         <Text $fontSize={13} breakWord={true}>{assetAddress}</Text>
@@ -659,7 +658,7 @@ function AssetTrade ({
   )
 
   return (
-    <Box hasPadding={false}>
+    <Box $p={0}>
       <FlexItem
         hasPadding={true}
         isFlex={true}
@@ -791,13 +790,24 @@ function TopMovers ({
 
   const [filter, setFilter] = React.useState(FilterValues.GAINERS);
 
+  const sortTopMovers = (a: Record<string, any>, b: Record<string, any>) => {
+    if (filter === FilterValues.GAINERS) {
+      return b.percentChange - a.percentChange
+    } else {
+      console.log(a, b)
+      return a.percentChange - b.percentChange
+    }
+  }
+
   return <>
     <ButtonGroup>
       <PlainButton onClick={() => setFilter(FilterValues.GAINERS)} isActive={filter === FilterValues.GAINERS}>Gainers</PlainButton>
       <PlainButton onClick={() => setFilter(FilterValues.LOSERS)} isActive={filter === FilterValues.LOSERS}>Losers</PlainButton>
     </ButtonGroup>
     <List>
-      {losersGainers[filter].map((asset: Record<string, any>) => {
+      {losersGainers[filter]
+        .sort(sortTopMovers)
+        .map((asset: Record<string, any>) => {
         const currency = asset.pair.split('_')[0];
         const { percentChange } = asset
         const { price = null } = tickerPrices[currency] || {}
@@ -857,7 +867,7 @@ function Trade ({
       <PlainButton onClick={() => setFilter(FilterValues.CRO)} isActive={filter === FilterValues.CRO}>CRO</PlainButton>
       <PlainButton onClick={() => setFilter(FilterValues.USDT)} isActive={filter === FilterValues.USDT}>USDT</PlainButton>
     </ButtonGroup>
-    <Box isFlex={true} $height={30} hasBottomBorder={false} hasPadding={true}>
+    <Box isFlex={true} $height={30} hasBottomBorder={false}>
       <img width={15} src={SearchIcon} />
       <InputField value={searchInput} onChange={handleSearchChange} placeholder='Search' />
     </Box>
