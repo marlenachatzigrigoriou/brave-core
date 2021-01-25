@@ -8,6 +8,8 @@ import { ThemeProvider } from 'styled-components'
 import createWidget from '../widget/index'
 import { StyledTitleTab } from '../widgetTitleTab'
 
+const fakeQRImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALkAAAC5CAAAAABRxsGAAAABxklEQVR42u3bMZaDMAwFQO5/abbcJjj/x+zmGQ9VEgiMGyHJ9nGuehzk5OTk5OTk5OTk5OTkT5Ef74/f665v/eLsq/+mTyMnJz8rUTWQYDSVhZyc/AwiyjhcjP/RP42cnDy+1+XZy6/jcZGTk/91bJmJPOTk5Hfm5+NwEVz3tcqCnHx5edXjmv70te4cOfl68niq5v1D+ub1v8xwkZOvLA/q4eoNfhlW+nyfnJy8a0xVN6hK66n8nJx8B3k6hnEGPv2VnJz8DNpWafKdZgmB94MKmpz84fJKlF6cLl8c5xDk5ORxyl0VwP1iDXJy8mQmN6h9q0iRZvTzc9Dk5I+UB6MZN6WrRteHewjIybeVVysi0tHMbB8gJyfvpl/7qrqKWvNRkZz8ufJUmW7ISfnpxeTke8vTRLureMM0PB4rOfnW8qC7nGbbaao/v2+OnHwbedX3qhb0z3TFyMnJu31z1W/jt3+X0ZOTby1PI0owwpnYQk5OHtvGHbC+bq4ydXJy8k5edaGrLQA3zUGTk5OnkSde5TTT4yIn30uetqer2d0gN0gY5ORby6s5nLjsve+m5OTbypc4yMnJycnJycnJycnJyVc8fgAH08A/VsAA/QAAAABJRU5ErkJggg=="
+
 import {
   currencyNames,
   // dynamicBuyLink,
@@ -500,6 +502,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     if (currentAssetView === AssetViews.DEPOSIT) {
       return <AssetDeposit
         assetAddress={'38pQXo6P9ycSLsPhUViFLdi2UHspwdcUCT'}
+        assetQR={fakeQRImage}
         base={this.state.selectedBase}
         handleBackClick={this.clearAsset}
       />
@@ -553,10 +556,21 @@ export const CryptoDotComWidget = createWidget(CryptoDotCom)
 
 function AssetDeposit ({
   assetAddress,
+  assetQR, 
   base,
   handleBackClick
 }: any) {
-  return (
+  const [showQR, setShowQR] = React.useState(false)
+
+  return showQR
+  ? (
+    <Box isFlex={true} column={true} $p={10}>
+      <img src={assetQR} />
+      <ActionButton onClick={() => setShowQR(false)} $mt={10} small={true} light={true} isFullWidth={false}>
+        Done
+      </ActionButton>
+    </Box>
+  ) : (
     <Box hasPadding={false}>
       <FlexItem
         hasPadding={true}
@@ -579,7 +593,7 @@ function AssetDeposit ({
           </Text>
         </FlexItem>
         <FlexItem $pl={5}>
-          <PlainButton>
+          <PlainButton onClick={() => setShowQR(true)}>
             <img width={25} src={QRIcon} />
           </PlainButton>
         </FlexItem>
