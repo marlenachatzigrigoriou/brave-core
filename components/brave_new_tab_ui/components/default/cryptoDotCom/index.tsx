@@ -14,11 +14,18 @@ import {
 } from './data'
 
 import {
+  ShowIcon,
+  HideIcon
+} from '../../default/exchangeWidget/shared-assets'
+
+import {
   ActionAnchor,
   ActionButton,
   AmountInputField,
   BackArrow,
+  Balance,
   BasicBox,
+  BlurIcon,
   Box,
   CryptoDotComIcon,
   FlexItem,
@@ -77,7 +84,8 @@ enum AssetViews {
 interface State {
   currentView: MainViews
   currentAssetView: AssetViews
-  selectedAsset: string
+  selectedBase: string
+  selectedQuote: string
 }
 
 interface Props {
@@ -114,8 +122,9 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     super(props)
     this.state = {
       currentView: MainViews.TOP,
-      currentAssetView: AssetViews.TRADE, // TODO: change back to DETAILS
-      selectedAsset: ''
+      currentAssetView: AssetViews.DETAILS,
+      selectedBase: '',
+      selectedQuote: ''
     }
   }
 
@@ -151,9 +160,10 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     })
   }
 
-  setSelectedAsset = (asset: string) => {
+  clearAsset = () => {
     this.setState({
-      selectedAsset: asset
+      selectedBase: '',
+      selectedQuote: ''
     })
   }
 
@@ -168,7 +178,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       if (!this.props.optInBTCPrice) {
         this.clearIntervals()
       }
-      this.setState({ selectedAsset: '' })
+      this.setState({ selectedBase: '' })
     }
 
     this.props.onOptInMarkets(show)
@@ -179,9 +189,13 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     this.checkSetRefreshInterval()
   }
 
-  handleAssetDetailClick = async (asset: string) => {
-    this.setSelectedAsset(asset)
-    await this.props.onAssetsDetailsRequested([asset])
+  handleAssetClick = async (base: string, quote: string, view: AssetViews) => {
+    this.setState({
+      selectedBase: base,
+      selectedQuote: quote || '',
+      currentAssetView: view || AssetViews.DETAILS
+    })
+    await this.props.onAssetsDetailsRequested([base])
   }
 
   onClickBuyTopDetail = () => {
@@ -280,7 +294,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   }
 
   renderAssetDetail () {
-    const { selectedAsset: currency } = this.state
+    const { selectedBase: currency } = this.state
     const { price = null, volume = null } = this.props.tickerPrices[currency] || {}
     const chartData = this.props.charts[currency] || []
     const pairs = this.props.supportedPairs[currency] || []
@@ -300,7 +314,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
         >
           <FlexItem>
             <BackArrow>
-              <CaratLeftIcon onClick={this.setSelectedAsset.bind(this, '')} />
+              <CaratLeftIcon onClick={this.clearAsset} />
             </BackArrow>
           </FlexItem>
           <FlexItem $pr={5}>
@@ -369,9 +383,10 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
               </UpperCaseText>
             </Text>
             {pairs.map((pair, i) => {
+              const [base, quote] = pair.split('_')
               const pairName = pair.replace('_', '/')
               return (
-                <ActionButton onClick={this.onClickBuyPair.bind(this, pairName)} key={pair} small={true} inline={true} $mr={i === 0 ? 5 : 0} $mb={5}>
+                <ActionButton onClick={this.handleAssetClick.bind(this, base, quote, AssetViews.TRADE)} key={pair} small={true} inline={true} $mr={i === 0 ? 5 : 0} $mb={5}>
                   {pairName}
                 </ActionButton>
               )
@@ -383,9 +398,9 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   }
 
   renderTitle () {
-    const { selectedAsset } = this.state
+    const { selectedBase } = this.state
     const { optInMarkets, showContent } = this.props
-    const shouldShowBackArrow = !selectedAsset && showContent && optInMarkets
+    const shouldShowBackArrow = !selectedBase && showContent && optInMarkets
 
     return (
       <Header showContent={showContent}>
@@ -430,19 +445,26 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     )
   }
 
-  renderTopView () {
+  renderCurrentView () {
     const { currentView } = this.state
     if (currentView === MainViews.TOP) {
       return <TopMovers
-        tickerPrices={this.props.tickerPrices}
         losersGainers={this.props.losersGainers}
-        topMovers={this.topMovers}
-        handleAssetDetailClick={this.handleAssetDetailClick}
+        handleAssetClick={this.handleAssetClick}
       />
     }
 
     if (currentView === MainViews.TRADE) {
-      return <Trade tradingPairs={this.props.tradingPairs} />
+      return <Trade
+        tickerPrices={this.props.tickerPrices}
+        losersGainers={this.props.losersGainers}
+        tradingPairs={this.props.tradingPairs}
+        handleAssetClick={this.handleAssetClick}
+      />
+    }
+
+    if (currentView === MainViews.BALANCE) {
+      return <BalanceSummary />
     }
 
     return <h4>Whoops... not done yet. 😬</h4> // TODO: delete
@@ -457,24 +479,24 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     if (currentAssetView === AssetViews.TRADE) {
       return <AssetTrade
         availableBalance={10.3671}
-        base={this.state.selectedAsset}
-        quote={'USDT'}
-        handleBackClick={this.setSelectedAsset.bind(this, '')}
+        base={this.state.selectedBase}
+        quote={this.state.selectedQuote}
+        handleBackClick={this.clearAsset}
       />
     }
 
-    return <h4>Whoops... asset view not done yet. 😬</h4> // TODO: delete
+    return null
   }
 
   renderIndex () {
-    const { selectedAsset } = this.state
+    const { selectedBase } = this.state
 
-    if (selectedAsset) {
+    if (selectedBase) {
       return this.renderAssetView()
     } else {
       return <>
         {this.renderNav()}
-        {this.renderTopView()}
+        {this.renderCurrentView()}
       </>
     }
   }
@@ -546,7 +568,11 @@ function AssetTrade ({
     }
   }
 
-  const getPlaceholderText = () => TradeModes.BUY ? `Trade (${base} from ${quote})` : `Trade (${base} to ${quote})`
+  const getPlaceholderText = () => tradeMode === TradeModes.BUY ? (
+    `Trade (${quote} to ${base})`
+  ) : (
+    `Trade (${base} to ${quote})`
+  )
 
   return (
     <Box hasPadding={false}>
@@ -582,7 +608,11 @@ function AssetTrade ({
         isFullWidth={true}
         hasBorder={true}
       >
-        <Text $mt={15} center={true}>{availableBalance} {base} available</Text>
+        {tradeMode === TradeModes.BUY ? (
+          <Text $mt={15} center={true}>{availableBalance} {quote} available</Text>
+        ) : (
+          <Text $mt={15} center={true}>{availableBalance} {base} available</Text>
+        )}
         <AmountInputField
           $mt={10} $mb={10}
           placeholder={getPlaceholderText()}
@@ -608,16 +638,66 @@ function AssetTrade ({
         hasPadding={true}
         isFullWidth={true}
       >
-        <ActionButton textOpacity={tradeAmount ? 1 : 0.6} $bg={tradeMode === TradeModes.BUY ? 'green' : 'red-bright'} upperCase={false}>{tradeMode} {base}</ActionButton>
+        <ActionButton disabled={!tradeAmount} textOpacity={tradeAmount ? 1 : 0.6} $bg={tradeMode === TradeModes.BUY ? 'green' : 'red-bright'} upperCase={false}>{tradeMode} {base}</ActionButton>
       </FlexItem>
     </Box>
   )
 }
 
+function BalanceSummary ({
+  availableBalance = 88121.01,
+  holdings = [
+    { currency: 'BTC', quantity: 10 },
+    { currency: 'ETH', quantity: 2 },
+    { currency: 'BAT', quantity: 1343 }
+  ]
+}) {
+  const [hideBalance, setHideBalance] = React.useState(true)
+
+  return <>
+    <BasicBox isFlex={true} $mb={18}>
+      <FlexItem>
+        <Text textColor='light' $mb={5} $fontSize={12}>Available Balance</Text>
+        <Balance hideBalance={hideBalance}>
+          <Text lineHeight={1.15} $fontSize={21}>{formattedNum(availableBalance)}</Text>
+        </Balance>
+      </FlexItem>
+      <FlexItem>
+        <BlurIcon onClick={() => setHideBalance(!hideBalance)}>
+          {
+            hideBalance
+            ? <ShowIcon />
+            : <HideIcon />
+          }
+        </BlurIcon>
+      </FlexItem>
+    </BasicBox>
+    <Text textColor='light' $mb={5} $fontSize={12}>Holdings</Text>
+    <List>
+      {holdings.map(({currency, quantity}) => {
+        return (
+          <ListItem key={currency} isFlex={true} $height={40}>
+            <FlexItem $pl={5} $pr={5}>
+              {renderIconAsset(currency.toLowerCase())}
+            </FlexItem>
+            <FlexItem>
+              <Text>{currency}</Text>
+            </FlexItem>
+            <FlexItem textAlign='right' flex={1}>
+              <Balance hideBalance={hideBalance}>
+                {(quantity !== null) && <Text lineHeight={1.15}>{quantity}</Text>}
+              </Balance>
+            </FlexItem>
+          </ListItem>
+        )
+      })}
+    </List>
+  </>
+}
+
 function TopMovers ({
-  tickerPrices,
-  losersGainers,
-  handleAssetDetailClick
+  losersGainers = { gainers: [], losers: [] },
+  handleAssetClick
 }: any) {
   enum FilterValues {
     LOSERS = 'losers',
@@ -635,11 +715,10 @@ function TopMovers ({
       {losersGainers[filter].map((asset: Record<string, any>) => {
         const currency = asset.pair.split('_')[0];
         const { percentChange } = asset
-        // const { price = null } = tickerPrices[currency] || {}
         const price = asset.lastPrice
 
         return (
-          <ListItem key={currency} isFlex={true} onClick={() => handleAssetDetailClick(currency)} $height={48}>
+          <ListItem key={currency} isFlex={true} onClick={() => handleAssetClick(currency)} $height={48}>
             <FlexItem $pl={5} $pr={5}>
               {renderIconAsset(currency.toLowerCase())}
             </FlexItem>
@@ -658,7 +737,10 @@ function TopMovers ({
   </>
 }
 
-function Trade ({ tradingPairs }: any) {
+function Trade ({
+  tradingPairs = [],
+  handleAssetClick
+}: any) {
   enum FilterValues {
     BTC = 'BTC',
     CRO = 'CRO',
@@ -681,7 +763,8 @@ function Trade ({ tradingPairs }: any) {
           const percentChange = "1.8"
 
           return (
-            <ListItem key={pair.pair} isFlex={true} $height={48}>
+            <ListItem key={pair.pair} isFlex={true} $height={48} onClick={() => handleAssetClick(pair.base, pair.quote, AssetViews.TRADE)}
+            >
               <FlexItem $pl={5} $pr={5}>
                 {renderIconAsset(pair.base.toLowerCase())}
               </FlexItem>

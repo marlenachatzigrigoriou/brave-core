@@ -7,7 +7,6 @@ interface StyleProps {
   as?: any
   $bg?: string
   center?: boolean
-  clickable?: boolean
   chartWidth?: number
   chartHeight?: number
   column?: boolean
@@ -181,7 +180,7 @@ export const PlainButton = styled('button')<StyleProps>`
   display: ${p => p.inline ? 'inline-block' : 'block'};
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: ${p => p.disabled ? 'auto' : 'pointer'};
   color: ${p => getColor(p.textColor) || '#ffffff'};
 
   &:focus {
@@ -204,6 +203,24 @@ export const PlainButton = styled('button')<StyleProps>`
       border-right: none;
     }
   }
+`
+
+export const ActionButton = styled('button')<StyleProps>`
+  --textOpacity: ${p => p.textOpacity || 1};
+  font-family: ${p => p.theme.fontFamily.heading};
+  font-size: ${p => (p.small ? '13px' : '15px')};
+  font-weight: ${p => (p.small ? '500' : 'bold')};
+  border-radius: 20px;
+  width: ${p => (p.inline ? 'auto' : (p.isFullWidth === false ? 'max-content' : '100%'))};
+  background: ${p => getColor(p.$bg) || (p.light ? 'rgba(255, 255, 255, 0.21)' : p.theme.primary)};
+  border: 0;
+  padding: ${p => (p.small ? '6px 10px' : '10px 0px')};
+  cursor: ${p => p.disabled ? 'auto' : 'pointer'};
+  color: rgba(255, 255, 255, var(--textOpacity));
+  line-height: 1;
+  text-transform: ${p => !p.upperCase ? 'none' : 'uppercase'};
+
+  ${getBoxStyle}
 `
 
 export const WidgetWrapper = styled('div')<StyleProps>`
