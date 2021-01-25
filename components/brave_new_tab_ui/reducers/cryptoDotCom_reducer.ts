@@ -65,7 +65,8 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
           ...state.cryptoDotComState.tickerPrices,
           ...payload.tickerPrices
         },
-        losersGainers: payload.losersGainers
+        losersGainers: payload.losersGainers,
+        tradingPairs: payload.pairs || state.cryptoDotComState.tradingPairs
       }
       break
 

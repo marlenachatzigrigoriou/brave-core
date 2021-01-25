@@ -124,7 +124,6 @@ interface ChartConfig {
 
 class CryptoDotCom extends React.PureComponent<Props, State> {
   private refreshInterval: any
-  private topMovers: string[] = Object.keys(currencyNames)
 
   constructor (props: Props) {
     super(props)
@@ -176,7 +175,8 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   }
 
   handleViewMarketsClick = () => {
-    this.props.onViewMarketsRequested(this.topMovers)
+    const markets = this.props.tradingPairs.map(pair => pair.pair)
+    this.props.onViewMarketsRequested(markets)
   }
 
   optInMarkets = (show: boolean) => {
@@ -253,7 +253,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   renderPreOptIn () {
     const { optInBTCPrice } = this.props
     const currency = 'BTC'
-    const { price = null } = this.props.tickerPrices[currency] || {}
+    const { price = null } = this.props.tickerPrices[`${currency}_USDT`] || {}
 
     const losersGainers = transformLosersGainers(this.props.losersGainers || {})
     const { percentChange = null } = losersGainers[currency] || {}
@@ -270,7 +270,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
           <FlexItem textAlign='right' flex={1}>
             {optInBTCPrice ? (
               <>
-                {(price !== null) && <Text>{(price)}</Text>}
+                {(price !== null) && <Text>{formattedNum(price)}</Text>}
                 {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
               </>
             ) : (
@@ -303,7 +303,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
 
   renderAssetDetail () {
     const { selectedBase: currency } = this.state
-    const { price = null, volume = null } = this.props.tickerPrices[currency] || {}
+    const { price = null, volume = null } = this.props.tickerPrices[`${currency}_USDT`] || {}
     const chartData = this.props.charts[currency] || []
     const pairs = this.props.supportedPairs[currency] || []
 
@@ -457,7 +457,6 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     const { currentView } = this.state
     if (currentView === MainViews.TOP) {
       return <TopMovers
-        tickerPrices={this.props.tickerPrices}
         losersGainers={this.props.losersGainers}
         handleAssetClick={this.handleAssetClick}
       />
@@ -779,14 +778,13 @@ function BalanceSummary ({
 }
 
 function TopMovers ({
-  tickerPrices = {},
-  losersGainers = { gainers: [], losers: [] },
+  losersGainers = {},
   handleAssetClick
 }: any) {
   enum FilterValues {
     LOSERS = 'losers',
     GAINERS = 'gainers'
-  }
+  }  
 
   const [filter, setFilter] = React.useState(FilterValues.GAINERS);
 
@@ -794,7 +792,6 @@ function TopMovers ({
     if (filter === FilterValues.GAINERS) {
       return b.percentChange - a.percentChange
     } else {
-      console.log(a, b)
       return a.percentChange - b.percentChange
     }
   }
@@ -805,12 +802,11 @@ function TopMovers ({
       <PlainButton onClick={() => setFilter(FilterValues.LOSERS)} isActive={filter === FilterValues.LOSERS}>Losers</PlainButton>
     </ButtonGroup>
     <List>
-      {losersGainers[filter]
+      {losersGainers[filter] && losersGainers[filter]
         .sort(sortTopMovers)
         .map((asset: Record<string, any>) => {
         const currency = asset.pair.split('_')[0];
-        const { percentChange } = asset
-        const { price = null } = tickerPrices[currency] || {}
+        const { percentChange, lastPrice: price } = asset
 
         return (
           <ListItem key={currency} isFlex={true} onClick={() => handleAssetClick(currency)} $height={48}>
@@ -838,6 +834,8 @@ function Trade ({
   tradingPairs = [],
   handleAssetClick
 }: any) {
+  const assetRankings = transformLosersGainers(losersGainers)
+
   enum FilterValues {
     BTC = 'BTC',
     CRO = 'CRO',
@@ -876,9 +874,8 @@ function Trade ({
         .filter((pair: Record<string, string>) => pair.quote === filter)
         .filter(searchFilter)
         .map((pair: Record<string, string>) => {
-          const { price = null } = tickerPrices[pair.base] || {}
-          losersGainers = transformLosersGainers(losersGainers)
-          const { percentChange = null } = losersGainers[pair.base] || {}
+          const { price = null } = tickerPrices[pair.pair] || {}
+          const { percentChange = null } = assetRankings[pair.base] || {}
 
           return (
             <ListItem key={pair.pair} isFlex={true} $height={48} onClick={() => handleAssetClick(pair.base, pair.quote, AssetViews.TRADE)}
@@ -890,7 +887,9 @@ function Trade ({
                 <Text>{pair.base}/{pair.quote}</Text>
               </FlexItem>
               <FlexItem textAlign='right' flex={1}>
-                {(price !== null) && <Text>{formattedNum(price)}</Text>}
+                {(price !== null) && <Text>
+                  {filter === FilterValues.USDT ? formattedNum(price) : price}
+                </Text>}
                 {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
               </FlexItem>
             </ListItem>

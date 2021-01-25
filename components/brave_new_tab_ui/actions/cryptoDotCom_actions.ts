@@ -12,8 +12,8 @@ export const onCryptoDotComMarketsRequested = () => {
   return action(types.MARKETS_REQUESTED)
 }
 
-export const onCryptoDotComMarketDataReceived = (tickerPrices: object, losersGainers: object[]) => {
-  return action(types.MARKETS_RECEIVED, { tickerPrices, losersGainers })
+export const onCryptoDotComMarketDataReceived = (tickerPrices: object, losersGainers: object[], pairs?: object[]) => {
+  return action(types.MARKETS_RECEIVED, { tickerPrices, losersGainers, pairs })
 }
 
 export const onCryptoDotComAssetsDetailsRequested = () => {

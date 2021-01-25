@@ -559,11 +559,12 @@ class NewTabPage extends React.Component<Props, State> {
 
   onCryptoDotComBtcOptIn = async () => {
     this.props.actions.onBtcPriceOptIn()
-    const [tickerPrices, losersGainers] = await Promise.all([
-      fetchCryptoDotComTickerPrices(['BTC']),
-      fetchCryptoDotComLosersGainers()
+    const [tickerPrices, losersGainers, pairs] = await Promise.all([
+      fetchCryptoDotComTickerPrices(['BTC_USDT']),
+      fetchCryptoDotComLosersGainers(),
+      fetchCryptoDotComSupportedPairs()
     ])
-    this.props.actions.onCryptoDotComMarketDataReceived(tickerPrices, losersGainers)
+    this.props.actions.onCryptoDotComMarketDataReceived(tickerPrices, losersGainers, pairs)
   }
 
   onCryptoDotComViewMarketsRequested = async (markets: string[]) => {
