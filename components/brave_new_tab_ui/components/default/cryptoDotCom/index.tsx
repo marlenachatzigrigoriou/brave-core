@@ -18,10 +18,11 @@ import {
 
 import {
   SearchIcon,
-  QRIcon,
   ShowIcon,
   HideIcon
 } from '../../default/exchangeWidget/shared-assets'
+
+import QRIcon from './assets/icons/qr-code.png'
 
 import {
   ActionAnchor,
