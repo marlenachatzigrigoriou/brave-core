@@ -492,6 +492,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
 
     if (currentAssetView === AssetViews.TRADE) {
       return <AssetTrade
+        tickerPrices={this.props.tickerPrices}
         availableBalance={10.3671}
         base={this.state.selectedBase}
         quote={this.state.selectedQuote}
@@ -618,7 +619,8 @@ function AssetTrade ({
   base,
   quote,
   availableBalance,
-  handleBackClick
+  handleBackClick,
+  tickerPrices
 }: Record<string, any>) {
 
   enum TradeModes {
@@ -633,9 +635,18 @@ function AssetTrade ({
     onehundred = 100
   }
 
-  const [tradeMode, setTradeMode] = React.useState(TradeModes.BUY);
-  const [tradePercentage, setTradePercentage] = React.useState<number | null>(null);
-  const [tradeAmount, setTradeAmount] = React.useState('');
+  const confirmDelay = 15
+
+  const [tradeMode, setTradeMode] = React.useState(TradeModes.BUY)
+  const [tradePercentage, setTradePercentage] = React.useState<number | null>(null)
+  const [tradeAmount, setTradeAmount] = React.useState('')
+  const [showConfirmScreen, setConfirmScreen] = React.useState(false)
+  const [counter, setCounter] = React.useState(confirmDelay)
+
+  let intervalId: any;
+  let timerId: any;
+  const unitPrice = tickerPrices[`${base}_${quote}`].price
+  const approxTotal = Number(tradeAmount) * unitPrice
 
   const handlePercentageClick = (percentage: number) => {
     const amount = (percentage / 100) * availableBalance
@@ -657,7 +668,57 @@ function AssetTrade ({
     `Trade (${base} to ${quote})`
   )
 
-  return (
+  React.useEffect(() => {
+    if (showConfirmScreen) {
+      timerId = counter > 0 && setInterval(() => {
+        if (counter > 0) {
+          console.log(counter)
+          setCounter(counter - 1)
+        }
+      }, 1000);
+    }
+    return () => clearInterval(timerId);
+  }, [counter, showConfirmScreen]);
+
+  const clearTimers = () => {
+    clearInterval(intervalId)
+    clearTimeout(timerId)
+    setCounter(confirmDelay)
+  }
+
+  const handlePurchaseClick = () => {
+    setConfirmScreen(true)
+  }
+
+  const handleConfirmClick = () => {
+    clearTimers()
+  }
+
+  const handleCancelClick = () => {
+    clearTimers()
+    setConfirmScreen(false)
+  }
+
+  return showConfirmScreen ? (
+    <Box>
+      <Text center={true} weight={600} $pb={15}>Confirm Order</Text>
+      <BasicBox $pb={7}>
+        <Text weight={600} textColor='light' $fontSize={12}>{tradeMode === TradeModes.BUY ? 'Buying' : 'Selling'}</Text>
+        <Text $fontSize={16}>{tradeAmount} {base}</Text>
+      </BasicBox>
+      <BasicBox $pb={7}>
+        <Text weight={600} textColor='light' $fontSize={12}>*Approx Market Price</Text>
+        <Text $fontSize={16}>{quote === 'USDT' ? formattedNum(unitPrice) : unitPrice} {base}/{quote}</Text>
+      </BasicBox>
+      <BasicBox $pb={7}>
+        <Text weight={600} textColor='light' $fontSize={12}>*Approx Total Received</Text>
+        <Text $fontSize={16}>{quote === 'USDT' ? formattedNum(approxTotal) : approxTotal} {quote}</Text>
+      </BasicBox>
+      <Text $pb={10} textColor='light' $fontSize={12}>* Market Price is determined at the time of Order Confirmation</Text>
+      <ActionButton onClick={handleConfirmClick}>Confirm ({counter}s)</ActionButton>
+      <PlainButton onClick={handleCancelClick} $pt={10} $m='0 auto' textColor='light'>Cancel</PlainButton>
+    </Box>
+  ) : (
     <Box $p={0}>
       <FlexItem
         hasPadding={true}
@@ -721,7 +782,7 @@ function AssetTrade ({
         hasPadding={true}
         isFullWidth={true}
       >
-        <ActionButton disabled={!tradeAmount} textOpacity={tradeAmount ? 1 : 0.6} $bg={tradeMode === TradeModes.BUY ? 'green' : 'red-bright'} upperCase={false}>{tradeMode} {base}</ActionButton>
+        <ActionButton onClick={handlePurchaseClick} disabled={!tradeAmount} textOpacity={tradeAmount ? 1 : 0.6} $bg={tradeMode === TradeModes.BUY ? 'green' : 'red-bright'} upperCase={false}>{tradeMode} {base}</ActionButton>
       </FlexItem>
     </Box>
   )
