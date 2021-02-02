@@ -25,7 +25,6 @@ import {
 import QRIcon from './assets/icons/qr-code.png'
 
 import {
-  ActionAnchor,
   ActionButton,
   AmountInputField,
   BackArrow,
@@ -292,9 +291,9 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
         <Text center={true} $fontSize={15}>
           {getLocale('cryptoDotComWidgetCopyTwo')}
         </Text>
-        <ActionAnchor onClick={this.onClickBuyBottom}>
+        <ActionButton onClick={this.onClickBuyBottom} $mt={10} $mb={15}>
           {getLocale('cryptoDotComWidgetBuyBtc')}
-        </ActionAnchor>
+        </ActionButton>
         <PlainButton textColor='light' onClick={this.handleViewMarketsClick} $m='0 auto'>
           {getLocale('cryptoDotComWidgetViewMarkets')}
         </PlainButton>
@@ -322,8 +321,8 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
           hasBorder={true}
         >
           <FlexItem>
-            <BackArrow>
-              <CaratLeftIcon onClick={this.clearAsset} />
+            <BackArrow onClick={this.clearAsset}>
+              <CaratLeftIcon />
             </BackArrow>
           </FlexItem>
           <FlexItem $pr={5}>
@@ -421,10 +420,8 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
             {'Crypto.com'}
           </StyledTitleText>
           {shouldShowBackArrow &&
-            <BackArrow marketView={true}>
-              <CaratLeftIcon
-                onClick={this.optInMarkets.bind(this, false)}
-              />
+            <BackArrow marketView={true} onClick={this.optInMarkets.bind(this, false)}>
+              <CaratLeftIcon />
             </BackArrow>
           }
         </StyledTitle>
@@ -538,7 +535,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
           primary: '#44B0FF',
           danger: 'rgba(234, 78, 92, 1)'
         }}>
-        <WidgetWrapper tabIndex={0}>
+        <WidgetWrapper>
           {this.renderTitle()}
           {(optInMarkets) ? (
             this.renderIndex()
@@ -580,8 +577,8 @@ function AssetDeposit ({
         hasBorder={true}
       >
         <FlexItem>
-          <BackArrow>
-            <CaratLeftIcon onClick={handleBackClick} />
+          <BackArrow onClick={handleBackClick}>
+            <CaratLeftIcon />
           </BackArrow>
         </FlexItem>
         <FlexItem $pr={5}>
@@ -645,7 +642,7 @@ function AssetTrade ({
 
   let intervalId: any;
   let timerId: any;
-  const unitPrice = tickerPrices[`${base}_${quote}`].price
+  const { price: unitPrice = null } = tickerPrices[`${base}_${quote}`] || {}
   const approxTotal = Number(tradeAmount) * unitPrice
 
   const handlePercentageClick = (percentage: number) => {
@@ -727,8 +724,8 @@ function AssetTrade ({
         hasBorder={true}
       >
         <FlexItem>
-          <BackArrow>
-            <CaratLeftIcon onClick={handleBackClick} />
+          <BackArrow onClick={handleBackClick}>
+            <CaratLeftIcon />
           </BackArrow>
         </FlexItem>
         <FlexItem $pr={5}>

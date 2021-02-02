@@ -55,6 +55,7 @@ interface StyleProps {
   small?: boolean
   large?: boolean
   style?: object
+  tabIndex?: number
   textAlign?: string
   textColor?: string
   userAuthed?: boolean
@@ -188,8 +189,8 @@ export const PlainButton = styled('button')<StyleProps>`
   cursor: ${p => p.disabled ? 'auto' : 'pointer'};
   color: ${p => getColor(p.textColor) || '#ffffff'};
 
-  &:focus {
-    outline: 0;
+  &:focus:not(:focus-visible) {
+    outline: none;
   }
 
   ${getTextStyle}
@@ -308,31 +309,14 @@ export const ListItem = styled('li')<StyleProps>`
   `};
 `
 
-export const BackArrow = styled('div')<StyleProps>`
+export const BackArrow = styled('PlainButton')<StyleProps>`
   width: 20px;
+  padding: 0;
   cursor: pointer;
   margin-left: ${p => p.marketView ? 60 : 0}px;
 `
 
-export const ActionButton = styled('button')<StyleProps>`
-  --textOpacity: ${p => p.textOpacity || 1};
-  font-family: ${p => p.theme.fontFamily.heading};
-  font-size: ${p => (p.small ? '13px' : '15px')};
-  font-weight: ${p => (p.small ? '500' : 'bold')};
-  border-radius: 20px;
-  width: ${p => (p.inline ? 'auto' : '100%')};
-  background: ${p => getColor(p.$bg) || (p.light ? 'rgba(255, 255, 255, 0.21)' : p.theme.primary)};
-  border: 0;
-  padding: ${p => (p.small ? '6px 10px' : '10px 0px')};
-  cursor: pointer;
-  color: rgba(255, 255, 255, var(--textOpacity));
-  line-height: 1;
-  text-transform: ${p => !p.upperCase ? 'none' : 'uppercase'};
-
-  ${getBoxStyle}
-`
-
-export const ActionAnchor = styled('span')<StyleProps>`
+export const ActionAnchor = styled('a')<StyleProps>`
   font-family: ${p => p.theme.fontFamily.heading};
   font-size: ${p => (p.small ? '13px' : '15px')};
   font-weight: ${p => (p.small ? '500' : 'bold')};
@@ -361,6 +345,7 @@ export const PlainAnchor = styled<StyleProps, 'a'>('a')`
 export const UpperCaseText = styled('span')<StyleProps>`
   text-transform: uppercase;
 `
+
 export const SVG = styled('svg')<StyleProps>`
   margin: 1rem 0;
 `
@@ -392,10 +377,6 @@ export const InputField = styled<{}, 'input'>('input')`
   padding-left: 5px;
 
   ${getBoxStyle}
-
-  &:focus {
-    outline: 0;
-  }
 `
 
 export const AmountInputField = styled(InputField)`
