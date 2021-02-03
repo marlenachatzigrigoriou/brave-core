@@ -174,7 +174,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     })
   }
 
-  handleViewMarketsClick = () => {
+  handleTradeClick = () => {
     const markets = this.props.tradingPairs.map(pair => pair.pair)
     this.props.onViewMarketsRequested(markets)
   }
@@ -281,21 +281,18 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
           </FlexItem>
           <FlexItem $pl={5}>
             <ActionButton onClick={this.onClickBuyTop} small={true} light={true}>
-              {getLocale('cryptoDotComWidgetBuy')}
+              {getLocale('cryptoDotComWidgetTrade')}
             </ActionButton>
           </FlexItem>
         </Box>
-        <Text center={true} $p='1em 0 0.5em' $fontSize={15}>
+        <Text $pt='1em' $fontSize={14}>
           {getLocale('cryptoDotComWidgetCopyOne')}
         </Text>
-        <Text center={true} $fontSize={15}>
-          {getLocale('cryptoDotComWidgetCopyTwo')}
-        </Text>
-        <ActionButton onClick={this.onClickBuyBottom} $mt={10} $mb={15}>
-          {getLocale('cryptoDotComWidgetBuyBtc')}
+        <ActionButton onClick={this.handleTradeClick} $mt={10} $mb={15}>
+          {getLocale('cryptoDotComWidgetTradeBtc')}
         </ActionButton>
-        <PlainButton textColor='light' onClick={this.handleViewMarketsClick} $m='0 auto'>
-          {getLocale('cryptoDotComWidgetViewMarkets')}
+        <PlainButton textColor='light' $m='0 auto'>
+          {getLocale('cryptoDotComWidgetConnect')}
         </PlainButton>
       </>
     )
@@ -337,7 +334,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
           <FlexItem $pl={5}>
             <ActionButton onClick={this.handleAssetClick.bind(this, currency, null, AssetViews.DEPOSIT)} small={true} light={true}>
               <UpperCaseText>
-                Deposit
+              {getLocale('cryptoDotComWidgetDeposit')}
               </UpperCaseText>
             </ActionButton>
           </FlexItem>
@@ -443,10 +440,10 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     const { currentView } = this.state
     return (
       <BasicBox isFlex={true} justify="start" $mb={13.5}>
-        <PlainButton $pl="0" weight={500} textColor={currentView === MainViews.TOP ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.TOP)}>Top</PlainButton>
-        <PlainButton weight={500} textColor={currentView === MainViews.TRADE ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.TRADE)}>Trade</PlainButton>
-        <PlainButton weight={500} textColor={currentView === MainViews.EVENTS ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.EVENTS)}>Events</PlainButton>
-        <PlainButton weight={500} textColor={currentView === MainViews.BALANCE ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.BALANCE)}>Balance</PlainButton>
+        <PlainButton $pl="0" weight={500} textColor={currentView === MainViews.TOP ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.TOP)}>{getLocale('cryptoDotComWidgetTop')}</PlainButton>
+        <PlainButton weight={500} textColor={currentView === MainViews.TRADE ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.TRADE)}>{getLocale('cryptoDotComWidgetTrade')}</PlainButton>
+        <PlainButton weight={500} textColor={currentView === MainViews.EVENTS ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.EVENTS)}>{getLocale('cryptoDotComWidgetEvents')}</PlainButton>
+        <PlainButton weight={500} textColor={currentView === MainViews.BALANCE ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.BALANCE)}>{getLocale('cryptoDotComWidgetBalance')}</PlainButton>
       </BasicBox>
     )
   }
@@ -477,7 +474,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       return <Events newsEvents={this.props.newsEvents} />
     }
 
-    return <h4>Whoops... not done yet. 😬</h4> // TODO: delete
+    return null;
   }
 
   renderAssetView () {
@@ -603,10 +600,10 @@ function AssetDeposit ({
         <Text $fontSize={13} weight={600}>{base} Address</Text>
         <Text $fontSize={13} breakWord={true}>{assetAddress}</Text>
         <ActionButton onClick={() => copyToClipboard(assetAddress)} $mt={5} $mb={15} small={true} light={true} isFullWidth={false}>
-          Copy Address
+          {getLocale('cryptoDotComWidgetCopyAddress')}
         </ActionButton>
-        <Text $fontSize={13} weight={600}>Send only {base} to this deposit address.</Text>
-        <Text $fontSize={13}>Sending coin or token other than {base} to this address may result in the loss of your deposit.</Text>
+        <Text $fontSize={13} weight={600}>{getLocale('cryptoDotComWidgetSendCaveatHeading', { currency: base })}</Text>
+        <Text $fontSize={13}>{getLocale('cryptoDotComWidgetSendCaveatBody', { currency: base })}</Text>
       </FlexItem>
     </Box>
   )
@@ -621,8 +618,13 @@ function AssetTrade ({
 }: Record<string, any>) {
 
   enum TradeModes {
-    BUY = 'Buy',
-    SELL = 'Sell'
+    BUY = 'buy',
+    SELL = 'sell'
+  }
+
+  const tradeModeLocaleStrings = {
+    buy: getLocale('cryptoDotComWidgetBuy'),
+    sell: getLocale('cryptoDotComWidgetSell')
   }
 
   enum Percentages {
@@ -660,9 +662,15 @@ function AssetTrade ({
   }
 
   const getPlaceholderText = () => tradeMode === TradeModes.BUY ? (
-    `Trade (${quote} to ${base})`
+    getLocale('cryptoDotComWidgetTradeTo', {
+      fromCurrency: quote,
+      toCurrency: base
+    })
   ) : (
-    `Trade (${base} to ${quote})`
+    getLocale('cryptoDotComWidgetTradeTo', {
+      fromCurrency: base,
+      toCurrency: quote
+    })
   )
 
   React.useEffect(() => {
@@ -696,24 +704,26 @@ function AssetTrade ({
     setConfirmScreen(false)
   }
 
+  const buyingString = getLocale('cryptoDotComWidgetBuying')
+  const sellingString = getLocale('cryptoDotComWidgetSelling')
   return showConfirmScreen ? (
     <Box>
-      <Text center={true} weight={600} $pb={15}>Confirm Order</Text>
+      <Text center={true} weight={600} $pb={15}>{getLocale('cryptoDotComWidgetConfirmOrder')}</Text>
       <BasicBox $pb={7}>
-        <Text weight={600} textColor='light' $fontSize={12}>{tradeMode === TradeModes.BUY ? 'Buying' : 'Selling'}</Text>
+        <Text weight={600} textColor='light' $fontSize={12}>{tradeMode === TradeModes.BUY ? buyingString : sellingString}</Text>
         <Text $fontSize={16}>{tradeAmount} {base}</Text>
       </BasicBox>
       <BasicBox $pb={7}>
-        <Text weight={600} textColor='light' $fontSize={12}>*Approx Market Price</Text>
+        <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxPrice')}</Text>
         <Text $fontSize={16}>{quote === 'USDT' ? formattedNum(unitPrice) : unitPrice} {base}/{quote}</Text>
       </BasicBox>
-      <BasicBox $pb={7}>
-        <Text weight={600} textColor='light' $fontSize={12}>*Approx Total Received</Text>
+      {tradeMode === TradeModes.SELL && <BasicBox $pb={7}>
+        <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxTotal')}</Text>
         <Text $fontSize={16}>{quote === 'USDT' ? formattedNum(approxTotal) : approxTotal} {quote}</Text>
-      </BasicBox>
-      <Text $pb={10} textColor='light' $fontSize={12}>* Market Price is determined at the time of Order Confirmation</Text>
-      <ActionButton onClick={handleConfirmClick}>Confirm ({counter}s)</ActionButton>
-      <PlainButton onClick={handleCancelClick} $pt={10} $m='0 auto' textColor='light'>Cancel</PlainButton>
+      </BasicBox>}
+      <Text $pb={10} textColor='light' $fontSize={12}>* {getLocale('cryptoDotComWidgetApproxFootnote')}</Text>
+      <ActionButton onClick={handleConfirmClick}>{getLocale('cryptoDotComWidgetConfirm')} ({counter}s)</ActionButton>
+      <PlainButton onClick={handleCancelClick} $pt={10} $m='0 auto' textColor='light'>{getLocale('cryptoDotComWidgetCancel')}</PlainButton>
     </Box>
   ) : (
     <Box $p={0}>
@@ -750,9 +760,9 @@ function AssetTrade ({
         hasBorder={true}
       >
         {tradeMode === TradeModes.BUY ? (
-          <Text $mt={15} center={true}>{availableBalance} {quote} available</Text>
+          <Text $mt={15} center={true}>{availableBalance} {quote} {getLocale('cryptoDotComWidgetAvailable')}</Text>
         ) : (
-          <Text $mt={15} center={true}>{availableBalance} {base} available</Text>
+          <Text $mt={15} center={true}>{availableBalance} {base} {getLocale('cryptoDotComWidgetAvailable')}</Text>
         )}
         <AmountInputField
           $mt={10} $mb={10}
@@ -779,7 +789,7 @@ function AssetTrade ({
         hasPadding={true}
         isFullWidth={true}
       >
-        <ActionButton onClick={handlePurchaseClick} disabled={!tradeAmount} textOpacity={tradeAmount ? 1 : 0.6} $bg={tradeMode === TradeModes.BUY ? 'green' : 'red-bright'} upperCase={false}>{tradeMode} {base}</ActionButton>
+        <ActionButton onClick={handlePurchaseClick} disabled={!tradeAmount} textOpacity={tradeAmount ? 1 : 0.6} $bg={tradeMode === TradeModes.BUY ? 'green' : 'red-bright'} upperCase={false}>{tradeModeLocaleStrings[tradeMode]} {base}</ActionButton>
       </FlexItem>
     </Box>
   )
@@ -798,7 +808,7 @@ function BalanceSummary ({
   return <>
     <BasicBox isFlex={true} $mb={18}>
       <FlexItem>
-        <Text textColor='light' $mb={5} $fontSize={12}>Available Balance</Text>
+        <Text textColor='light' $mb={5} $fontSize={12}>{getLocale('cryptoDotComWidgetAvailableBalance')}</Text>
         <Balance hideBalance={hideBalance}>
           <Text lineHeight={1.15} $fontSize={21}>{formattedNum(availableBalance)}</Text>
         </Balance>
@@ -813,7 +823,7 @@ function BalanceSummary ({
         </BlurIcon>
       </FlexItem>
     </BasicBox>
-    <Text textColor='light' $mb={5} $fontSize={12}>Holdings</Text>
+    <Text textColor='light' $mb={5} $fontSize={12}>{getLocale('cryptoDotComWidgetHoldings')}</Text>
     <List>
       {holdings.map(({currency, quantity}) => {
         return (
@@ -857,8 +867,8 @@ function TopMovers ({
 
   return <>
     <ButtonGroup>
-      <PlainButton onClick={() => setFilter(FilterValues.GAINERS)} isActive={filter === FilterValues.GAINERS}>Gainers</PlainButton>
-      <PlainButton onClick={() => setFilter(FilterValues.LOSERS)} isActive={filter === FilterValues.LOSERS}>Losers</PlainButton>
+      <PlainButton onClick={() => setFilter(FilterValues.GAINERS)} isActive={filter === FilterValues.GAINERS}>{getLocale('cryptoDotComWidgetGainers')}</PlainButton>
+      <PlainButton onClick={() => setFilter(FilterValues.LOSERS)} isActive={filter === FilterValues.LOSERS}>{getLocale('cryptoDotComWidgetLosers')}</PlainButton>
     </ButtonGroup>
     <List>
       {losersGainers[filter] && losersGainers[filter]
@@ -926,7 +936,7 @@ function Trade ({
     </ButtonGroup>
     <Box isFlex={true} $height={30} hasBottomBorder={false}>
       <img width={15} src={SearchIcon} />
-      <InputField value={searchInput} onChange={handleSearchChange} placeholder='Search' />
+      <InputField value={searchInput} onChange={handleSearchChange} placeholder={getLocale('cryptoDotComWidgetSearch')} />
     </Box>
     <List>
       {tradingPairs
