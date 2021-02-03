@@ -18,7 +18,8 @@
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_CONFIRM" desc="">Confirm</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_CONFIRM_ORDER" desc="">Confirm Order</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_APPROX_PRICE" desc="">Approx Market Price</message>
-    <message name="IDS_CRYPTO_DOT_COM_WIDGET_APPROX_TOTAL" desc="">Approx Total Received</message>
+    <message name="IDS_CRYPTO_DOT_COM_WIDGET_APPROX_TOTAL_RECEIVED" desc="">Approx Total Received</message>
+    <message name="IDS_CRYPTO_DOT_COM_WIDGET_APPROX_TOTAL_SPENT" desc="">Approx Total Spent</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_APPROX_FOOTNOTE" desc="">Market Price is determined at the time of Order Confirmation</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_AVAILABLE_BALANCE" desc="">Available Balance</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_HOLDINGS" desc="">Holdings</message>

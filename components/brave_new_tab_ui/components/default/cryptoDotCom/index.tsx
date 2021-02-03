@@ -707,24 +707,32 @@ function AssetTrade ({
   const buyingString = getLocale('cryptoDotComWidgetBuying')
   const sellingString = getLocale('cryptoDotComWidgetSelling')
   return showConfirmScreen ? (
-    <Box>
-      <Text center={true} weight={600} $pb={15}>{getLocale('cryptoDotComWidgetConfirmOrder')}</Text>
-      <BasicBox $pb={7}>
-        <Text weight={600} textColor='light' $fontSize={12}>{tradeMode === TradeModes.BUY ? buyingString : sellingString}</Text>
-        <Text $fontSize={16}>{tradeAmount} {base}</Text>
+    <>
+      <Box>
+        <Text center={true} weight={600} $pb={15}>{getLocale('cryptoDotComWidgetConfirmOrder')}</Text>
+        <BasicBox $pb={7}>
+          <Text weight={600} textColor='light' $fontSize={12}>{tradeMode === TradeModes.BUY ? buyingString : sellingString}</Text>
+          <Text $fontSize={16}>{tradeAmount} {base}</Text>
+        </BasicBox>
+        <BasicBox $pb={7}>
+          <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxPrice')}</Text>
+          <Text $fontSize={16}>{quote === 'USDT' ? formattedNum(unitPrice) : unitPrice} {base}/{quote}</Text>
+        </BasicBox>
+        <BasicBox $pb={7}>
+          {tradeMode === TradeModes.BUY ? (
+            <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxTotalSpent')}</Text>
+          ) : (
+            <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxTotalReceived')}</Text>
+          )}
+          <Text $fontSize={16}>{quote === 'USDT' ? formattedNum(approxTotal) : approxTotal} {quote}</Text>
+        </BasicBox>
+        <Text textColor='light' $fontSize={12}>* {getLocale('cryptoDotComWidgetApproxFootnote')}</Text>
+      </Box>
+      <BasicBox $pt={15}>
+        <ActionButton onClick={handleConfirmClick}>{getLocale('cryptoDotComWidgetConfirm')} ({counter}s)</ActionButton>
+        <PlainButton $pb={5} onClick={handleCancelClick} $pt={10} $m='0 auto' textColor='light'>{getLocale('cryptoDotComWidgetCancel')}</PlainButton>
       </BasicBox>
-      <BasicBox $pb={7}>
-        <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxPrice')}</Text>
-        <Text $fontSize={16}>{quote === 'USDT' ? formattedNum(unitPrice) : unitPrice} {base}/{quote}</Text>
-      </BasicBox>
-      {tradeMode === TradeModes.SELL && <BasicBox $pb={7}>
-        <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxTotal')}</Text>
-        <Text $fontSize={16}>{quote === 'USDT' ? formattedNum(approxTotal) : approxTotal} {quote}</Text>
-      </BasicBox>}
-      <Text $pb={10} textColor='light' $fontSize={12}>* {getLocale('cryptoDotComWidgetApproxFootnote')}</Text>
-      <ActionButton onClick={handleConfirmClick}>{getLocale('cryptoDotComWidgetConfirm')} ({counter}s)</ActionButton>
-      <PlainButton onClick={handleCancelClick} $pt={10} $m='0 auto' textColor='light'>{getLocale('cryptoDotComWidgetCancel')}</PlainButton>
-    </Box>
+    </>
   ) : (
     <Box $p={0}>
       <FlexItem
