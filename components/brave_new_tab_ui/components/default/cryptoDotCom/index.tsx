@@ -221,6 +221,10 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     this.props.onBuyCrypto()
   }
 
+  onClickConnectToCryptoDotCom = () => {
+    window.open(links.connectToCrypto, '_blank', 'noopener')
+  }
+
   onClickBuyPair = (pair: string) => {
     // TODO: delete code below?
     // window.open(dynamicBuyLink(pair), '_blank', 'noopener')
@@ -291,7 +295,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
         <ActionButton onClick={this.handleTradeClick} $mt={10} $mb={15}>
           {getLocale('cryptoDotComWidgetTradeBtc')}
         </ActionButton>
-        <PlainButton textColor='light' $m='0 auto'>
+        <PlainButton onClick={this.onClickConnectToCryptoDotCom} textColor='light' $m='0 auto'>
           {getLocale('cryptoDotComWidgetConnect')}
         </PlainButton>
       </>
@@ -479,7 +483,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
 
   renderAssetView () {
     const { currentAssetView } = this.state
-    
+
     if (currentAssetView === AssetViews.DETAILS) {
       return this.renderAssetDetail()
     }
@@ -551,7 +555,7 @@ export const CryptoDotComWidget = createWidget(CryptoDotCom)
 
 function AssetDeposit ({
   assetAddress,
-  assetQR, 
+  assetQR,
   base,
   handleBackClick
 }: any) {
@@ -775,7 +779,7 @@ function AssetTrade ({
         <AmountInputField
           $mt={10} $mb={10}
           placeholder={getPlaceholderText()}
-          onChange={handleAmountChange} 
+          onChange={handleAmountChange}
           value={tradeAmount}
         />
         <BasicBox isFlex={true} justify="center" $mb={13.5}>
@@ -861,7 +865,7 @@ function TopMovers ({
   enum FilterValues {
     LOSERS = 'losers',
     GAINERS = 'gainers'
-  }  
+  }
 
   const [filter, setFilter] = React.useState(FilterValues.GAINERS);
 
