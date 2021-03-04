@@ -30,6 +30,7 @@ namespace brave_shields {
 
 class AdBlockRegionalServiceManager;
 class AdBlockCustomFiltersService;
+class AdBlockSubscriptionServiceManager;
 
 const char kAdBlockResourcesFilename[] = "resources.json";
 const char kAdBlockComponentName[] = "Brave Ad Block Updater";
@@ -65,6 +66,7 @@ class AdBlockService : public AdBlockBaseService {
 
   AdBlockRegionalServiceManager* regional_service_manager();
   AdBlockCustomFiltersService* custom_filters_service();
+  AdBlockSubscriptionServiceManager* subscription_service_manager();
 
  protected:
   bool Init() override;
@@ -88,6 +90,8 @@ class AdBlockService : public AdBlockBaseService {
       regional_service_manager_;
   std::unique_ptr<brave_shields::AdBlockCustomFiltersService>
       custom_filters_service_;
+  std::unique_ptr<brave_shields::AdBlockSubscriptionServiceManager>
+      subscription_service_manager_;
 
   BraveComponent::Delegate* component_delegate_;
 
