@@ -34,7 +34,11 @@ import {
   fetchCryptoDotComTickerPrices,
   fetchCryptoDotComLosersGainers,
   fetchCryptoDotComCharts,
-  fetchCryptoDotComSupportedPairs
+  fetchCryptoDotComSupportedPairs,
+  fetchCryptoDotComConnectStatus,
+  fetchCryptoDotComAccountBalances,
+  fetchCryptoDotComDepositAddress,
+  fetchCryptoDotComNewsEvents
 } from '../../api/cryptoDotCom'
 import { generateQRData } from '../../binance-utils'
 
@@ -318,6 +322,10 @@ class NewTabPage extends React.Component<Props, State> {
     this.props.actions.setGeminiHideBalance(hide)
   }
 
+  setCryptoDotComHideBalance = (hide: boolean) => {
+    this.props.actions.setCryptoDotComHideBalance(hide)
+  }
+
   disconnectBinance = () => {
     this.props.actions.disconnectBinance()
   }
@@ -576,13 +584,16 @@ class NewTabPage extends React.Component<Props, State> {
     this.props.actions.onCryptoDotComMarketDataReceived(tickerPrices, losersGainers)
   }
 
-  onCryptoDotComAssetsDetailsRequested = async (assets: string[]) => {
+  onCryptoDotComAssetsDetailsRequested = async (base: string, quote: string) => {
     this.props.actions.onCryptoDotComAssetsDetailsRequested()
-    const [charts, pairs] = await Promise.all([
-      fetchCryptoDotComCharts(assets),
-      fetchCryptoDotComSupportedPairs()
+    const [charts, pairs, tickerPrices, depositAddress] = await Promise.all([
+      fetchCryptoDotComCharts([`${base}_${quote}`]),
+      fetchCryptoDotComSupportedPairs(),
+      fetchCryptoDotComTickerPrices([`${base}_${quote}`]),
+      fetchCryptoDotComDepositAddress(base)
     ])
-    this.props.actions.onCryptoDotComAssetsDetailsReceived(charts, pairs)
+
+    this.props.actions.onCryptoDotComAssetsDetailsReceived(charts, pairs, tickerPrices, depositAddress)
   }
 
   onCryptoDotComRefreshRequested = async () => {
@@ -594,7 +605,10 @@ class NewTabPage extends React.Component<Props, State> {
     const requests = [
       fetchCryptoDotComTickerPrices(assets),
       fetchCryptoDotComLosersGainers(),
-      fetchCryptoDotComCharts(assets)
+      fetchCryptoDotComCharts(assets),
+      fetchCryptoDotComConnectStatus(),
+      fetchCryptoDotComAccountBalances(),
+      fetchCryptoDotComNewsEvents()
     ]
 
     // These are rarely updated, so we only need to fetch them
@@ -603,9 +617,9 @@ class NewTabPage extends React.Component<Props, State> {
       requests.push(fetchCryptoDotComSupportedPairs())
     }
 
-    const [tickerPrices, losersGainers, charts, newSupportedPairs] = await Promise.all(requests)
+    const [tickerPrices, losersGainers, charts, isConnected, accountBalances, newsEvents, newSupportedPairs] = await Promise.all(requests)
 
-    this.props.actions.onCryptoDotComRefreshedDataReceived(tickerPrices, losersGainers, charts, newSupportedPairs)
+    this.props.actions.onCryptoDotComRefreshedDataReceived(tickerPrices, losersGainers, charts, isConnected, accountBalances, newsEvents, newSupportedPairs)
   }
 
   getCurrencyList = () => {
@@ -1009,6 +1023,7 @@ class NewTabPage extends React.Component<Props, State> {
         onBtcPriceOptIn={this.onCryptoDotComBtcOptIn}
         onBuyCrypto={this.props.actions.onCryptoDotComBuyCrypto}
         onOptInMarkets={this.props.actions.onCryptoDotComOptInMarkets}
+        onSetHideBalance={this.setCryptoDotComHideBalance}
       />
     )
   }

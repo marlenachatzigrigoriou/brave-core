@@ -4,7 +4,7 @@
     <message name="IDS_SETTINGS_NEW_TAB_CRYPTO_DOT_COM" desc="The label for Crypto.com show/hide feature toggle">Crypto.com</message>
     <message name="IDS_BRAVE_NEW_TAB_CRYPTO_DOT_COM_WIDGET_DESC" desc="crypto.com widget description">View markets and buy crypto from crypto.com.</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_TRADE_BTC" desc="">Trade BTC</message>
-    <message name="IDS_CRYPTO_DOT_COM_WIDGET_CONNECT" desc="">Connect to crypto.com</message>
+    <message name="IDS_CRYPTO_DOT_COM_WIDGET_CONNECT" desc="">Connect</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_SHOW_PRICE" desc="">Show Price</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_COPY_ONE" desc="">Connect to Crypto.com to view buy and trade crypto, view account balance and upcoming events.</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_BUY_BTC" desc="">Buy Bitcoin</message>

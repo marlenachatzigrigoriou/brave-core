@@ -9,6 +9,8 @@ interface SupportedPair {
   base: string
   pair: string
   quote: string
+  price: string
+  quantity: string
 }
 
 function performSideEffect (fn: () => void): void {
@@ -44,6 +46,8 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
       })
       break
 
+    // TODO(simonhong): Remove this.
+    // We will only show market after connected.
     case types.MARKETS_REQUESTED:
       state = { ...state }
       state.cryptoDotComState = {
@@ -56,6 +60,7 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
       })
       break
 
+    // TODO(simonhong): Remove this.
     case types.MARKETS_RECEIVED:
       state = { ...state }
       state.cryptoDotComState = {
@@ -87,6 +92,14 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
           ...state.cryptoDotComState.charts,
           ...payload.charts
         },
+        tickerPrices: {
+          ...state.cryptoDotComState.tickerPrices,
+          ...payload.tickerPrices
+        },
+        depositAddresses: {
+          ...state.cryptoDotComState.depositAddresses,
+          ...payload.depositAddress
+        },
         supportedPairs: reducePairs(payload.pairs) || {},
         tradingPairs: payload.pairs
       }
@@ -97,6 +110,17 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
       state.cryptoDotComState = {
         ...state.cryptoDotComState,
         fetchStatus: 'refreshing'
+      }
+      break
+
+    case types.HIDE_BALANCE:
+      state = { ...state }
+      state = {
+        ...state,
+        cryptoDotComState: {
+          ...state.cryptoDotComState,
+          hideBalance: payload.hide
+        }
       }
       break
 
@@ -113,7 +137,10 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
           ...state.cryptoDotComState.charts,
           ...payload.charts
         },
+        newsEvents: payload.newsEvents,
         losersGainers: payload.losersGainers,
+        isConnected: payload.isConnected,
+        accountBalances: payload.accountBalances,
         supportedPairs: payload.pairs ? reducePairs(payload.pairs) : state.cryptoDotComState.supportedPairs,
         tradingPairs: payload.pairs ? payload.pairs : state.cryptoDotComState.tradingPairs
       }

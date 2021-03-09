@@ -8,8 +8,6 @@ import { ThemeProvider } from 'styled-components'
 import createWidget from '../widget/index'
 import { StyledTitleTab } from '../widgetTitleTab'
 
-const fakeQRImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALkAAAC5CAAAAABRxsGAAAABxklEQVR42u3bMZaDMAwFQO5/abbcJjj/x+zmGQ9VEgiMGyHJ9nGuehzk5OTk5OTk5OTk5OTkT5Ef74/f665v/eLsq/+mTyMnJz8rUTWQYDSVhZyc/AwiyjhcjP/RP42cnDy+1+XZy6/jcZGTk/91bJmJPOTk5Hfm5+NwEVz3tcqCnHx5edXjmv70te4cOfl68niq5v1D+ub1v8xwkZOvLA/q4eoNfhlW+nyfnJy8a0xVN6hK66n8nJx8B3k6hnEGPv2VnJz8DNpWafKdZgmB94MKmpz84fJKlF6cLl8c5xDk5ORxyl0VwP1iDXJy8mQmN6h9q0iRZvTzc9Dk5I+UB6MZN6WrRteHewjIybeVVysi0tHMbB8gJyfvpl/7qrqKWvNRkZz8ufJUmW7ISfnpxeTke8vTRLureMM0PB4rOfnW8qC7nGbbaao/v2+OnHwbedX3qhb0z3TFyMnJu31z1W/jt3+X0ZOTby1PI0owwpnYQk5OHtvGHbC+bq4ydXJy8k5edaGrLQA3zUGTk5OnkSde5TTT4yIn30uetqer2d0gN0gY5ORby6s5nLjsve+m5OTbypc4yMnJycnJycnJycnJyVc8fgAH08A/VsAA/QAAAABJRU5ErkJggg=="
-
 import {
   currencyNames,
   // dynamicBuyLink,
@@ -93,13 +91,19 @@ interface State {
   currentAssetView: AssetViews
   selectedBase: string
   selectedQuote: string
+  clientAuthUrl: string
+  isConnected: boolean
 }
 
+// TODO(simonhong): Remove isConnected from props.
 interface Props {
   showContent: boolean
   optInTotal: boolean
   optInBTCPrice: boolean
   optInMarkets: boolean
+  hideBalance: boolean
+  accountBalances: Record<string, any>
+  depositAddresses: Record<string, any>
   tickerPrices: Record<string, TickerPrice>
   losersGainers: Record<string, AssetRanking[]>
   supportedPairs: Record<string, string[]>
@@ -112,9 +116,10 @@ interface Props {
   onBtcPriceOptIn: () => Promise<void>
   onUpdateActions: () => Promise<void>
   onViewMarketsRequested: (assets: string[]) => void
-  onAssetsDetailsRequested: (assets: string[]) => void
+  onAssetsDetailsRequested: (base: string, quote: string) => void
   onBuyCrypto: () => void
   onOptInMarkets: (show: boolean) => void
+  onSetHideBalance: (hide: boolean) => void
 }
 interface ChartConfig {
   data: Array<any>
@@ -123,7 +128,8 @@ interface ChartConfig {
 }
 
 class CryptoDotCom extends React.PureComponent<Props, State> {
-  private refreshInterval: any
+  private refreshDataInterval: any
+  private checkConnectedStateInterval: any
 
   constructor (props: Props) {
     super(props)
@@ -131,25 +137,56 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       currentView: MainViews.TOP,
       currentAssetView: AssetViews.DETAILS,
       selectedBase: '',
-      selectedQuote: ''
+      selectedQuote: '',
+      clientAuthUrl: '',
+      isConnected: false,
     }
   }
 
   componentDidMount () {
-    const { optInBTCPrice, optInMarkets } = this.props
-
-    if (optInBTCPrice || optInMarkets) {
+    if (this.props.optInBTCPrice) {
       this.checkSetRefreshInterval()
     }
+
+    chrome.cryptoDotCom.isLoggedIn(async (loggedIn: boolean) => {
+      if (loggedIn) {
+        chrome.cryptoDotCom.isConnected(async (isConnected: boolean) => {
+          // TODO(simonhong): Cleanup and classify these callbacks.
+          this.btcPriceOptIn()
+          this.setState({ isConnected })
+          this.checkSetRefreshInterval()
+          await this.props.onUpdateActions()
+        })
+        this.setCheckIsConnectedInterval()
+      }
+    })
+
+    this.getClientURL()
   }
 
   componentWillUnmount () {
     this.clearIntervals()
   }
 
+  getClientURL = () => {
+    chrome.cryptoDotCom.getClientUrl((clientAuthUrl: string) => {
+      this.setState({ clientAuthUrl })
+    })
+  }
+
+  setCheckIsConnectedInterval = () => {
+    if (!this.checkConnectedStateInterval) {
+      this.checkConnectedStateInterval = setInterval(() => {
+        chrome.cryptoDotCom.isConnected((isConnected: boolean) => {
+          this.setState({ isConnected })
+        })
+      }, 30000)
+    }
+  }
+
   checkSetRefreshInterval = () => {
-    if (!this.refreshInterval) {
-      this.refreshInterval = setInterval(async () => {
+    if (!this.refreshDataInterval) {
+      this.refreshDataInterval = setInterval(async () => {
         await this.props.onUpdateActions()
           .catch((_e) => console.debug('Could not update crypto.com data'))
       }, 30000)
@@ -157,8 +194,11 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   }
 
   clearIntervals = () => {
-    clearInterval(this.refreshInterval)
-    this.refreshInterval = null
+    clearInterval(this.refreshDataInterval)
+    this.refreshDataInterval = null
+
+    clearInterval(this.checkConnectedStateInterval)
+    this.checkConnectedStateInterval = null
   }
 
   setMainView = (view: MainViews) => {
@@ -172,11 +212,6 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       selectedBase: '',
       selectedQuote: ''
     })
-  }
-
-  handleTradeClick = () => {
-    const markets = this.props.tradingPairs.map(pair => pair.pair)
-    this.props.onViewMarketsRequested(markets)
   }
 
   optInMarkets = (show: boolean) => {
@@ -203,12 +238,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       selectedQuote: quote || '',
       currentAssetView: view || AssetViews.DETAILS
     })
-    await this.props.onAssetsDetailsRequested([base])
-  }
-
-  onClickBuyTopDetail = () => {
-    window.open(links.buyTopDetail, '_blank', 'noopener')
-    this.props.onBuyCrypto()
+    await this.props.onAssetsDetailsRequested(base, quote ? quote : 'USDT')
   }
 
   onClickBuyTop = () => {
@@ -216,13 +246,8 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     this.props.onBuyCrypto()
   }
 
-  onClickBuyBottom = () => {
-    window.open(links.buyBottom, '_blank', 'noopener')
-    this.props.onBuyCrypto()
-  }
-
   onClickConnectToCryptoDotCom = () => {
-    window.open(links.connectToCrypto, '_blank', 'noopener')
+    window.open(this.state.clientAuthUrl, '_self', 'noopener')
   }
 
   onClickBuyPair = (pair: string) => {
@@ -283,21 +308,13 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
               </PlainButton>
             )}
           </FlexItem>
-          <FlexItem $pl={5}>
-            <ActionButton onClick={this.onClickBuyTop} small={true} light={true}>
-              {getLocale('cryptoDotComWidgetTrade')}
-            </ActionButton>
-          </FlexItem>
         </Box>
         <Text $pt='1em' $fontSize={14}>
           {getLocale('cryptoDotComWidgetCopyOne')}
         </Text>
-        <ActionButton onClick={this.handleTradeClick} $mt={10} $mb={15}>
-          {getLocale('cryptoDotComWidgetTradeBtc')}
-        </ActionButton>
-        <PlainButton onClick={this.onClickConnectToCryptoDotCom} textColor='light' $m='0 auto'>
+        <ActionButton onClick={this.onClickConnectToCryptoDotCom} $mt={10} $mb={15}>
           {getLocale('cryptoDotComWidgetConnect')}
-        </PlainButton>
+        </ActionButton>
       </>
     )
   }
@@ -305,9 +322,8 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   renderAssetDetail () {
     const { selectedBase: currency } = this.state
     const { price = null, volume = null } = this.props.tickerPrices[`${currency}_USDT`] || {}
-    const chartData = this.props.charts[currency] || []
+    const chartData = this.props.charts[`${currency}_USDT`] || []
     const pairs = this.props.supportedPairs[currency] || []
-
     const losersGainers = transformLosersGainers(this.props.losersGainers || {})
     const { percentChange = null } = losersGainers[currency] || {}
 
@@ -407,12 +423,8 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   }
 
   renderTitle () {
-    const { selectedBase } = this.state
-    const { optInMarkets, showContent } = this.props
-    const shouldShowBackArrow = !selectedBase && showContent && optInMarkets
-
     return (
-      <Header showContent={showContent}>
+      <Header showContent={this.props.showContent}>
         <StyledTitle>
           <CryptoDotComIcon>
             <CryptoDotComLogo />
@@ -420,11 +432,6 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
           <StyledTitleText>
             {'Crypto.com'}
           </StyledTitleText>
-          {shouldShowBackArrow &&
-            <BackArrow marketView={true} onClick={this.optInMarkets.bind(this, false)}>
-              <CaratLeftIcon />
-            </BackArrow>
-          }
         </StyledTitle>
       </Header>
     )
@@ -471,7 +478,12 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     }
 
     if (currentView === MainViews.BALANCE) {
-      return <BalanceSummary />
+      return <BalanceSummary
+        hideBalance={this.props.hideBalance}
+        onSetHideBalance={this.props.onSetHideBalance}
+        availableBalance={this.props.accountBalances.total_balance}
+        holdings={this.props.accountBalances.accounts}
+      />
     }
 
     if (currentView === MainViews.EVENTS) {
@@ -481,28 +493,40 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     return null;
   }
 
+  getAvailableBalanceForCurrency = (currency: string) => {
+    const account = this.props.accountBalances.accounts.find((account: Record<string, any>) => account.currency === currency)
+    return normalizeAvailable(account.available, account.currency_decimals)
+  }
+
   renderAssetView () {
-    const { currentAssetView } = this.state
+    const { currentAssetView, selectedBase, selectedQuote } = this.state
 
     if (currentAssetView === AssetViews.DETAILS) {
       return this.renderAssetDetail()
     }
 
     if (currentAssetView === AssetViews.TRADE) {
+      const baseAvailable = this.getAvailableBalanceForCurrency(selectedBase)
+      const quoteAvailable = this.getAvailableBalanceForCurrency(selectedQuote)
+      const pair = this.props.tradingPairs.filter(pair => pair.base === selectedBase && pair.quote === selectedQuote)
       return <AssetTrade
         tickerPrices={this.props.tickerPrices}
-        availableBalance={10.3671}
-        base={this.state.selectedBase}
-        quote={this.state.selectedQuote}
+        availableBalanceBase={baseAvailable}
+        availableBalanceQuote={quoteAvailable}
+        base={selectedBase}
+        quote={selectedQuote}
+        priceDecimals={pair[0] ? pair[0].price : '0'}
+        quantityDecimals={pair[0] ? pair[0].quantity : '0'}
         handleBackClick={this.clearAsset}
       />
     }
 
     if (currentAssetView === AssetViews.DEPOSIT) {
+      const depositAddress = this.props.depositAddresses[selectedBase]
       return <AssetDeposit
-        assetAddress={'38pQXo6P9ycSLsPhUViFLdi2UHspwdcUCT'}
-        assetQR={fakeQRImage}
-        base={this.state.selectedBase}
+        assetAddress={depositAddress ? depositAddress.address : ''}
+        assetQR={depositAddress ? depositAddress.qr_code : ''}
+        base={selectedBase}
         handleBackClick={this.clearAsset}
       />
     }
@@ -524,9 +548,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   }
 
   render () {
-    const { showContent, optInMarkets } = this.props
-
-    if (!showContent) {
+    if (!this.props.showContent) {
       return this.renderTitleTab()
     }
 
@@ -538,7 +560,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
         }}>
         <WidgetWrapper>
           {this.renderTitle()}
-          {(optInMarkets) ? (
+          {(this.state.isConnected) ? (
             this.renderIndex()
           ) : (
             this.renderPreOptIn()
@@ -616,9 +638,12 @@ function AssetDeposit ({
 function AssetTrade ({
   base,
   quote,
-  availableBalance,
+  availableBalanceBase,
+  availableBalanceQuote,
   handleBackClick,
-  tickerPrices
+  tickerPrices,
+  priceDecimals,
+  quantityDecimals,
 }: Record<string, any>) {
 
   enum TradeModes {
@@ -652,6 +677,8 @@ function AssetTrade ({
   const approxTotal = Number(tradeAmount) * unitPrice
 
   const handlePercentageClick = (percentage: number) => {
+    const availableBalance =
+        (tradeMode === TradeModes.BUY ? availableBalanceQuote : availableBalanceBase)
     const amount = (percentage / 100) * availableBalance
     setTradeAmount(`${amount}`)
     setTradePercentage(percentage)
@@ -700,7 +727,31 @@ function AssetTrade ({
   }
 
   const handleConfirmClick = () => {
+    // Call order api.
+    const order = {
+      'instrument_name': `${base}_${quote}`,
+      'type': 'MARKET',
+    }
+
+    if (tradeMode === TradeModes.BUY) {
+      order['side'] = 'BUY'
+      order['notional'] = normalizeAvailable(approxTotal.toString(), Number(priceDecimals))
+    } else {
+      order['side'] = 'SELL'
+      order['quantity'] = normalizeAvailable(tradeAmount.toString(), Number(quantityDecimals))
+    }
+
+    // Do we need show order feedback?
+    chrome.cryptoDotCom.createMarketOrder(order , (success: boolean) => { console.log(success)})
     clearTimers()
+    setTradeAmount('')
+    setConfirmScreen(false)
+  }
+
+  // Reset amount whenever changing between buy/sell.
+  const handleSetTradeMode = (mode: TradeModes) => {
+    setTradeMode(mode)
+    setTradeAmount('')
   }
 
   const handleCancelClick = () => {
@@ -761,8 +812,8 @@ function AssetTrade ({
         </FlexItem>
         <FlexItem $pl={5}>
           <ButtonGroup>
-            <PlainButton onClick={() => setTradeMode(TradeModes.BUY)} textColor='green'>Buy</PlainButton>
-            <PlainButton onClick={() => setTradeMode(TradeModes.SELL)} textColor='red'>Sell</PlainButton>
+            <PlainButton onClick={() => handleSetTradeMode(TradeModes.BUY)} textColor='green'>Buy</PlainButton>
+            <PlainButton onClick={() => handleSetTradeMode(TradeModes.SELL)} textColor='red'>Sell</PlainButton>
           </ButtonGroup>
         </FlexItem>
       </FlexItem>
@@ -772,9 +823,9 @@ function AssetTrade ({
         hasBorder={true}
       >
         {tradeMode === TradeModes.BUY ? (
-          <Text $mt={15} center={true}>{availableBalance} {quote} {getLocale('cryptoDotComWidgetAvailable')}</Text>
+          <Text $mt={15} center={true}>{availableBalanceQuote} {quote} {getLocale('cryptoDotComWidgetAvailable')}</Text>
         ) : (
-          <Text $mt={15} center={true}>{availableBalance} {base} {getLocale('cryptoDotComWidgetAvailable')}</Text>
+          <Text $mt={15} center={true}>{availableBalanceBase} {base} {getLocale('cryptoDotComWidgetAvailable')}</Text>
         )}
         <AmountInputField
           $mt={10} $mb={10}
@@ -807,26 +858,31 @@ function AssetTrade ({
   )
 }
 
+function normalizeAvailable (available: string, currency_decimals: number) {
+  return Number(Number(available).toFixed(currency_decimals)).toString()
+}
+
 function BalanceSummary ({
-  availableBalance = 88121.01,
+  onSetHideBalance = (hide: boolean) => {},
+  hideBalance = true,
+  availableBalance = '',
   holdings = [
-    { currency: 'BTC', quantity: 10 },
-    { currency: 'ETH', quantity: 2 },
-    { currency: 'BAT', quantity: 1343 }
+    { currency: '', available: '', currency_decimals: 0 }
   ]
 }) {
-  const [hideBalance, setHideBalance] = React.useState(true)
+  // Only shows non-empty holdings.
+  holdings = holdings.filter(item => item.available !== '0')
 
   return <>
     <BasicBox isFlex={true} $mb={18}>
       <FlexItem>
         <Text textColor='light' $mb={5} $fontSize={12}>{getLocale('cryptoDotComWidgetAvailableBalance')}</Text>
         <Balance hideBalance={hideBalance}>
-          <Text lineHeight={1.15} $fontSize={21}>{formattedNum(availableBalance)}</Text>
+          <Text lineHeight={1.15} $fontSize={21}>{formattedNum(Number(availableBalance))}</Text>
         </Balance>
       </FlexItem>
       <FlexItem>
-        <BlurIcon onClick={() => setHideBalance(!hideBalance)}>
+        <BlurIcon onClick={() => onSetHideBalance(!hideBalance)}>
           {
             hideBalance
             ? <ShowIcon />
@@ -837,7 +893,7 @@ function BalanceSummary ({
     </BasicBox>
     <Text textColor='light' $mb={5} $fontSize={12}>{getLocale('cryptoDotComWidgetHoldings')}</Text>
     <List>
-      {holdings.map(({currency, quantity}) => {
+      {holdings.map(({currency, available, currency_decimals}) => {
         return (
           <ListItem key={currency} isFlex={true} $height={40}>
             <FlexItem $pl={5} $pr={5}>
@@ -848,7 +904,7 @@ function BalanceSummary ({
             </FlexItem>
             <FlexItem textAlign='right' flex={1}>
               <Balance hideBalance={hideBalance}>
-                {(quantity !== null) && <Text lineHeight={1.15}>{quantity}</Text>}
+                {(available !== null) && <Text lineHeight={1.15}>{normalizeAvailable(available, currency_decimals)}</Text>}
               </Balance>
             </FlexItem>
           </ListItem>
@@ -985,7 +1041,7 @@ function Events ({
 }: any) {
   return <List>
     {newsEvents.map((event: any) => (
-      <ListItem $p={10}>
+      <ListItem $p={10} key={event.redirect_url}>
         <Text $fontSize={12} textColor='light'>{event.updated_at}</Text>
         <Text $fontSize={12}>{event.content}</Text>
         <Link $fontSize={12} $mt={5} inlineBlock={true} href={event.redirect_url} target='_blank'>{event.redirect_title}</Link>
