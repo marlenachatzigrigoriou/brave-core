@@ -119,10 +119,7 @@ export const defaultState: NewTab.State = {
     authInvalid: false
   },
   cryptoDotComState: {
-    optInTotal: false,
     optInBTCPrice: false,
-    optInMarkets: false,
-    isConnected: false,
     hideBalance: true,
     fetchStatus: null,
     tickerPrices: {},

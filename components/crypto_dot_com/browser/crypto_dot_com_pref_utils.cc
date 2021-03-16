@@ -6,15 +6,24 @@
 #include "brave/components/crypto_dot_com/browser/crypto_dot_com_pref_utils.h"
 
 #include "components/prefs/pref_registry_simple.h"
+#include "components/prefs/pref_service.h"
 #include "brave/components/crypto_dot_com/common/pref_names.h"
 
 namespace crypto_dot_com {
 
 void RegisterPrefs(PrefRegistrySimple* registry) {
   registry->RegisterBooleanPref(kCryptoDotComNewTabPageShowCryptoDotCom, true);
+  registry->RegisterStringPref(kCryptoDotComAccessToken, "");
+
+  // Obsolete prefs. Added 03/2021
   registry->RegisterBooleanPref(kCryptoDotComHasBoughtCrypto, false);
   registry->RegisterBooleanPref(kCryptoDotComHasInteracted, false);
-  registry->RegisterStringPref(kCryptoDotComAccessToken, "");
+}
+
+void MigrateObsoletePrefs(PrefService* prefs) {
+  // Added 03/2021
+  prefs->ClearPref(kCryptoDotComHasBoughtCrypto);
+  prefs->ClearPref(kCryptoDotComHasInteracted);
 }
 
 }  // namespace crypto_dot_com

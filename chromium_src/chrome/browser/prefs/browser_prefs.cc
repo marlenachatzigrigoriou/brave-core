@@ -8,12 +8,17 @@
 #include "brave/browser/search/ntp_utils.h"
 #include "brave/browser/themes/brave_dark_mode_utils.h"
 #include "brave/components/brave_sync/brave_sync_prefs.h"
+#include "brave/components/crypto_dot_com/browser/buildflags/buildflags.h"
 #include "chrome/browser/profiles/profile.h"
 #include "components/gcm_driver/gcm_buildflags.h"
 #include "third_party/widevine/cdm/buildflags.h"
 
 #if BUILDFLAG(ENABLE_WIDEVINE)
 #include "brave/browser/widevine/widevine_utils.h"
+#endif
+
+#if BUILDFLAG(CRYPTO_DOT_COM_ENABLED)
+#include "brave/components/crypto_dot_com/browser/crypto_dot_com_pref_utils.h"
 #endif
 
 #define MigrateObsoleteProfilePrefs MigrateObsoleteProfilePrefs_ChromiumImpl
@@ -50,6 +55,11 @@ void MigrateObsoleteProfilePrefs(Profile* profile) {
   // Added 9/2020
 #if !defined(OS_ANDROID)
   new_tab_page::MigrateNewTabPagePrefs(profile);
+#endif
+
+  // Added 03/2021
+#if BUILDFLAG(CRYPTO_DOT_COM_ENABLED)
+  crypto_dot_com::MigrateObsoletePrefs(profile->GetPrefs());
 #endif
 }
 

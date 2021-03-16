@@ -35,14 +35,6 @@ function getCryptoDotComSupportedPairs () {
   })
 }
 
-function getCryptoDotComConnectStatus () {
-  return new Promise((resolve: Function) => {
-    chrome.cryptoDotCom.isConnected((connected: boolean) => {
-      resolve(connected)
-    })
-  })
-}
-
 function getCryptoDotComAccountBalances () {
   return new Promise((resolve: Function) => {
     // TODO(simonhong): Handle success state.
@@ -88,10 +80,6 @@ export async function fetchCryptoDotComCharts (assets: string[]) {
 
 export async function fetchCryptoDotComSupportedPairs () {
   return getCryptoDotComSupportedPairs().then((resp: any) => resp)
-}
-
-export async function fetchCryptoDotComConnectStatus () {
-  return getCryptoDotComConnectStatus().then((connected: boolean) => connected)
 }
 
 export async function fetchCryptoDotComAccountBalances () {

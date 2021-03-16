@@ -10,8 +10,6 @@ import { StyledTitleTab } from '../widgetTitleTab'
 
 import {
   currencyNames,
-  // dynamicBuyLink,
-  links
 } from './data'
 
 import {
@@ -95,12 +93,9 @@ interface State {
   isConnected: boolean
 }
 
-// TODO(simonhong): Remove isConnected from props.
 interface Props {
   showContent: boolean
-  optInTotal: boolean
   optInBTCPrice: boolean
-  optInMarkets: boolean
   hideBalance: boolean
   accountBalances: Record<string, any>
   depositAddresses: Record<string, any>
@@ -115,10 +110,7 @@ interface Props {
   onDisableWidget: () => void
   onBtcPriceOptIn: () => Promise<void>
   onUpdateActions: () => Promise<void>
-  onViewMarketsRequested: (assets: string[]) => void
   onAssetsDetailsRequested: (base: string, quote: string) => void
-  onBuyCrypto: () => void
-  onOptInMarkets: (show: boolean) => void
   onSetHideBalance: (hide: boolean) => void
 }
 interface ChartConfig {
@@ -144,20 +136,18 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   }
 
   componentDidMount () {
-    if (this.props.optInBTCPrice) {
-      this.checkSetRefreshInterval()
-    }
-
     chrome.cryptoDotCom.isLoggedIn(async (loggedIn: boolean) => {
       if (loggedIn) {
         chrome.cryptoDotCom.isConnected(async (isConnected: boolean) => {
-          // TODO(simonhong): Cleanup and classify these callbacks.
-          this.btcPriceOptIn()
+          // Get initial data update at startup.
+          await this.props.onUpdateActions()
           this.setState({ isConnected })
           this.checkSetRefreshInterval()
-          await this.props.onUpdateActions()
         })
+        // Periodically check connect status if logged in.
         this.setCheckIsConnectedInterval()
+      } else if (this.props.optInBTCPrice) {
+        this.checkSetRefreshInterval()
       }
     })
 
@@ -214,19 +204,6 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     })
   }
 
-  optInMarkets = (show: boolean) => {
-    if (show) {
-      this.checkSetRefreshInterval()
-    } else {
-      if (!this.props.optInBTCPrice) {
-        this.clearIntervals()
-      }
-      this.setState({ selectedBase: '' })
-    }
-
-    this.props.onOptInMarkets(show)
-  }
-
   btcPriceOptIn = () => {
     this.props.onBtcPriceOptIn()
     this.checkSetRefreshInterval()
@@ -241,23 +218,8 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     await this.props.onAssetsDetailsRequested(base, quote ? quote : 'USDT')
   }
 
-  onClickBuyTop = () => {
-    window.open(links.buyTop, '_blank', 'noopener')
-    this.props.onBuyCrypto()
-  }
-
   onClickConnectToCryptoDotCom = () => {
     window.open(this.state.clientAuthUrl, '_self', 'noopener')
-  }
-
-  onClickBuyPair = (pair: string) => {
-    // TODO: delete code below?
-    // window.open(dynamicBuyLink(pair), '_blank', 'noopener')
-    // this.props.onBuyCrypto()
-
-    this.setState({
-      currentAssetView: AssetViews.TRADE
-    })
   }
 
   plotData ({ data, chartHeight, chartWidth }: ChartConfig) {

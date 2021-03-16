@@ -190,11 +190,9 @@ declare namespace NewTab {
 
   type CryptoDotComFetchStatus = 'completed' | 'refreshing' | 'pending'
 
+
   export interface CryptoDotComWidgetState {
-    optInTotal: boolean
     optInBTCPrice: boolean
-    optInMarkets: boolean
-    isConnected: boolean
     hideBalance: boolean
     fetchStatus: CryptoDotComFetchStatus | null
     tickerPrices: Record<string, any>

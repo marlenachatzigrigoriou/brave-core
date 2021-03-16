@@ -207,50 +207,6 @@ CryptoDotComIsSupportedFunction::Run() {
 }
 
 ExtensionFunction::ResponseAction
-CryptoDotComOnBuyCryptoFunction::Run() {
-  if (!IsCryptoDotComAPIAvailable(browser_context())) {
-    return RespondNow(Error("Not available in Tor/incognito/guest profile"));
-  }
-
-  Profile* profile = Profile::FromBrowserContext(browser_context());
-  profile->GetPrefs()->SetBoolean(kCryptoDotComHasBoughtCrypto, true);
-  profile->GetPrefs()->SetBoolean(kCryptoDotComHasInteracted, true);
-
-  return RespondNow(NoArguments());
-}
-
-ExtensionFunction::ResponseAction
-CryptoDotComOnInteractionFunction::Run() {
-  if (!IsCryptoDotComAPIAvailable(browser_context())) {
-    return RespondNow(Error("Not available in Tor/incognito/guest profile"));
-  }
-
-  Profile* profile = Profile::FromBrowserContext(browser_context());
-  profile->GetPrefs()->SetBoolean(kCryptoDotComHasInteracted, true);
-
-  return RespondNow(NoArguments());
-}
-
-ExtensionFunction::ResponseAction
-CryptoDotComGetInteractionsFunction::Run() {
-  if (!IsCryptoDotComAPIAvailable(browser_context())) {
-    return RespondNow(Error("Not available in Tor/incognito/guest profile"));
-  }
-
-  Profile* profile = Profile::FromBrowserContext(browser_context());
-  bool has_bought = profile->GetPrefs()->GetBoolean(
-      kCryptoDotComHasBoughtCrypto);
-  bool has_interacted = profile->GetPrefs()->GetBoolean(
-      kCryptoDotComHasInteracted);
-
-  base::DictionaryValue interactions;
-  interactions.SetBoolean("boughtCrypto", has_bought);
-  interactions.SetBoolean("interacted", has_interacted);
-
-  return RespondNow(OneArgument(std::move(interactions)));
-}
-
-ExtensionFunction::ResponseAction
 CryptoDotComGetAccountBalancesFunction::Run() {
   if (!IsCryptoDotComAPIAvailable(browser_context())) {
     return RespondNow(Error("Not available in Tor/incognito/guest profile"));
