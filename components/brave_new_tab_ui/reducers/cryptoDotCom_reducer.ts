@@ -53,8 +53,22 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
         ...state.cryptoDotComState,
         isConnected: payload.isConnected
       }
+
+      // Reset account specific data if disconnected.
+      if (!payload.isConnected) {
+        state.cryptoDotComState.newsEvents = []
+        state.cryptoDotComState.depositAddresses = {}
+        state.cryptoDotComState.accountBalances = {}
+      }
       break;
 
+    case types.SET_DISCONNECT_IN_PROGRESS:
+      state = { ...state }
+      state.cryptoDotComState = {
+        ...state.cryptoDotComState,
+        disconnectInProgress: payload.inProgress
+      }
+      break;
     case types.ALL_ASSETS_DETAILS_RECEIVED:
       state = { ...state }
       state.cryptoDotComState = {

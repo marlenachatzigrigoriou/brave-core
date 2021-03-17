@@ -195,6 +195,7 @@ declare namespace NewTab {
     optInBTCPrice: boolean
     hideBalance: boolean
     isConnected: boolean
+    disconnectInProgress: boolean
     fetchStatus: CryptoDotComFetchStatus | null
     tickerPrices: Record<string, any>
     losersGainers: Record<string, any>

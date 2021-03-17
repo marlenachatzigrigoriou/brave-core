@@ -44,6 +44,17 @@ import {
   WidgetWrapper,
   UpperCaseText
 } from './style'
+
+// TODO(simonhong): Temporarily copied.
+// Use cryptodotcom style disconnect view if ready.
+import {
+  DisconnectWrapper,
+  DisconnectTitle,
+  DisconnectCopy,
+  DisconnectButton,
+  DismissAction
+} from '../binance/style'
+
 import CryptoDotComLogo from './assets/cryptoDotCom-logo'
 import { CaratLeftIcon } from 'brave-ui/components/icons'
 import icons from './assets/icons'
@@ -97,6 +108,7 @@ interface Props {
   optInBTCPrice: boolean
   hideBalance: boolean
   isConnected: boolean
+  disconnectInProgress: boolean
   accountBalances: Record<string, any>
   depositAddresses: Record<string, any>
   tickerPrices: Record<string, TickerPrice>
@@ -113,6 +125,8 @@ interface Props {
   onAssetsDetailsRequested: (base: string, quote: string) => void
   onSetHideBalance: (hide: boolean) => void
   onIsConnected: (connected: boolean) => void
+  disconnect: () => void
+  cancelDisconnect: () => void
 }
 interface ChartConfig {
   data: Array<any>
@@ -168,7 +182,6 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
         this.setCheckIsConnectedInterval()
 
         chrome.cryptoDotCom.isConnected(async (isConnected: boolean) => {
-          // Get initial data update at startup.
           await this.props.onUpdateActions()
           this.checkSetRefreshInterval()
           this.props.onIsConnected(isConnected)
@@ -176,6 +189,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       } else if (this.props.optInBTCPrice) {
         await this.props.onUpdateActions()
         this.checkSetRefreshInterval()
+        this.props.onIsConnected(false)
       }
     })
   }
@@ -526,6 +540,26 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     }
   }
 
+  // TODO(simonhong): Use cryptodotcom style view if ready.
+  renderDisconnectView = () => {
+    return (
+      <DisconnectWrapper>
+        <DisconnectTitle>
+          {getLocale('binanceWidgetDisconnectTitle')}
+        </DisconnectTitle>
+        <DisconnectCopy>
+          {getLocale('binanceWidgetDisconnectText')}
+        </DisconnectCopy>
+        <DisconnectButton onClick={this.props.disconnect}>
+          {getLocale('binanceWidgetDisconnectButton')}
+        </DisconnectButton>
+        <DismissAction onClick={this.props.cancelDisconnect}>
+          {getLocale('binanceWidgetCancelText')}
+        </DismissAction>
+      </DisconnectWrapper>
+    )
+  }
+
   render () {
     if (!this.props.showContent) {
       return this.renderTitleTab()
@@ -538,12 +572,18 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
           danger: 'rgba(234, 78, 92, 1)'
         }}>
         <WidgetWrapper>
-          {this.renderTitle()}
-          {(this.props.isConnected) ? (
-            this.renderIndex()
-          ) : (
-            this.renderPreOptIn()
-          )}
+          {
+            this.props.disconnectInProgress
+            ? this.renderDisconnectView()
+            : <>
+                {this.renderTitle()}
+                {(this.props.isConnected) ? (
+                  this.renderIndex()
+                ) : (
+                  this.renderPreOptIn()
+                )}
+              </>
+          }
         </WidgetWrapper>
       </ThemeProvider>
     )

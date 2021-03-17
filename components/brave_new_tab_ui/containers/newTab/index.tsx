@@ -600,11 +600,18 @@ class NewTabPage extends React.Component<Props, State> {
     this.props.actions.onCryptoDotComRefreshedDataReceived(tickerPrices, losersGainers, charts, accountBalances, newsEvents, pairs)
   }
 
+  setCryptoDotComDisconnectInProgress = () => {
+    this.props.actions.setCryptoDotComDisconnectInProgress(true)
+  }
+
+  cancelCryptoDotComDisconnect = () => {
+    this.props.actions.setCryptoDotComDisconnectInProgress(false)
+  }
 
   disconnectCryptoDotCom = () => {
     chrome.cryptoDotCom.disconnect((success: boolean) => {
-      console.log(`cryptoDotCom disconnect ${success}`)
       this.props.actions.onIsConnectedReceived(false)
+      this.props.actions.setCryptoDotComDisconnectInProgress(false)
     })
   }
 
@@ -989,7 +996,7 @@ class NewTabPage extends React.Component<Props, State> {
     }
 
     if (cryptoDotComState.isConnected) {
-      menuActions['onDisconnect'] = this.disconnectCryptoDotCom
+      menuActions['onDisconnect'] = this.setCryptoDotComDisconnectInProgress
       menuActions['onRefreshData'] = this.onCryptoDotComRefreshRequested
     }
 
@@ -1015,6 +1022,8 @@ class NewTabPage extends React.Component<Props, State> {
         onBtcPriceOptIn={this.props.actions.onBtcPriceOptIn}
         onIsConnected={this.props.actions.onIsConnectedReceived}
         onSetHideBalance={this.setCryptoDotComHideBalance}
+        disconnect={this.disconnectCryptoDotCom}
+        cancelDisconnect={this.cancelCryptoDotComDisconnect}
       />
     )
   }

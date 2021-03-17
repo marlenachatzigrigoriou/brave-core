@@ -28,6 +28,10 @@ export const onCryptoDotComRefreshedDataReceived = (tickerPrices: object, losers
   return action(types.REFRESHED_DATA_RECEIVED, { tickerPrices, losersGainers, charts, accountBalances, newsEvents, pairs })
 }
 
+export const setCryptoDotComDisconnectInProgress = (inProgress: boolean) => action(types.SET_DISCONNECT_IN_PROGRESS, {
+  inProgress
+})
+
 export const setCryptoDotComHideBalance = (hide: boolean) => {
   return action(types.HIDE_BALANCE, { hide })
 }
