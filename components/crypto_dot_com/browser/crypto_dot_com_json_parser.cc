@@ -21,6 +21,9 @@
 //     return out.str();
 // }
 
+// TODO(simonhong): Don't use intermediate struct.
+// During the converting between string and double, precision loss could be
+// happened and this could give invalid numbers to users in the widget.
 void CryptoDotComJSONParser::CalculateAssetVolume(
     const double v,
     const double h,

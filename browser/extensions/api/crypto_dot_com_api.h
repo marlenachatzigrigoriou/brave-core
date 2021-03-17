@@ -108,6 +108,15 @@ class CryptoDotComIsConnectedFunction : public ExtensionFunction {
   void OnIsConnectedResult(bool connected);
 };
 
+class CryptoDotComDisconnectFunction : public ExtensionFunction {
+ public:
+  DECLARE_EXTENSION_FUNCTION("cryptoDotCom.disconnect", UNKNOWN)
+
+ protected:
+  ~CryptoDotComDisconnectFunction() override {}
+  ResponseAction Run() override;
+};
+
 class CryptoDotComIsLoggedInFunction : public ExtensionFunction {
  public:
   DECLARE_EXTENSION_FUNCTION("cryptoDotCom.isLoggedIn", UNKNOWN)

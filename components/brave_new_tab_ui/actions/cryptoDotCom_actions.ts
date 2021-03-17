@@ -20,6 +20,10 @@ export const onCryptoDotComAssetsDetailsReceived = (charts: object, tickerPrices
   return action(types.ALL_ASSETS_DETAILS_RECEIVED, { charts, tickerPrices, depositAddress })
 }
 
+export const onIsConnectedReceived = (isConnected: boolean) => {
+  return action(types.ON_IS_CONNECTED_RECEIVED, { isConnected })
+}
+
 export const onCryptoDotComRefreshRequested = () => {
   return action(types.ON_REFRESH_DATA)
 }

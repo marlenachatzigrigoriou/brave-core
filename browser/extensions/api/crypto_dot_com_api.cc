@@ -257,6 +257,15 @@ ExtensionFunction::ResponseAction CryptoDotComIsConnectedFunction::Run() {
   return RespondLater();
 }
 
+ExtensionFunction::ResponseAction CryptoDotComDisconnectFunction::Run() {
+  if (!IsCryptoDotComAPIAvailable(browser_context())) {
+    return RespondNow(Error("Not available in Tor/incognito/guest profile"));
+  }
+
+  auto* service = GetCryptoDotComService(browser_context());
+  return RespondNow(OneArgument(base::Value(service->Disconnect())));
+}
+
 ExtensionFunction::ResponseAction CryptoDotComIsLoggedInFunction::Run() {
   if (!IsCryptoDotComAPIAvailable(browser_context())) {
     return RespondNow(Error("Not available in Tor/incognito/guest profile"));

@@ -217,6 +217,10 @@ bool CryptoDotComService::IsLoggedIn() {
   return !access_token_.empty();
 }
 
+bool CryptoDotComService::Disconnect() {
+  return SetAccessToken("");
+}
+
 bool CryptoDotComService::IsConnected(IsConnectedCallback callback) {
   if (access_token_.empty()) {
     std::move(callback).Run(false);
@@ -274,6 +278,8 @@ void CryptoDotComService::OnGetDepositAddress(
     std::move(callback).Run(empty_dict_.Clone(), false);
     return;
   }
+
+  DVLOG(2) << __func__ << " #### " << body;
 
   // Valid response has "0" for "code" property.
   if (const auto* code = response_value->FindStringKey("code")) {
@@ -352,7 +358,7 @@ bool CryptoDotComService::CreateMarketOrder(
 
   std::string body;
   base::JSONWriter::Write(order, &body);
-  LOG(ERROR) << __func__ << " ##### " << body;
+  DVLOG(2) << __func__ << " ##### " << body;
   return NetworkRequest(url, "POST", body, headers,
                         std::move(internal_callback));
 }
@@ -362,8 +368,8 @@ void CryptoDotComService::OnCreateMarketOrder(
     const int status, const std::string& body,
     const std::map<std::string, std::string>& headers) {
 
-  LOG(ERROR) << __func__ << " ### " << status;
-  LOG(ERROR) << __func__ << " ### " << body;
+  DVLOG(2) << __func__ << " ### " << status;
+  DVLOG(2) << __func__ << " ### " << body;
   std::move(callback).Run(true);
 }
 
@@ -407,7 +413,7 @@ bool CryptoDotComService::LoadTokenFromPrefs() {
   }
 
   if (!OSCrypt::DecryptString(encrypted_access_token, &access_token_)) {
-    LOG(ERROR) << "Could not decrypt and save Gemini access token";
+    LOG(ERROR) << "Could not decrypt and save crypto.com access token";
     return false;
   }
 
@@ -428,7 +434,7 @@ bool CryptoDotComService::NetworkRequest(const GURL &url,
   request->method = method;
   request->headers = headers;
 
-  LOG(ERROR) << __func__ << " ##### " << url;
+  DVLOG(2) << __func__ << " ##### " << url;
 
   auto url_loader = network::SimpleURLLoader::Create(
       std::move(request), GetNetworkTrafficAnnotationTag());

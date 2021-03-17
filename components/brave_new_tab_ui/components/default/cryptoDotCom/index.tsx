@@ -90,13 +90,13 @@ interface State {
   selectedBase: string
   selectedQuote: string
   clientAuthUrl: string
-  isConnected: boolean
 }
 
 interface Props {
   showContent: boolean
   optInBTCPrice: boolean
   hideBalance: boolean
+  isConnected: boolean
   accountBalances: Record<string, any>
   depositAddresses: Record<string, any>
   tickerPrices: Record<string, TickerPrice>
@@ -112,6 +112,7 @@ interface Props {
   onUpdateActions: () => Promise<void>
   onAssetsDetailsRequested: (base: string, quote: string) => void
   onSetHideBalance: (hide: boolean) => void
+  onIsConnected: (connected: boolean) => void
 }
 interface ChartConfig {
   data: Array<any>
@@ -119,6 +120,8 @@ interface ChartConfig {
   chartWidth: number
 }
 
+// TODO(simonhong): Don't cache account related infos in local storage.
+// We should fetch every time when we refer to.
 class CryptoDotCom extends React.PureComponent<Props, State> {
   private refreshDataInterval: any
   private checkConnectedStateInterval: any
@@ -131,18 +134,28 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       selectedBase: '',
       selectedQuote: '',
       clientAuthUrl: '',
-      isConnected: false,
     }
   }
 
+  // TODO(simonhong): Don't trigger refresh when this widget is not visible.
+  // Handle interval based on connect state changes here.
+  componentDidUpdate(prevProps: Props) {
+  }
+
+  // TODO(simonhong): Use different interval for BTC and connected.
   componentDidMount () {
+    // Only try refreshing when logged in state.
     chrome.cryptoDotCom.isLoggedIn(async (loggedIn: boolean) => {
       if (loggedIn) {
         chrome.cryptoDotCom.isConnected(async (isConnected: boolean) => {
-          // Get initial data update at startup.
-          await this.props.onUpdateActions()
-          this.setState({ isConnected })
-          this.checkSetRefreshInterval()
+          if (isConnected) {
+            // Get initial data update at startup.
+            await this.props.onUpdateActions()
+            this.checkSetRefreshInterval()
+          } else if (this.props.optInBTCPrice) {
+            this.checkSetRefreshInterval()
+          }
+          this.props.onIsConnected(isConnected)
         })
         // Periodically check connect status if logged in.
         this.setCheckIsConnectedInterval()
@@ -168,7 +181,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     if (!this.checkConnectedStateInterval) {
       this.checkConnectedStateInterval = setInterval(() => {
         chrome.cryptoDotCom.isConnected((isConnected: boolean) => {
-          this.setState({ isConnected })
+          this.props.onIsConnected(isConnected)
         })
       }, 30000)
     }
@@ -522,7 +535,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
         }}>
         <WidgetWrapper>
           {this.renderTitle()}
-          {(this.state.isConnected) ? (
+          {(this.props.isConnected) ? (
             this.renderIndex()
           ) : (
             this.renderPreOptIn()
@@ -820,6 +833,7 @@ function AssetTrade ({
   )
 }
 
+// TODO(simonhong): Rename this.
 function normalizeAvailable (available: string, currency_decimals: number) {
   return Number(Number(available).toFixed(currency_decimals)).toString()
 }

@@ -194,6 +194,7 @@ declare namespace NewTab {
   export interface CryptoDotComWidgetState {
     optInBTCPrice: boolean
     hideBalance: boolean
+    isConnected: boolean
     fetchStatus: CryptoDotComFetchStatus | null
     tickerPrices: Record<string, any>
     losersGainers: Record<string, any>

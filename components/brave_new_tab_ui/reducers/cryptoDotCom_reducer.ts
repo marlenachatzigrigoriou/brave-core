@@ -60,6 +60,14 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
       }
       break
 
+    case types.ON_IS_CONNECTED_RECEIVED:
+      state = { ...state }
+      state.cryptoDotComState = {
+        ...state.cryptoDotComState,
+        isConnected: payload.isConnected
+      }
+      break;
+
     case types.ALL_ASSETS_DETAILS_RECEIVED:
       state = { ...state }
       state.cryptoDotComState = {

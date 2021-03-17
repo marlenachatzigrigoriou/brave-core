@@ -206,6 +206,7 @@ declare namespace chrome.cryptoDotCom {
   const getNewsEvents: (callback: (newsEvents: any, success: boolean) => void) => {}
   const createMarketOrder: (order: any, callback: (success: boolean) => void) => {}
   const getClientUrl: (callback: (url: string) => void) => {}
+  const disconnect: (callback: (success: boolean) => void) => {}
   const isConnected: (callback: (connected: boolean) => void) => {}
   const isLoggedIn: (callback: (loggedIn: boolean) => void) => {}
   const isSupported: (callback: (supported: boolean) => void) => {}

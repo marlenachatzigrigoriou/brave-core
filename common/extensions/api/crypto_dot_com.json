@@ -218,6 +218,23 @@
         ]
       },
       {
+        "name": "disconnect",
+        "type": "function",
+        "description": "disconnect widget connect by invalidating access token",
+        "parameters": [
+          {
+            "type": "function",
+            "name": "callback",
+            "parameters": [
+              {
+                "name": "success",
+                "type": "boolean"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "isLoggedIn",
         "type": "function",
         "description": "Check whether user logged in or not",

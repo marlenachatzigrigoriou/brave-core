@@ -10,6 +10,7 @@
 #include "brave/common/url_constants.h"
 #include "brave/components/crypto_dot_com/browser/crypto_dot_com_service.h"
 #include "brave/components/crypto_dot_com/common/constants.h"
+#include "chrome/common/webui_url_constants.h"
 #include "content/public/browser/browser_task_traits.h"
 #include "content/public/browser/browser_thread.h"
 #include "net/base/url_util.h"
@@ -40,11 +41,22 @@ void LoadNewTabURL(
     return;
   }
 
-
   url::Origin allowed_origin = url::Origin::Create(GURL(kCryptoDotComAuthURL));
-  if (web_contents->GetLastCommittedURL().GetOrigin() != allowed_origin.GetURL() ||
-      !initiating_origin.has_value() ||
-      initiating_origin.value() != allowed_origin) {
+  url::Origin newtab_origin =
+      url::Origin::Create(GURL(chrome::kChromeUINewTabURL));
+  const GURL last_committed_origin =
+      web_contents->GetLastCommittedURL().GetOrigin();
+  // When browser loads auth url again in logged state, service could gives
+  // access token via redirect url with response.
+  // In this case, origin is newtab.
+  // After developing is finished, service will load user consent page always.
+  // TODO(simonhong): Replace newtab_origin with user consent page when that
+  // page is ready.
+  if ((last_committed_origin != allowed_origin.GetURL() &&
+       last_committed_origin != newtab_origin.GetURL()) ||
+      !initiating_origin ||
+      (initiating_origin.value() != allowed_origin &&
+       initiating_origin.value() != newtab_origin)) {
     return;
   }
 
@@ -53,7 +65,7 @@ void LoadNewTabURL(
       GetForProfile(web_contents->GetBrowserContext())->SetAccessToken(token);
 
   web_contents->GetController().LoadURL(
-      GURL("chrome://newtab"), content::Referrer(),
+      GURL(chrome::kChromeUINewTabURL), content::Referrer(),
       page_transition, std::string());
 }
 

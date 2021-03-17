@@ -120,6 +120,7 @@ export const defaultState: NewTab.State = {
   },
   cryptoDotComState: {
     optInBTCPrice: false,
+    isConnected: false,
     hideBalance: true,
     fetchStatus: null,
     tickerPrices: {},

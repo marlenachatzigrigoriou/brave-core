@@ -82,6 +82,7 @@ class CryptoDotComService : public KeyedService {
   bool GetAssetRankings(GetAssetRankingsCallback callback);
   bool GetAccountBalances(GetAccountBalancesCallback callback);
   bool IsConnected(IsConnectedCallback callback);
+  bool Disconnect();
   bool IsLoggedIn();
   bool GetDepositAddress(const std::string& asset,
                          GetDepositAddressCallback callback);
