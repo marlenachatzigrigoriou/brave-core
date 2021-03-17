@@ -12,7 +12,6 @@ class PrefService;
 namespace crypto_dot_com {
 
 void RegisterPrefs(PrefRegistrySimple* registry);
-void RegisterObsoletePrefs(PrefRegistrySimple* registry);
 void MigrateObsoletePrefs(PrefService* prefs);
 
 }  // namespace crypto_dot_com

@@ -39,19 +39,6 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
       }
       break
 
-    case types.BTC_PRICE_RECEIVED:
-      state = { ...state }
-      state.cryptoDotComState = {
-        ...state.cryptoDotComState,
-        fetchStatus: 'completed',
-        tickerPrices: {
-          ...state.cryptoDotComState.tickerPrices,
-          ...payload.tickerPrices
-        },
-        losersGainers: payload.losersGainers
-      }
-      break
-
     case types.ALL_ASSETS_DETAILS_REQUESTED:
       state = { ...state }
       state.cryptoDotComState = {
@@ -116,13 +103,13 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
           ...state.cryptoDotComState.tickerPrices,
           ...payload.tickerPrices
         },
-        charts: {
+        charts: payload.charts ? {
           ...state.cryptoDotComState.charts,
           ...payload.charts
-        },
-        newsEvents: payload.newsEvents,
+        } : {},
         losersGainers: payload.losersGainers,
-        accountBalances: payload.accountBalances,
+        accountBalances: payload.accountBalances ? payload.accountBalances : {},
+        newsEvents: payload.newsEvents ? payload.newsEvents : [],
         supportedPairs: payload.pairs ? reducePairs(payload.pairs) : state.cryptoDotComState.supportedPairs,
         tradingPairs: payload.pairs ? payload.pairs : state.cryptoDotComState.tradingPairs
       }

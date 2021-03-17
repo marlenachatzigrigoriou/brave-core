@@ -8,10 +8,6 @@ import { types } from '../constants/cryptoDotCom_types'
 
 export const onBtcPriceOptIn = () => action(types.ON_BTC_PRICE_OPT_IN)
 
-export const onCryptoDotComBTCPriceReceived = (tickerPrices: object, losersGainers: object[]) => {
-  return action(types.BTC_PRICE_RECEIVED, { tickerPrices, losersGainers })
-}
-
 export const onCryptoDotComAssetsDetailsRequested = () => {
   return action(types.ALL_ASSETS_DETAILS_REQUESTED)
 }
@@ -28,7 +24,7 @@ export const onCryptoDotComRefreshRequested = () => {
   return action(types.ON_REFRESH_DATA)
 }
 
-export const onCryptoDotComRefreshedDataReceived = (tickerPrices: object, losersGainers: object[], charts: object, accountBalances: object, newsEvents: object, pairs?: object[]) => {
+export const onCryptoDotComRefreshedDataReceived = (tickerPrices: object, losersGainers: object[], charts?: object, accountBalances?: object, newsEvents?: object, pairs?: object[]) => {
   return action(types.REFRESHED_DATA_RECEIVED, { tickerPrices, losersGainers, charts, accountBalances, newsEvents, pairs })
 }
 

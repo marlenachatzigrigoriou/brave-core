@@ -564,15 +564,6 @@ class NewTabPage extends React.Component<Props, State> {
     })
   }
 
-  onCryptoDotComBtcOptIn = async () => {
-    this.props.actions.onBtcPriceOptIn()
-    const [tickerPrices, losersGainers] = await Promise.all([
-      fetchCryptoDotComTickerPrices(['BTC_USDT']),
-      fetchCryptoDotComLosersGainers(),
-    ])
-    this.props.actions.onCryptoDotComBTCPriceReceived(tickerPrices, losersGainers)
-  }
-
   onCryptoDotComAssetsDetailsRequested = async (base: string, quote: string) => {
     this.props.actions.onCryptoDotComAssetsDetailsRequested()
     const [charts, tickerPrices, depositAddress] = await Promise.all([
@@ -586,21 +577,21 @@ class NewTabPage extends React.Component<Props, State> {
 
   onCryptoDotComRefreshRequested = async () => {
     this.props.actions.onCryptoDotComRefreshRequested()
-    const { supportedPairs, tickerPrices: prices } = this.props.newTabData.cryptoDotComState
+    const { supportedPairs, tickerPrices: prices, isConnected, optInBTCPrice } = this.props.newTabData.cryptoDotComState
     const assets = Object.keys(prices)
     const supportedPairsSet = Object.keys(supportedPairs).length
 
-    const requests = [
-      fetchCryptoDotComTickerPrices(assets),
-      fetchCryptoDotComLosersGainers(),
-      fetchCryptoDotComCharts(assets),
-      fetchCryptoDotComAccountBalances(),
-      fetchCryptoDotComNewsEvents()
-    ]
+    const requests = []
+    if (isConnected) {
+      requests.push(fetchCryptoDotComTickerPrices(assets), fetchCryptoDotComLosersGainers(),
+                    fetchCryptoDotComCharts(assets), fetchCryptoDotComAccountBalances(), fetchCryptoDotComNewsEvents())
+    } else if (optInBTCPrice) {
+      requests.push(fetchCryptoDotComTickerPrices(['BTC_USDT']), fetchCryptoDotComLosersGainers())
+    }
 
     // These are rarely updated, so we only need to fetch them
     // in the refresh interval if they aren't set yet (perhaps due to no connection)
-    if (!supportedPairsSet) {
+    if (isConnected && !supportedPairsSet) {
       requests.push(fetchCryptoDotComSupportedPairs())
     }
 
@@ -1021,7 +1012,7 @@ class NewTabPage extends React.Component<Props, State> {
         onAssetsDetailsRequested={this.onCryptoDotComAssetsDetailsRequested}
         onUpdateActions={this.onCryptoDotComRefreshRequested}
         onDisableWidget={this.toggleShowCryptoDotCom}
-        onBtcPriceOptIn={this.onCryptoDotComBtcOptIn}
+        onBtcPriceOptIn={this.props.actions.onBtcPriceOptIn}
         onIsConnected={this.props.actions.onIsConnectedReceived}
         onSetHideBalance={this.setCryptoDotComHideBalance}
       />

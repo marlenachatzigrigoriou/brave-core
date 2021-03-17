@@ -108,7 +108,7 @@ interface Props {
   stackPosition: number
   onShowContent: () => void
   onDisableWidget: () => void
-  onBtcPriceOptIn: () => Promise<void>
+  onBtcPriceOptIn: () => void
   onUpdateActions: () => Promise<void>
   onAssetsDetailsRequested: (base: string, quote: string) => void
   onSetHideBalance: (hide: boolean) => void
@@ -137,38 +137,47 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     }
   }
 
-  // TODO(simonhong): Don't trigger refresh when this widget is not visible.
-  // Handle interval based on connect state changes here.
   componentDidUpdate(prevProps: Props) {
+    if (prevProps.isConnected !== this.props.isConnected ||
+        prevProps.optInBTCPrice !== this.props.optInBTCPrice ||
+        prevProps.showContent !== this.props.showContent) {
+      this.resetRefreshInterval()
+    }
   }
 
-  // TODO(simonhong): Use different interval for BTC and connected.
   componentDidMount () {
-    // Only try refreshing when logged in state.
-    chrome.cryptoDotCom.isLoggedIn(async (loggedIn: boolean) => {
-      if (loggedIn) {
-        chrome.cryptoDotCom.isConnected(async (isConnected: boolean) => {
-          if (isConnected) {
-            // Get initial data update at startup.
-            await this.props.onUpdateActions()
-            this.checkSetRefreshInterval()
-          } else if (this.props.optInBTCPrice) {
-            this.checkSetRefreshInterval()
-          }
-          this.props.onIsConnected(isConnected)
-        })
-        // Periodically check connect status if logged in.
-        this.setCheckIsConnectedInterval()
-      } else if (this.props.optInBTCPrice) {
-        this.checkSetRefreshInterval()
-      }
-    })
-
+    this.resetRefreshInterval()
     this.getClientURL()
   }
 
   componentWillUnmount () {
     this.clearIntervals()
+  }
+
+  resetRefreshInterval = () => {
+    this.clearIntervals()
+
+    // Stop background refresh if this is not visible.
+    if (!this.props.showContent) {
+      return
+    }
+
+    chrome.cryptoDotCom.isLoggedIn(async (loggedIn: boolean) => {
+      if (loggedIn) {
+        // Periodically check connect status if logged in.
+        this.setCheckIsConnectedInterval()
+
+        chrome.cryptoDotCom.isConnected(async (isConnected: boolean) => {
+          // Get initial data update at startup.
+          await this.props.onUpdateActions()
+          this.checkSetRefreshInterval()
+          this.props.onIsConnected(isConnected)
+        })
+      } else if (this.props.optInBTCPrice) {
+        await this.props.onUpdateActions()
+        this.checkSetRefreshInterval()
+      }
+    })
   }
 
   getClientURL = () => {
@@ -215,11 +224,6 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       selectedBase: '',
       selectedQuote: ''
     })
-  }
-
-  btcPriceOptIn = () => {
-    this.props.onBtcPriceOptIn()
-    this.checkSetRefreshInterval()
   }
 
   handleAssetClick = async (base: string, quote: string, view: AssetViews) => {
@@ -278,7 +282,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
                 {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
               </>
             ) : (
-              <PlainButton onClick={this.btcPriceOptIn} textColor='green' inline={true}>
+              <PlainButton onClick={this.props.onBtcPriceOptIn} textColor='green' inline={true}>
                 {getLocale('cryptoDotComWidgetShowPrice')}
               </PlainButton>
             )}

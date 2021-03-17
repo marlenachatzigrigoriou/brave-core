@@ -190,7 +190,7 @@ declare namespace NewTab {
 
   type CryptoDotComFetchStatus = 'completed' | 'refreshing' | 'pending'
 
-
+  // TODO(simonhong): Do we really need fetchStatus?
   export interface CryptoDotComWidgetState {
     optInBTCPrice: boolean
     hideBalance: boolean
