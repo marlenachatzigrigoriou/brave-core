@@ -31,56 +31,62 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
 
   switch (action.type) {
     case types.ON_BTC_PRICE_OPT_IN:
-      state = { ...state }
-      state.cryptoDotComState = {
-        ...state.cryptoDotComState,
-        optInBTCPrice: true
+      state = {
+        ...state,
+        cryptoDotComState: {
+          ...state.cryptoDotComState,
+          optInBTCPrice: true
+        }
       }
       break
 
     case types.ON_IS_CONNECTED_RECEIVED:
-      state = { ...state }
-      state.cryptoDotComState = {
-        ...state.cryptoDotComState,
-        isConnected: payload.isConnected
-      }
-
-      // Reset account specific data if disconnected.
-      if (!payload.isConnected) {
-        state.cryptoDotComState.newsEvents = []
-        state.cryptoDotComState.depositAddresses = {}
-        state.cryptoDotComState.accountBalances = {}
+      const isConnected = payload.isConnected
+      state = {
+        ...state,
+        cryptoDotComState: {
+          ...state.cryptoDotComState,
+          isConnected: isConnected,
+          // Reset account specific state if not connected.
+          newsEvents: isConnected ? state.cryptoDotComState.newsEvents : [],
+          depositAddresses: isConnected ? state.cryptoDotComState.depositAddresses : {},
+          accountBalances: isConnected ? state.cryptoDotComState.accountBalances : {}
+        }
       }
       break;
 
     case types.SET_DISCONNECT_IN_PROGRESS:
-      state = { ...state }
-      state.cryptoDotComState = {
-        ...state.cryptoDotComState,
-        disconnectInProgress: payload.inProgress
+      state = {
+        ...state,
+        cryptoDotComState: {
+          ...state.cryptoDotComState,
+          disconnectInProgress: payload.inProgress
+        }
       }
       break;
+
     case types.ALL_ASSETS_DETAILS_RECEIVED:
-      state = { ...state }
-      state.cryptoDotComState = {
-        ...state.cryptoDotComState,
-        charts: {
-          ...state.cryptoDotComState.charts,
-          ...payload.charts
-        },
-        tickerPrices: {
-          ...state.cryptoDotComState.tickerPrices,
-          ...payload.tickerPrices
-        },
-        depositAddresses: {
-          ...state.cryptoDotComState.depositAddresses,
-          ...payload.depositAddress
+      state = {
+        ...state,
+        cryptoDotComState: {
+          ...state.cryptoDotComState,
+          charts: {
+            ...state.cryptoDotComState.charts,
+            ...payload.charts
+          },
+          tickerPrices: {
+            ...state.cryptoDotComState.tickerPrices,
+            ...payload.tickerPrices
+          },
+          depositAddresses: {
+            ...state.cryptoDotComState.depositAddresses,
+            ...payload.depositAddress
+          }
         }
       }
       break
 
     case types.HIDE_BALANCE:
-      state = { ...state }
       state = {
         ...state,
         cryptoDotComState: {
@@ -91,22 +97,24 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
       break
 
     case types.REFRESHED_DATA_RECEIVED:
-      state = { ...state }
-      state.cryptoDotComState = {
-        ...state.cryptoDotComState,
-        tickerPrices: {
-          ...state.cryptoDotComState.tickerPrices,
-          ...payload.tickerPrices
-        },
-        charts: payload.charts ? {
-          ...state.cryptoDotComState.charts,
-          ...payload.charts
-        } : {},
-        losersGainers: payload.losersGainers,
-        accountBalances: payload.accountBalances ? payload.accountBalances : {},
-        newsEvents: payload.newsEvents ? payload.newsEvents : [],
-        supportedPairs: payload.pairs ? reducePairs(payload.pairs) : state.cryptoDotComState.supportedPairs,
-        tradingPairs: payload.pairs ? payload.pairs : state.cryptoDotComState.tradingPairs
+      state = {
+        ...state,
+        cryptoDotComState: {
+          ...state.cryptoDotComState,
+          tickerPrices: {
+            ...state.cryptoDotComState.tickerPrices,
+            ...payload.tickerPrices
+          },
+          losersGainers: payload.losersGainers,
+          charts: payload.charts ? {
+            ...state.cryptoDotComState.charts,
+            ...payload.charts
+          } : state.cryptoDotComState.charts,
+          accountBalances: payload.accountBalances ? payload.accountBalances : state.cryptoDotComState.accountBalances,
+          newsEvents: payload.newsEvents ? payload.newsEvents : state.cryptoDotComState.newsEvents,
+          supportedPairs: payload.pairs ? reducePairs(payload.pairs) : state.cryptoDotComState.supportedPairs,
+          tradingPairs: payload.pairs ? payload.pairs : state.cryptoDotComState.tradingPairs
+        }
       }
       break
 
