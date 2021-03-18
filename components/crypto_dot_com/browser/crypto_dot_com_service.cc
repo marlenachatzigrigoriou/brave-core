@@ -364,6 +364,7 @@ void CryptoDotComService::OnCreateMarketOrder(
     CreateMarketOrderCallback callback,
     const int status, const std::string& body,
     const std::map<std::string, std::string>& headers) {
+  DVLOG(2) << __func__ << ": " << status;
   DVLOG(2) << __func__ << ": " << body;
   std::move(callback).Run(true);
 }
@@ -435,7 +436,7 @@ bool CryptoDotComService::NetworkRequest(const GURL &url,
 
   if (!post_data.empty()) {
     url_loader->AttachStringForUpload(post_data,
-        "application/x-www-form-urlencoded");
+        "application/json");
   }
 
   url_loader->SetRetryOptions(

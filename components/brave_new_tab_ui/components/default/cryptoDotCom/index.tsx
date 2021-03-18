@@ -869,7 +869,7 @@ function AssetTrade ({
 
 // TODO(simonhong): Rename this.
 function normalizeAvailable (available: string, currency_decimals: number) {
-  return Number(Number(available).toFixed(currency_decimals)).toString()
+  return Number(Number(available).toFixed(currency_decimals))
 }
 
 function BalanceSummary ({
