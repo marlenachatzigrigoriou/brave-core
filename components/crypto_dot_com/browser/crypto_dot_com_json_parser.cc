@@ -12,19 +12,6 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/values.h"
 
-// template <typename T>
-// std::string to_string_with_precision(const T a_value, const int n = 6)
-// {
-//     std::ostringstream out;
-//     out.precision(n);
-//     out << std::fixed << a_value;
-//     return out.str();
-// }
-
-// TODO(simonhong): Don't use intermediate struct.
-// During the converting between string and double, precision loss could be
-// happened and this could give invalid numbers to users in the widget.
-
 namespace {
 
 double CalculateAssetVolume(double v, double h, double l) {
@@ -79,11 +66,6 @@ bool CryptoDotComJSONParser::GetTickerInfoFromJSON(
   const double volume = CalculateAssetVolume(
       v->GetDouble(), h->GetDouble(), l->GetDouble());
 
-  // TODO(simonhong): After converting to string, double value seems lost
-  // its precision. Fix it.
-  // LOG(ERROR) << __func__ << " #### " << *data->FindStringKey("i");
-  // LOG(ERROR) << __func__ << " #### " << price->GetDouble();
-  // LOG(ERROR) << __func__ << " #### " << std::to_string(price->GetDouble());
   info->insert({"volume", volume});
   info->insert({"price", price->GetDouble()});
 
@@ -102,17 +84,21 @@ bool CryptoDotComJSONParser::GetChartDataFromJSON(
           json, base::JSONParserOptions::JSON_PARSE_RFC);
   base::Optional<base::Value>& records_v = value_with_error.value;
 
+  const std::map<std::string, double> empty_data_point = {
+    {"t", 0}, {"o", 0}, {"h", 0}, {"l", 0}, {"c", 0}, {"v", 0}
+  };
+
   if (!records_v) {
     LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
+    data->push_back(empty_data_point);
     return false;
   }
 
   const base::Value* data_arr = records_v->FindPath("response.result.data");
   if (!data_arr || !data_arr->is_list()) {
+    data->push_back(empty_data_point);
     return false;
   }
-
-  bool success = true;
 
   for (const base::Value &point : data_arr->GetList()) {
     std::map<std::string, double> data_point;
@@ -129,8 +115,9 @@ bool CryptoDotComJSONParser::GetChartDataFromJSON(
         !(l && l->is_double()) ||
         !(c && c->is_double()) ||
         !(v && v->is_double())) {
-      success = false;
-      break;
+      data->clear();
+      data->push_back(empty_data_point);
+      return false;
     }
 
     data_point.insert({"t", t->GetDouble()});
@@ -143,7 +130,7 @@ bool CryptoDotComJSONParser::GetChartDataFromJSON(
     data->push_back(data_point);
   }
 
-  return success;
+  return true;
 }
 
 bool CryptoDotComJSONParser::GetPairsFromJSON(
@@ -158,23 +145,20 @@ bool CryptoDotComJSONParser::GetPairsFromJSON(
           json, base::JSONParserOptions::JSON_PARSE_RFC);
   base::Optional<base::Value>& records_v = value_with_error.value;
 
+  const std::map<std::string, std::string> empty_pair = {
+    {"pair", ""}, {"quote", ""}, {"base", ""}, {"price", ""}, {"quantity", ""}
+  };
+
   if (!records_v) {
     LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
+    pairs->push_back(empty_pair);
     return false;
   }
 
-  const base::Value* response = records_v->FindKey("response");
-  if (!response) {
-    return false;
-  }
-
-  const base::Value* result = response->FindKey("result");
-  if (!result) {
-    return false;
-  }
-
-  const base::Value* instruments = result->FindKey("instruments");
+  const base::Value* instruments =
+      records_v->FindPath("response.result.instruments");
   if (!instruments || !instruments->is_list()) {
+    pairs->push_back(empty_pair);
     return false;
   }
 
@@ -191,7 +175,9 @@ bool CryptoDotComJSONParser::GetPairsFromJSON(
         !(base && base->is_string()) ||
         !(price && price->is_int()) ||
         !(quantity && quantity->is_int())) {
-      continue;
+      pairs->clear();
+      pairs->push_back(empty_pair);
+      return false;
     }
 
     instrument_data.insert({"pair", pair->GetString()});
@@ -218,23 +204,22 @@ bool CryptoDotComJSONParser::GetRankingsFromJSON(
           json, base::JSONParserOptions::JSON_PARSE_RFC);
   base::Optional<base::Value>& records_v = value_with_error.value;
 
-  if (!records_v) {
-    LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
-    return false;
-  }
-
-  const base::Value* response = records_v->FindKey("response");
-  if (!response) {
-    return false;
-  }
-
-  const base::Value* result = response->FindKey("result");
-  if (!result) {
-    return false;
-  }
-
   std::vector<std::map<std::string, std::string>> gainers;
   std::vector<std::map<std::string, std::string>> losers;
+
+  if (!records_v) {
+    LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
+    rankings->insert({"gainers", gainers});
+    rankings->insert({"losers", losers});
+    return false;
+  }
+
+  const base::Value* result = records_v->FindPath("response.result");
+  if (!result) {
+    rankings->insert({"gainers", gainers});
+    rankings->insert({"losers", losers});
+    return false;
+  }
 
   // Both gainers and losers are part of the "gainers" list
   const base::Value* rankings_list = result->FindKey("gainers");

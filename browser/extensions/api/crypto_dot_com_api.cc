@@ -140,10 +140,9 @@ void CryptoDotComGetSupportedPairsFunction::OnSupportedPairsResult(
   base::ListValue result;
 
   for (const auto& pair : pairs) {
-    auto instrument = std::make_unique<base::Value>(
-      base::Value::Type::DICTIONARY);
+    base::Value instrument(base::Value::Type::DICTIONARY);
     for (const auto& item : pair) {
-      instrument->SetStringKey(item.first, item.second);
+      instrument.SetStringKey(item.first, item.second);
     }
     result.Append(std::move(instrument));
   }

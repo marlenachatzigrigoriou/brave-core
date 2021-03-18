@@ -468,6 +468,10 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   }
 
   getAvailableBalanceForCurrency = (currency: string) => {
+    if (!this.props.accountBalances.accounts) {
+      return 0
+    }
+
     const account = this.props.accountBalances.accounts.find((account: Record<string, any>) => account.currency === currency)
     return normalizeAvailable(account.available, account.currency_decimals)
   }

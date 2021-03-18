@@ -76,6 +76,7 @@ std::string GetFormattedResponseBody(const std::string& json_response) {
 
 CryptoDotComService::CryptoDotComService(content::BrowserContext* context)
     : empty_dict_(base::Value::Type::DICTIONARY),
+      empty_list_(base::Value::Type::LIST),
       context_(context),
       url_loader_factory_(
           content::BrowserContext::GetDefaultStoragePartition(context_)
@@ -103,11 +104,7 @@ void CryptoDotComService::OnTickerInfo(
   const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   CryptoDotComTickerInfo info;
-  std::string json_body;
-  if (status >= 200 && status <= 299) {
-    json_body = GetFormattedResponseBody(body);
-  }
-
+  const std::string json_body = GetFormattedResponseBody(body);
   CryptoDotComJSONParser::GetTickerInfoFromJSON(json_body, &info);
   std::move(callback).Run(info);
 }
@@ -130,10 +127,8 @@ void CryptoDotComService::OnChartData(
   const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   CryptoDotComChartData data;
-  if (status >= 200 && status <= 299) {
-    const std::string json_body = GetFormattedResponseBody(body);
-    CryptoDotComJSONParser::GetChartDataFromJSON(json_body, &data);
-  }
+  const std::string json_body = GetFormattedResponseBody(body);
+  CryptoDotComJSONParser::GetChartDataFromJSON(json_body, &data);
   std::move(callback).Run(data);
 }
 
@@ -153,10 +148,8 @@ void CryptoDotComService::OnSupportedPairs(
   const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   CryptoDotComSupportedPairs pairs;
-  if (status >= 200 && status <= 299) {
-    const std::string json_body = GetFormattedResponseBody(body);
-    CryptoDotComJSONParser::GetPairsFromJSON(json_body, &pairs);
-  }
+  const std::string json_body = GetFormattedResponseBody(body);
+  CryptoDotComJSONParser::GetPairsFromJSON(json_body, &pairs);
   std::move(callback).Run(pairs);
 }
 
@@ -177,10 +170,8 @@ void CryptoDotComService::OnAssetRankings(
     const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   CryptoDotComAssetRankings rankings;
-  if (status >= 200 && status <= 299) {
-    const std::string json_body = GetFormattedResponseBody(body);
-    CryptoDotComJSONParser::GetRankingsFromJSON(json_body, &rankings);
-  }
+  const std::string json_body = GetFormattedResponseBody(body);
+  CryptoDotComJSONParser::GetRankingsFromJSON(json_body, &rankings);
   std::move(callback).Run(rankings);
 }
 
@@ -334,20 +325,20 @@ void CryptoDotComService::OnGetNewsEvents(
     const std::map<std::string, std::string>& headers) {
   auto response_value = base::JSONReader::Read(body);
   if (!response_value.has_value() || !response_value.value().is_dict()) {
-    std::move(callback).Run(empty_dict_.Clone(), false);
+    std::move(callback).Run(empty_list_.Clone(), false);
     return;
   }
 
   if (const auto* code = response_value->FindStringKey("code")) {
     if (*code != "0")
-      return std::move(callback).Run(empty_dict_.Clone(), false);
+      return std::move(callback).Run(empty_list_.Clone(), false);
   }
 
   const base::Value* events_value =
       response_value->FindPath("result.events");
 
   if (!events_value || !events_value->is_list()) {
-    return std::move(callback).Run(empty_dict_.Clone(), false);
+    return std::move(callback).Run(empty_list_.Clone(), false);
   }
 
   std::move(callback).Run(events_value->Clone(), true);

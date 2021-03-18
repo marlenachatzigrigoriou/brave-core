@@ -13,8 +13,6 @@
 #include "extensions/browser/extension_function.h"
 #include "brave/components/crypto_dot_com/browser/crypto_dot_com_service.h"
 
-class Profile;
-
 namespace extensions {
 namespace api {
 
