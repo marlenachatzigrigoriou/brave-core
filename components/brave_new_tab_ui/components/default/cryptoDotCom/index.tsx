@@ -690,6 +690,12 @@ function AssetTrade ({
   const handleAmountChange = ({ target }: any) => {
     const { value } = target
     if (value === "." || !Number.isNaN(value * 1)) {
+      const available = tradeMode === TradeModes.BUY ? availableBalanceQuote
+                                                     : availableBalanceBase
+      // Can't put more larger amount than available.
+      if (Number(available) < Number(value)) {
+        return
+      }
       setTradeAmount(value)
       setTradePercentage(null)
     }
