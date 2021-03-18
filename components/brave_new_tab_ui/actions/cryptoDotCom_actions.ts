@@ -8,20 +8,12 @@ import { types } from '../constants/cryptoDotCom_types'
 
 export const onBtcPriceOptIn = () => action(types.ON_BTC_PRICE_OPT_IN)
 
-export const onCryptoDotComAssetsDetailsRequested = () => {
-  return action(types.ALL_ASSETS_DETAILS_REQUESTED)
-}
-
 export const onCryptoDotComAssetsDetailsReceived = (charts: object, tickerPrices: object, depositAddress: object) => {
   return action(types.ALL_ASSETS_DETAILS_RECEIVED, { charts, tickerPrices, depositAddress })
 }
 
 export const onIsConnectedReceived = (isConnected: boolean) => {
   return action(types.ON_IS_CONNECTED_RECEIVED, { isConnected })
-}
-
-export const onCryptoDotComRefreshRequested = () => {
-  return action(types.ON_REFRESH_DATA)
 }
 
 export const onCryptoDotComRefreshedDataReceived = (tickerPrices: object, losersGainers: object[], charts?: object, accountBalances?: object, newsEvents?: object, pairs?: object[]) => {

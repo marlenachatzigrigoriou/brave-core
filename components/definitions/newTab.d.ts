@@ -188,15 +188,11 @@ declare namespace NewTab {
     authInvalid: boolean
   }
 
-  type CryptoDotComFetchStatus = 'completed' | 'refreshing' | 'pending'
-
-  // TODO(simonhong): Do we really need fetchStatus?
   export interface CryptoDotComWidgetState {
     optInBTCPrice: boolean
     hideBalance: boolean
     isConnected: boolean
     disconnectInProgress: boolean
-    fetchStatus: CryptoDotComFetchStatus | null
     tickerPrices: Record<string, any>
     losersGainers: Record<string, any>
     supportedPairs: Record<string, any>

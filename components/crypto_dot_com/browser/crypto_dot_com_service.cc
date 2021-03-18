@@ -101,6 +101,7 @@ void CryptoDotComService::OnTickerInfo(
   GetTickerInfoCallback callback,
   const int status, const std::string& body,
   const std::map<std::string, std::string>& headers) {
+  DVLOG(2) << __func__ << ": " << body;
   CryptoDotComTickerInfo info;
   if (status >= 200 && status <= 299) {
     const std::string json_body = GetFormattedResponseBody(body);
@@ -125,6 +126,7 @@ void CryptoDotComService::OnChartData(
   GetChartDataCallback callback,
   const int status, const std::string& body,
   const std::map<std::string, std::string>& headers) {
+  DVLOG(2) << __func__ << ": " << body;
   CryptoDotComChartData data;
   if (status >= 200 && status <= 299) {
     const std::string json_body = GetFormattedResponseBody(body);
@@ -147,6 +149,7 @@ void CryptoDotComService::OnSupportedPairs(
   GetSupportedPairsCallback callback,
   const int status, const std::string& body,
   const std::map<std::string, std::string>& headers) {
+  DVLOG(2) << __func__ << ": " << body;
   CryptoDotComSupportedPairs pairs;
   if (status >= 200 && status <= 299) {
     const std::string json_body = GetFormattedResponseBody(body);
@@ -170,6 +173,7 @@ void CryptoDotComService::OnAssetRankings(
     GetAssetRankingsCallback callback,
     const int status, const std::string& body,
     const std::map<std::string, std::string>& headers) {
+  DVLOG(2) << __func__ << ": " << body;
   CryptoDotComAssetRankings rankings;
   if (status >= 200 && status <= 299) {
     const std::string json_body = GetFormattedResponseBody(body);
@@ -193,12 +197,12 @@ void CryptoDotComService::OnGetAccountBalances(
     GetAccountBalancesCallback callback,
     const int status, const std::string& body,
     const std::map<std::string, std::string>& headers) {
+  DVLOG(2) << __func__ << ": " << body;
   auto response_value = base::JSONReader::Read(body);
   if (!response_value.has_value() || !response_value.value().is_dict()) {
     std::move(callback).Run(empty_dict_.Clone(), false);
     return;
   }
-
   // Valid response has "0" for "code" property.
   if (const auto* code = response_value->FindStringKey("code")) {
     if (*code != "0")
@@ -240,6 +244,7 @@ void CryptoDotComService::OnIsConnected(
     IsConnectedCallback callback,
     const int status, const std::string& body,
     const std::map<std::string, std::string>& headers) {
+  DVLOG(2) << __func__ << ": " << body;
   auto balances_value = base::JSONReader::Read(body);
   if (!balances_value || !balances_value->is_dict()) {
     std::move(callback).Run(false);
@@ -273,13 +278,12 @@ void CryptoDotComService::OnGetDepositAddress(
     const std::string& asset,
     const int status, const std::string& body,
     const std::map<std::string, std::string>& headers) {
+  DVLOG(2) << __func__ << ": " << body;
   auto response_value = base::JSONReader::Read(body);
   if (!response_value.has_value() || !response_value.value().is_dict()) {
     std::move(callback).Run(empty_dict_.Clone(), false);
     return;
   }
-
-  DVLOG(2) << __func__ << " #### " << body;
 
   // Valid response has "0" for "code" property.
   if (const auto* code = response_value->FindStringKey("code")) {
@@ -367,9 +371,7 @@ void CryptoDotComService::OnCreateMarketOrder(
     CreateMarketOrderCallback callback,
     const int status, const std::string& body,
     const std::map<std::string, std::string>& headers) {
-
-  DVLOG(2) << __func__ << " ### " << status;
-  DVLOG(2) << __func__ << " ### " << body;
+  DVLOG(2) << __func__ << ": " << body;
   std::move(callback).Run(true);
 }
 
@@ -425,6 +427,7 @@ bool CryptoDotComService::NetworkRequest(const GURL &url,
                                   const std::string& post_data,
                                   const net::HttpRequestHeaders& headers,
                                   URLRequestCallback callback) {
+  DVLOG(2) << __func__ << ": " << url;
   auto request = std::make_unique<network::ResourceRequest>();
   request->url = url;
   request->credentials_mode = network::mojom::CredentialsMode::kOmit;
@@ -433,8 +436,6 @@ bool CryptoDotComService::NetworkRequest(const GURL &url,
                         net::LOAD_DO_NOT_SAVE_COOKIES;
   request->method = method;
   request->headers = headers;
-
-  DVLOG(2) << __func__ << " ##### " << url;
 
   auto url_loader = network::SimpleURLLoader::Create(
       std::move(request), GetNetworkTrafficAnnotationTag());

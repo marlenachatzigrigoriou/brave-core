@@ -34,16 +34,7 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
       state = { ...state }
       state.cryptoDotComState = {
         ...state.cryptoDotComState,
-        optInBTCPrice: true,
-        fetchStatus: 'pending'
-      }
-      break
-
-    case types.ALL_ASSETS_DETAILS_REQUESTED:
-      state = { ...state }
-      state.cryptoDotComState = {
-        ...state.cryptoDotComState,
-        fetchStatus: 'pending'
+        optInBTCPrice: true
       }
       break
 
@@ -73,7 +64,6 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
       state = { ...state }
       state.cryptoDotComState = {
         ...state.cryptoDotComState,
-        fetchStatus: 'completed',
         charts: {
           ...state.cryptoDotComState.charts,
           ...payload.charts
@@ -86,14 +76,6 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
           ...state.cryptoDotComState.depositAddresses,
           ...payload.depositAddress
         }
-      }
-      break
-
-    case types.ON_REFRESH_DATA:
-      state = { ...state }
-      state.cryptoDotComState = {
-        ...state.cryptoDotComState,
-        fetchStatus: 'refreshing'
       }
       break
 
@@ -112,7 +94,6 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
       state = { ...state }
       state.cryptoDotComState = {
         ...state.cryptoDotComState,
-        fetchStatus: 'completed',
         tickerPrices: {
           ...state.cryptoDotComState.tickerPrices,
           ...payload.tickerPrices

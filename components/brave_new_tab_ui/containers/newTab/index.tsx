@@ -565,7 +565,6 @@ class NewTabPage extends React.Component<Props, State> {
   }
 
   onCryptoDotComAssetsDetailsRequested = async (base: string, quote: string) => {
-    this.props.actions.onCryptoDotComAssetsDetailsRequested()
     const [charts, tickerPrices, depositAddress] = await Promise.all([
       fetchCryptoDotComCharts([`${base}_${quote}`]),
       fetchCryptoDotComTickerPrices([`${base}_${quote}`]),
@@ -576,7 +575,6 @@ class NewTabPage extends React.Component<Props, State> {
   }
 
   onCryptoDotComRefreshRequested = async () => {
-    this.props.actions.onCryptoDotComRefreshRequested()
     const { supportedPairs, tickerPrices: prices, isConnected, optInBTCPrice } = this.props.newTabData.cryptoDotComState
     const assets = Object.keys(prices)
     const supportedPairsSet = Object.keys(supportedPairs).length

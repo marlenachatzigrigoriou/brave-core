@@ -123,7 +123,6 @@ export const defaultState: NewTab.State = {
     isConnected: false,
     hideBalance: true,
     disconnectInProgress: false,
-    fetchStatus: null,
     tickerPrices: {},
     losersGainers: {},
     supportedPairs: {},
