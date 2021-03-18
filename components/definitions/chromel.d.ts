@@ -202,8 +202,17 @@ declare namespace chrome.cryptoDotCom {
     volume: number
   }
 
+  type ChartDataPoint = {
+    t: number
+    o: number
+    h: number
+    l: number
+    c: number
+    v: number
+  }
+
   const getTickerInfo: (asset: string, callback: (info: TickerPrice) => void) => {}
-  const getChartData: (asset: string, callback: (data: any[]) => void) => {}
+  const getChartData: (asset: string, callback: (data: ChartDataPoint[]) => void) => {}
   const getSupportedPairs: (callback: (pairs: any[]) => void) => {}
   const getAssetRankings: (callback: (assets: any) => void) => {}
   const getAccountBalances: (callback: (balances: any, success: boolean) => void) => {}

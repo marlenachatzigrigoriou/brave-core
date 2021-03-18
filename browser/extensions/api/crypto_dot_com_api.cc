@@ -105,10 +105,9 @@ void CryptoDotComGetChartDataFunction::OnChartDataResult(
   base::ListValue result;
 
   for (const auto& data_point : data) {
-    auto point = std::make_unique<base::Value>(
-      base::Value::Type::DICTIONARY);
+    base::Value point(base::Value::Type::DICTIONARY);
     for (const auto& att : data_point) {
-      point->SetStringKey(att.first, att.second);
+      point.SetDoubleKey(att.first, att.second);
     }
     result.Append(std::move(point));
   }

@@ -198,7 +198,7 @@ declare namespace NewTab {
     supportedPairs: Record<string, any>
     tradingPairs: Array<Record<string, any>>
     newsEvents: Array<Record<string, string>>
-    charts: Record<string, any>
+    charts: Array<string, chrome.cryptoDotCom.CharData>
     accountBalances: Record<string, any>
     depositAddresses: Record<string, any>
   }

@@ -46,7 +46,7 @@ const char get_pairs_path[] = "/v2/public/get-instruments";
 const char get_gainers_losers_path[] = "/fe-ex-api/widget/get-gainers";
 
 typedef std::map<std::string, double> CryptoDotComTickerInfo;
-typedef std::vector<std::map<std::string, std::string>> CryptoDotComChartData;
+typedef std::vector<std::map<std::string, double>> CryptoDotComChartData;
 typedef std::vector<std::map<std::string, std::string>>
     CryptoDotComSupportedPairs;
 typedef std::map<std::string, std::vector<std::map<std::string, std::string>>>

@@ -107,17 +107,7 @@ bool CryptoDotComJSONParser::GetChartDataFromJSON(
     return false;
   }
 
-  const base::Value* response = records_v->FindKey("response");
-  if (!response) {
-    return false;
-  }
-
-  const base::Value* result = response->FindKey("result");
-  if (!result) {
-    return false;
-  }
-
-  const base::Value* data_arr = result->FindKey("data");
+  const base::Value* data_arr = records_v->FindPath("response.result.data");
   if (!data_arr || !data_arr->is_list()) {
     return false;
   }
@@ -125,7 +115,7 @@ bool CryptoDotComJSONParser::GetChartDataFromJSON(
   bool success = true;
 
   for (const base::Value &point : data_arr->GetList()) {
-    std::map<std::string, std::string> data_point;
+    std::map<std::string, double> data_point;
     const base::Value* t = point.FindKey("t");
     const base::Value* o = point.FindKey("o");
     const base::Value* h = point.FindKey("h");
@@ -143,14 +133,12 @@ bool CryptoDotComJSONParser::GetChartDataFromJSON(
       break;
     }
 
-    // TODO(simonhong): After converting to string, double value seems lost
-    // its precision. Fix it.
-    data_point.insert({"t", std::to_string(t->GetDouble())});
-    data_point.insert({"o", std::to_string(o->GetDouble())});
-    data_point.insert({"h", std::to_string(h->GetDouble())});
-    data_point.insert({"l", std::to_string(l->GetDouble())});
-    data_point.insert({"c", std::to_string(c->GetDouble())});
-    data_point.insert({"v", std::to_string(v->GetDouble())});
+    data_point.insert({"t", t->GetDouble()});
+    data_point.insert({"o", o->GetDouble()});
+    data_point.insert({"h", h->GetDouble()});
+    data_point.insert({"l", l->GetDouble()});
+    data_point.insert({"c", c->GetDouble()});
+    data_point.insert({"v", v->GetDouble()});
 
     data->push_back(data_point);
   }

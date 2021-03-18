@@ -61,7 +61,26 @@
                 "type": "array",
                 "items": {
                   "type": "object",
-                  "additionalProperties": { "type": "any" }
+                  "properties": {
+                    "t": {
+                      "type": "number"
+                    },
+                    "o": {
+                      "type": "number"
+                    },
+                    "h": {
+                      "type": "number"
+                    },
+                    "l": {
+                      "type": "number"
+                    },
+                    "c": {
+                      "type": "number"
+                    },
+                    "v": {
+                      "type": "number"
+                    }
+                  }
                 }
               }
             ]

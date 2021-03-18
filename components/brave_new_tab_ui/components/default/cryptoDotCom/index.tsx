@@ -63,15 +63,6 @@ interface AssetRanking {
   percentChange: string
 }
 
-interface ChartDataPoint {
-  c: number
-  h: number
-  l: number
-  o: number
-  t: number
-  v: number
-}
-
 enum MainViews {
   TOP,
   TRADE,
@@ -106,7 +97,7 @@ interface Props {
   supportedPairs: Record<string, string[]>
   tradingPairs: Array<Record<string, string>>
   newsEvents: Array<Record<string, string>>
-  charts: Record<string, ChartDataPoint[]>
+  charts: Record<string, chrome.cryptoDotCom.ChartDataPoint[]>
   stackPosition: number
   onShowContent: () => void
   onDisableWidget: () => void
@@ -246,9 +237,9 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   plotData ({ data, chartHeight, chartWidth }: ChartConfig) {
     const pointsPerDay = 4
     const daysInrange = 7
-    const yHighs = data.map((point: ChartDataPoint) => point.h)
-    const yLows = data.map((point: ChartDataPoint) => point.l)
-    const dataPoints = data.map((point: ChartDataPoint) => point.c)
+    const yHighs = data.map((point: chrome.cryptoDotCom.ChartDataPoint) => point.h)
+    const yLows = data.map((point: chrome.cryptoDotCom.ChartDataPoint) => point.l)
+    const dataPoints = data.map((point: chrome.cryptoDotCom.ChartDataPoint) => point.c)
     const chartAreaY = chartHeight - 2
     const max = Math.max(...yHighs)
     const min = Math.min(...yLows)
