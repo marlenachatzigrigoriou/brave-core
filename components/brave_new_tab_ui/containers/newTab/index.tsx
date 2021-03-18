@@ -993,7 +993,7 @@ class NewTabPage extends React.Component<Props, State> {
       return null
     }
 
-    if (cryptoDotComState.isConnected) {
+    if (showContent && cryptoDotComState.isConnected) {
       menuActions['onDisconnect'] = this.setCryptoDotComDisconnectInProgress
       menuActions['onRefreshData'] = this.onCryptoDotComRefreshRequested
     }
