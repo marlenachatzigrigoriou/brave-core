@@ -42,18 +42,13 @@ import {
   SVG,
   Text,
   WidgetWrapper,
-  UpperCaseText
-} from './style'
-
-// TODO(simonhong): Temporarily copied.
-// Use cryptodotcom style disconnect view if ready.
-import {
+  UpperCaseText,
   DisconnectWrapper,
   DisconnectTitle,
   DisconnectCopy,
   DisconnectButton,
   DismissAction
-} from '../binance/style'
+} from './style'
 
 import CryptoDotComLogo from './assets/cryptoDotCom-logo'
 import { CaratLeftIcon } from 'brave-ui/components/icons'
@@ -540,21 +535,20 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     }
   }
 
-  // TODO(simonhong): Use cryptodotcom style view if ready.
   renderDisconnectView = () => {
     return (
       <DisconnectWrapper>
         <DisconnectTitle>
-          {getLocale('binanceWidgetDisconnectTitle')}
+          {getLocale('cryptoDotComWidgetDisconnectTitle')}
         </DisconnectTitle>
         <DisconnectCopy>
-          {getLocale('binanceWidgetDisconnectText')}
+          {getLocale('cryptoDotComWidgetDisconnectText')}
         </DisconnectCopy>
         <DisconnectButton onClick={this.props.disconnect}>
-          {getLocale('binanceWidgetDisconnectButton')}
+          {getLocale('cryptoDotComWidgetDisconnectButton')}
         </DisconnectButton>
         <DismissAction onClick={this.props.cancelDisconnect}>
-          {getLocale('binanceWidgetCancelText')}
+          {getLocale('cryptoDotComWidgetCancelText')}
         </DismissAction>
       </DisconnectWrapper>
     )

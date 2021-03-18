@@ -334,7 +334,7 @@ export const ActionAnchor = styled('a')<StyleProps>`
   text-decoration: none;
 `
 
-export const PlainAnchor = styled<StyleProps, 'a'>('a')`
+export const PlainAnchor = styled('a')<StyleProps>`
   color: ${p => p.theme.primary};
 
   &:hover {
@@ -354,7 +354,7 @@ export const SVG = styled('svg')<StyleProps>`
 * Dropdown styles
 */
 
-export const InputWrapper = styled<StyleProps>(BasicBox)`
+export const InputWrapper = styled('BasicBox')<StyleProps>`
   height: 30px;
   color: #000;
   background: #fff;
@@ -366,7 +366,7 @@ export const InputWrapper = styled<StyleProps>(BasicBox)`
   position: relative;
 `
 
-export const InputField = styled<{}, 'input'>('input')`
+export const InputField = styled('input')<{}>`
   background: none;
   display: inline-block;
   min-width: 225px;
@@ -379,7 +379,7 @@ export const InputField = styled<{}, 'input'>('input')`
   ${getBoxStyle}
 `
 
-export const AmountInputField = styled(InputField)`
+export const AmountInputField = styled('InputField')<{}>`
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.38);
   box-sizing: border-box;
@@ -387,7 +387,7 @@ export const AmountInputField = styled(InputField)`
   color: ${getColor('light')};
 `
 
-export const Dropdown = styled<StyleProps, 'div'>('div')`
+export const Dropdown = styled('div')<StyleProps>`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -398,15 +398,15 @@ export const Dropdown = styled<StyleProps, 'div'>('div')`
   cursor: ${p => p.disabled ? 'auto' : 'pointer'};
 `
 
-export const DropdownIcon = styled<StyleProps, 'span'>('span')`
+export const DropdownIcon = styled('span')<StyleProps>`
   margin-right: 10px;
 `
 
-export const AssetDropdownLabel = styled<{}, 'span'>('span')`
+export const AssetDropdownLabel = styled('span')<{}>`
   font-weight: bold;
 `
 
-export const CaratDropdown = styled<StyleProps, 'div'>('div')`
+export const CaratDropdown = styled('div')<StyleProps>`
   margin-left: auto;
   width: 14px;
   height: 14px;
@@ -414,7 +414,7 @@ export const CaratDropdown = styled<StyleProps, 'div'>('div')`
   visibility: ${p => p.hide ? 'hidden' : 'visible'};
 `
 
-export const AssetItems = styled<StyleProps, 'div'>('div')`
+export const AssetItems = styled('div')<StyleProps>`
   z-index: 1;
   background: #fff;
   color: #000;
@@ -431,32 +431,32 @@ export const AssetItems = styled<StyleProps, 'div'>('div')`
   top: 100%;
 `
 
-export const AssetItem = styled<StyleProps, 'div'>('div')`
+export const AssetItem = styled('div')<StyleProps>`
   padding: 3px 0px;
   font-weight: bold;
   cursor: pointer;
   border-bottom: ${p => !p.isLast ? '1px solid rgb(70, 70, 70, 0.2)' : ''};
 `
 
-export const TradeWrapper = styled<{}, 'div'>('div')`
+export const TradeWrapper = styled('div')<{}>`
   margin-bottom: 20px;
 `
 
-export const ActionsWrapper = styled<StyleProps, 'div'>('div')`
+export const ActionsWrapper = styled('div')<StyleProps>`
   margin-bottom: ${p => p.isAuth ? 20 : 5}px;
   text-align: center;
 `
 
-export const Balance = styled<StyleProps, 'span'>('span')`
+export const Balance = styled('span')<StyleProps>`
   -webkit-filter: blur(${p => p.hideBalance ? 10 : 0}px);
 `
 
-export const BlurIcon = styled<{}, 'div'>('div')`
+export const BlurIcon = styled('div')<{}>`
   cursor: pointer;
   color: rgb(70, 70, 70);
 `
 
-export const CryptoDotComIcon = styled<{}, 'div'>('div')`
+export const CryptoDotComIcon = styled('div')<{}>`
 width: 27px;
 height: 27px;
 margin-right: 7px;
@@ -466,4 +466,64 @@ margin-left: 2px;
   width: 100%;
   height: 100%;
 }
+`
+
+export const GenButton = styled('button')<{}>`
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 20px;
+  border: 0;
+  padding: 5px 10px;
+  cursor: pointer;
+  background: #2C2C2B;
+  color: rgba(255, 255, 255, 0.7);
+`
+
+export const DisconnectButton = styled('GenButton')<{}>`
+  background: #AA1212;
+  color: #fff;
+  padding: 5px 20px;
+`
+
+export const DisconnectWrapper = styled('div')<{}>`
+  padding-top: 75px;
+  min-height: 250px;
+  text-align: center;
+  max-width: 240px;
+`
+
+export const Title = styled('span')<{}>`
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+`
+
+export const Copy = styled('p')<{}>`
+  font-size: 15px;
+  max-width: 240px;
+  margin-top: 20px;
+  margin-bottom: 11px;
+`
+
+export const DisconnectTitle = styled('Title')<{}>`
+  font-size: 14px;
+  max-width: 245px;
+  margin: 0 auto;
+  line-height: 18px;
+`
+
+export const DisconnectCopy = styled('Copy')<{}>`
+  color: #fff;
+  max-width: 220px;
+  line-height: 17px;
+  margin: 8px auto 15px auto;
+`
+
+export const DismissAction = styled('span')<{}>`
+  display: block;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin-top: 20px;
+  font-weight: bold;
 `

@@ -28,5 +28,8 @@
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_GRAPH" desc="">7d Graph</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_PAIRS" desc="">Supported Pairs</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_VOLUME" desc="">24HR Volume</message>
+    <message name="IDS_CRYPTO_DOT_COM_WIDGET_DISCONNECT_TITLE" desc="">Are you sure you want to disconnect?</message>
+    <message name="IDS_CRYPTO_DOT_COM_WIDGET_DISCONNECT_TEXT" desc="">Disconnecting will erase your widget settings. You will need to re-authenticate to reconnect.</message>
+    <message name="IDS_CRYPTO_DOT_COM_WIDGET_DISCONNECT_BUTTON" desc="">Disconnect</message>
   </if>
 </grit-part>
