@@ -7,8 +7,6 @@
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_CONNECT" desc="">Connect</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_SHOW_PRICE" desc="">Show Price</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_COPY_ONE" desc="">Connect to Crypto.com to view buy and trade crypto, view account balance and upcoming events.</message>
-    <message name="IDS_CRYPTO_DOT_COM_WIDGET_BUY_BTC" desc="">Buy Bitcoin</message>
-    <message name="IDS_CRYPTO_DOT_COM_WIDGET_VIEW_MARKETS" desc="">View Crypto.com Markets</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_TOP" desc="">Top</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_EVENTS" desc="">Events</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_COPY_ADDRESS" desc="">Copy Address</message>
@@ -28,8 +26,5 @@
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_GRAPH" desc="">7d Graph</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_PAIRS" desc="">Supported Pairs</message>
     <message name="IDS_CRYPTO_DOT_COM_WIDGET_VOLUME" desc="">24HR Volume</message>
-    <message name="IDS_CRYPTO_DOT_COM_WIDGET_DISCONNECT_TITLE" desc="">Are you sure you want to disconnect?</message>
-    <message name="IDS_CRYPTO_DOT_COM_WIDGET_DISCONNECT_TEXT" desc="">Disconnecting will erase your widget settings. You will need to re-authenticate to reconnect.</message>
-    <message name="IDS_CRYPTO_DOT_COM_WIDGET_DISCONNECT_BUTTON" desc="">Disconnect</message>
   </if>
 </grit-part>

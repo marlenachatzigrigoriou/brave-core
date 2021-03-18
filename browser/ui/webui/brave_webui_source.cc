@@ -370,11 +370,9 @@ void CustomizeWebUIHTMLSource(const std::string &name,
         { "cryptoDotComWidgetTradeBtc", IDS_CRYPTO_DOT_COM_WIDGET_TRADE_BTC },
         { "cryptoDotComWidgetConnect", IDS_CRYPTO_DOT_COM_WIDGET_CONNECT },
         { "cryptoDotComWidgetShowPrice", IDS_CRYPTO_DOT_COM_WIDGET_SHOW_PRICE },
-        { "cryptoDotComWidgetBuy", IDS_BINANCE_WIDGET_BUY },
         { "cryptoDotComWidgetSell", IDS_GEMINI_WIDGET_SELL },
         { "cryptoDotComWidgetDeposit", IDS_BINANCE_WIDGET_DEPOSIT_LABEL },
         { "cryptoDotComWidgetCopyOne", IDS_CRYPTO_DOT_COM_WIDGET_COPY_ONE },
-        { "cryptoDotComWidgetBuyBtc", IDS_CRYPTO_DOT_COM_WIDGET_BUY_BTC },
         { "cryptoDotComWidgetTop", IDS_CRYPTO_DOT_COM_WIDGET_TOP },
         { "cryptoDotComWidgetTrade", IDS_BINANCE_WIDGET_TRADE_LABEL },
         { "cryptoDotComWidgetEvents", IDS_CRYPTO_DOT_COM_WIDGET_EVENTS },
@@ -401,9 +399,9 @@ void CustomizeWebUIHTMLSource(const std::string &name,
         { "cryptoDotComWidgetGraph", IDS_CRYPTO_DOT_COM_WIDGET_GRAPH },
         { "cryptoDotComWidgetPairs", IDS_CRYPTO_DOT_COM_WIDGET_PAIRS },
         { "cryptoDotComWidgetVolume", IDS_CRYPTO_DOT_COM_WIDGET_VOLUME },
-        { "cryptoDotComWidgetDisconnectTitle", IDS_CRYPTO_DOT_COM_WIDGET_DISCONNECT_TITLE },    // NOLINT
-        { "cryptoDotComWidgetWidgetDisconnectText" , IDS_CRYPTO_DOT_COM_WIDGET_DISCONNECT_TEXT },     // NOLINT
-        { "cryptoDotComWidgetDisconnectButton" , IDS_CRYPTO_DOT_COM_WIDGET_DISCONNECT_BUTTON }, // NOLINT
+        { "cryptoDotComWidgetDisconnectTitle", IDS_BINANCE_WIDGET_DISCONNECT_TITLE },    // NOLINT
+        { "cryptoDotComWidgetWidgetDisconnectText" , IDS_BINANCE_WIDGET_DISCONNECT_TEXT },     // NOLINT
+        { "cryptoDotComWidgetDisconnectButton" , IDS_BINANCE_WIDGET_DISCONNECT_BUTTON }, // NOLINT
         { "cryptoDotComWidgetCancelText" , IDS_BRAVE_UI_CANCEL },
 #endif
       }
