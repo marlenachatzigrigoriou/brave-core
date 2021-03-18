@@ -103,10 +103,12 @@ void CryptoDotComService::OnTickerInfo(
   const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   CryptoDotComTickerInfo info;
+  std::string json_body;
   if (status >= 200 && status <= 299) {
-    const std::string json_body = GetFormattedResponseBody(body);
-    CryptoDotComJSONParser::GetTickerInfoFromJSON(json_body, &info);
+    json_body = GetFormattedResponseBody(body);
   }
+
+  CryptoDotComJSONParser::GetTickerInfoFromJSON(json_body, &info);
   std::move(callback).Run(info);
 }
 

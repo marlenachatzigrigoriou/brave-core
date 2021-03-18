@@ -70,7 +70,7 @@ void CryptoDotComGetTickerInfoFunction::OnInfoResult(
   base::Value result(base::Value::Type::DICTIONARY);
 
   for (const auto& att : info) {
-    result.SetStringKey(att.first, att.second);
+    result.SetDoubleKey(att.first, att.second);
   }
 
   Respond(OneArgument(std::move(result)));

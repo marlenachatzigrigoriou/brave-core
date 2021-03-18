@@ -30,11 +30,11 @@
                 "type": "object",
                 "properties": {
                   "price": {
-                    "type": "string",
+                    "type": "number",
                     "description": "price"
                   },
                   "volume": {
-                    "type": "string",
+                    "type": "number",
                     "description": "volume"
                   }
                 }

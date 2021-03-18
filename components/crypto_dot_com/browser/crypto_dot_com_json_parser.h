@@ -22,11 +22,6 @@ class CryptoDotComJSONParser {
       CryptoDotComSupportedPairs* pairs);
   static bool GetRankingsFromJSON(const std::string& json,
       CryptoDotComAssetRankings* rankings);
- private:
-  static void CalculateAssetVolume(const double v,
-      const double h,
-      const double l,
-      std::string* volume);
 };
 
 #endif  // BRAVE_COMPONENTS_CRYPTO_DOT_COM_BROWSER_CRYPTO_DOT_COM_JSON_PARSER_H_

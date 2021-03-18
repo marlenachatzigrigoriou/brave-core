@@ -197,7 +197,12 @@ declare namespace chrome.gemini {
 }
 
 declare namespace chrome.cryptoDotCom {
-  const getTickerInfo: (asset: string, callback: (info: any) => void) => {}
+  type TickerPrice = {
+    price: number
+    volume: number
+  }
+
+  const getTickerInfo: (asset: string, callback: (info: TickerPrice) => void) => {}
   const getChartData: (asset: string, callback: (data: any[]) => void) => {}
   const getSupportedPairs: (callback: (pairs: any[]) => void) => {}
   const getAssetRankings: (callback: (assets: any) => void) => {}

@@ -57,11 +57,6 @@ import icons from './assets/icons'
 // Utils
 import { getLocale } from '../../../../common/locale'
 
-interface TickerPrice {
-  price: number
-  volume: number
-}
-
 interface AssetRanking {
   lastPrice: number
   pair: string
@@ -106,7 +101,7 @@ interface Props {
   disconnectInProgress: boolean
   accountBalances: Record<string, any>
   depositAddresses: Record<string, any>
-  tickerPrices: Record<string, TickerPrice>
+  tickerPrices: Record<string, chrome.cryptoDotCom.TickerPrice>
   losersGainers: Record<string, AssetRanking[]>
   supportedPairs: Record<string, string[]>
   tradingPairs: Array<Record<string, string>>

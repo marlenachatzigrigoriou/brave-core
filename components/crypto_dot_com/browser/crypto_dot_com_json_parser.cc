@@ -24,15 +24,15 @@
 // TODO(simonhong): Don't use intermediate struct.
 // During the converting between string and double, precision loss could be
 // happened and this could give invalid numbers to users in the widget.
-void CryptoDotComJSONParser::CalculateAssetVolume(
-    const double v,
-    const double h,
-    const double l,
-    std::string* volume) {
+
+namespace {
+
+double CalculateAssetVolume(double v, double h, double l) {
   // Volume is v * ((h + l) / 2)
-  double calc_volume = v * ((h + l) / 2.0);
-  *volume = std::to_string(calc_volume);
+  return  v * ((h + l) / 2.0);
 }
+
+}  // namespace
 
 bool CryptoDotComJSONParser::GetTickerInfoFromJSON(
     const std::string& json,
@@ -48,19 +48,16 @@ bool CryptoDotComJSONParser::GetTickerInfoFromJSON(
 
   if (!records_v) {
     LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
+    info->insert({"volume", 0});
+    info->insert({"price", 0});
     return false;
   }
 
-  // const base::Value* data = records_v->FindPath("response.result.data");
-  const base::Value* response = records_v->FindKey("response");
-  const base::Value* result = response->FindKey("result");
-  const base::Value* data = result->FindKey("data");
-
-  if (!response || !result || !data) {
-  // if (!data) {
+  const base::Value* data = records_v->FindPath("response.result.data");
+  if (!data) {
     // Empty values on failed response
-    info->insert({"volume", std::string()});
-    info->insert({"price", std::string()});
+    info->insert({"volume", 0});
+    info->insert({"price", 0});
     return false;
   }
 
@@ -74,14 +71,13 @@ bool CryptoDotComJSONParser::GetTickerInfoFromJSON(
       !(h && (h->is_double() || h->is_int())) ||
       !(l && (l->is_double() || l->is_int())) ||
       !(price && (price->is_double() || price->is_int()))) {
-    info->insert({"volume", std::string()});
-    info->insert({"price", std::string()});
+    info->insert({"volume", 0});
+    info->insert({"price", 0});
     return false;
   }
 
-  std::string volume;
-  CalculateAssetVolume(
-      v->GetDouble(), h->GetDouble(), l->GetDouble(), &volume);
+  const double volume = CalculateAssetVolume(
+      v->GetDouble(), h->GetDouble(), l->GetDouble());
 
   // TODO(simonhong): After converting to string, double value seems lost
   // its precision. Fix it.
@@ -89,7 +85,7 @@ bool CryptoDotComJSONParser::GetTickerInfoFromJSON(
   // LOG(ERROR) << __func__ << " #### " << price->GetDouble();
   // LOG(ERROR) << __func__ << " #### " << std::to_string(price->GetDouble());
   info->insert({"volume", volume});
-  info->insert({"price", std::to_string(price->GetDouble())});
+  info->insert({"price", price->GetDouble()});
 
   return true;
 }

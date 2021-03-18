@@ -45,7 +45,7 @@ const char get_chart_data_path[] = "/v2/public/get-candlestick";
 const char get_pairs_path[] = "/v2/public/get-instruments";
 const char get_gainers_losers_path[] = "/fe-ex-api/widget/get-gainers";
 
-typedef std::map<std::string, std::string> CryptoDotComTickerInfo;
+typedef std::map<std::string, double> CryptoDotComTickerInfo;
 typedef std::vector<std::map<std::string, std::string>> CryptoDotComChartData;
 typedef std::vector<std::map<std::string, std::string>>
     CryptoDotComSupportedPairs;
