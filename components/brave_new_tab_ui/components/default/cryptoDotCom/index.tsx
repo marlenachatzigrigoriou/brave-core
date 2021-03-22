@@ -162,12 +162,12 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
         this.setCheckIsConnectedInterval()
 
         chrome.cryptoDotCom.isConnected(async (isConnected: boolean) => {
-          await this.props.onUpdateActions()
+          this.props.onUpdateActions()
           this.checkSetRefreshInterval()
           this.props.onIsConnected(isConnected)
         })
       } else if (this.props.optInBTCPrice) {
-        await this.props.onUpdateActions()
+        this.props.onUpdateActions()
         this.checkSetRefreshInterval()
         this.props.onIsConnected(false)
       }
@@ -193,7 +193,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   checkSetRefreshInterval = () => {
     if (!this.refreshDataInterval) {
       this.refreshDataInterval = setInterval(async () => {
-        await this.props.onUpdateActions()
+        this.props.onUpdateActions()
           .catch((_e) => console.debug('Could not update crypto.com data'))
       }, 30000)
     }

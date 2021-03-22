@@ -401,7 +401,7 @@ void CustomizeWebUIHTMLSource(const std::string &name,
         { "cryptoDotComWidgetPairs", IDS_CRYPTO_DOT_COM_WIDGET_PAIRS },
         { "cryptoDotComWidgetVolume", IDS_CRYPTO_DOT_COM_WIDGET_VOLUME },
         { "cryptoDotComWidgetDisconnectTitle", IDS_BINANCE_WIDGET_DISCONNECT_TITLE },    // NOLINT
-        { "cryptoDotComWidgetWidgetDisconnectText" , IDS_BINANCE_WIDGET_DISCONNECT_TEXT },     // NOLINT
+        { "cryptoDotComWidgetDisconnectText" , IDS_BINANCE_WIDGET_DISCONNECT_TEXT },     // NOLINT
         { "cryptoDotComWidgetDisconnectButton" , IDS_BINANCE_WIDGET_DISCONNECT_BUTTON }, // NOLINT
         { "cryptoDotComWidgetCancelText" , IDS_BRAVE_UI_CANCEL },
 #endif
