@@ -61,7 +61,7 @@ base::SingleThreadTaskExecutor* g_task_executor = nullptr;
 
 @interface BATBraveRewards ()
 @property (nonatomic) BATBraveAds *ads;
-@property (nonatomic) BATBraveLedger *ledger;
+@property (nonatomic, nullable) BATBraveLedger *ledger;
 @property (nonatomic, copy) BATBraveRewardsConfiguration *configuration;
 @property (nonatomic, assign) Class ledgerClass;
 @property (nonatomic, assign) Class adsClass;
@@ -127,6 +127,22 @@ base::SingleThreadTaskExecutor* g_task_executor = nullptr;
 {
   NSString *adsStorage = [self.configuration.stateStoragePath stringByAppendingPathComponent:@"ads"];
   self.ads = [[self.adsClass alloc] initWithStateStoragePath:adsStorage];
+  
+  // Only start ledger service automatically if ads is enabled
+  if (self.ads.isEnabled) {
+    [self startLedgerService:nil];
+  }
+}
+
+- (void)startLedgerService:(nullable void (^)())completion
+{
+  if (self.ledger != nil) {
+    // Already started
+    if (completion) {
+      completion();
+    }
+    return;
+  }
   NSString *ledgerStorage = [self.configuration.stateStoragePath stringByAppendingPathComponent:@"ledger"];
   self.ledger = [[self.ledgerClass alloc] initWithStateStoragePath:ledgerStorage];
   __auto_type __weak weakSelf = self;
@@ -135,6 +151,16 @@ base::SingleThreadTaskExecutor* g_task_executor = nullptr;
   self.ledger.faviconFetcher = ^(NSURL *pageURL, void (^completion)(NSURL * _Nullable)) {
     [weakSelf.delegate faviconURLFromPageURL:pageURL completion:completion];
   };
+  
+  [self.ledger initializeLedgerService:^{
+    if (!weakSelf || !weakSelf.ledger) {
+      return;
+    }
+    [weakSelf.delegate ledgerServiceDidStart:weakSelf.ledger];
+    if (completion) {
+      completion();
+    }
+  }];
 }
 
 #pragma clang diagnostic push
