@@ -199,7 +199,7 @@ export const PlainButton = styled('button')<StyleProps>`
 
   ${ButtonGroup} & {
     color: ${p => p.isActive
-      ? p.theme.primary
+      ? p.theme.palette.primary
       : getColor(p.textColor) || getColor('light')};
     font-weight: 500;
     text-transform: uppercase;
@@ -218,10 +218,10 @@ export const ActionButton = styled('button')<StyleProps>`
   font-weight: ${p => (p.small ? '500' : 'bold')};
   border-radius: 20px;
   width: ${p => (p.inline ? 'auto' : (p.isFullWidth === false ? 'max-content' : '100%'))};
-  background: ${p => getColor(p.$bg) || (p.light ? 'rgba(255, 255, 255, 0.21)' : p.theme.primary)};
+  background: ${p => getColor(p.$bg) || (p.light ? 'rgba(255, 255, 255, 0.21)' : p.theme.palette.primary)};
   border: 0;
   padding: ${p => (p.small ? '6px 10px' : '10px 0px')};
-  cursor: ${p => p.disabled ? 'auto' : 'pointer'};
+    cursor: ${p => p.disabled ? 'auto' : 'pointer'};
   color: rgba(255, 255, 255, var(--textOpacity));
   line-height: 1;
   text-transform: ${p => !p.upperCase ? 'none' : 'uppercase'};
@@ -233,7 +233,7 @@ export const Link = styled('a')<StyleProps>`
   ${p => p.inlineBlock && 'display: inline-block;'}
   color: ${p => p.textColor
     ? getColor(p.textColor) || getColor('light')
-    : p.theme.primary};
+    : p.theme.palette.primary};
 
   ${getTextStyle}
   ${getBoxStyle}
@@ -248,7 +248,7 @@ export const WidgetWrapper = styled('div')<StyleProps>`
   font-size: 14px;
   overflow: hidden;
   min-width: 284px;
-  background: ${p => p.theme.secondary};
+  background: ${p => p.theme.palette.secondary};
   backdrop-filter: blur(16px);
 `
 
@@ -266,19 +266,6 @@ export const StyledTitle = styled('div')<{}>`
   font-weight: 600;
   color: #fff;
   font-family: ${p => p.theme.fontFamily.heading};
-`
-
-export const CryptoDotComIcon = styled('div')<{}>`
-  width: 27px;
-  height: 27px;
-  margin-right: 7px;
-  margin-left: 2px;
-
-  & svg,
-  & img {
-    width: 100%;
-    height: 100%;
-  }
 `
 
 export const StyledTitleText = styled('div')<{}>``
@@ -300,7 +287,7 @@ export const ListItem = styled('li')<StyleProps>`
   padding: ${p => (p.$p || 5)}px;
   border-radius: 2px;
   display: ${p => (p.isFlex ? 'flex' : 'block')};
-  cursor: ${p => (p.onClick ? 'pointer' : 'initial')}
+  cursor: ${p => (p.onClick ? 'pointer' : 'initial')};
   height: ${p => (p.$height ? `${p.$height}px` : 'auto')};
   ${(p) =>
     p.isFlex && `
@@ -309,7 +296,7 @@ export const ListItem = styled('li')<StyleProps>`
   `};
 `
 
-export const BackArrow = styled('PlainButton')<StyleProps>`
+export const BackArrow = styled(PlainButton)<StyleProps>`
   width: 20px;
   padding: 0;
   cursor: pointer;
@@ -322,7 +309,7 @@ export const ActionAnchor = styled('a')<StyleProps>`
   font-weight: ${p => (p.small ? '500' : 'bold')};
   border-radius: 20px;
   width: ${p => (p.inline ? 'auto' : '100%')};
-  background: ${p => (p.light ? 'rgba(255, 255, 255, 0.21)' : p.theme.primary)};
+  background: ${p => (p.light ? 'rgba(255, 255, 255, 0.21)' : p.theme.palette.primary)};
   border: 0;
   padding: ${p => (p.small ? '6px 10px' : '10px 0px')};
   margin: 10px 0 15px;
@@ -335,7 +322,7 @@ export const ActionAnchor = styled('a')<StyleProps>`
 `
 
 export const PlainAnchor = styled('a')<StyleProps>`
-  color: ${p => p.theme.primary};
+  color: ${p => p.theme.palette.primary};
 
   &:hover {
     opacity: 0.7;
@@ -354,7 +341,7 @@ export const SVG = styled('svg')<StyleProps>`
 * Dropdown styles
 */
 
-export const InputWrapper = styled('BasicBox')<StyleProps>`
+export const InputWrapper = styled(BasicBox)<StyleProps>`
   height: 30px;
   color: #000;
   background: #fff;
@@ -366,7 +353,7 @@ export const InputWrapper = styled('BasicBox')<StyleProps>`
   position: relative;
 `
 
-export const InputField = styled('input')<{}>`
+export const InputField = styled('input')<StyleProps>`
   background: none;
   display: inline-block;
   min-width: 225px;
@@ -379,7 +366,7 @@ export const InputField = styled('input')<{}>`
   ${getBoxStyle}
 `
 
-export const AmountInputField = styled('InputField')<{}>`
+export const AmountInputField = styled(InputField)<StyleProps>`
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.38);
   box-sizing: border-box;
@@ -479,7 +466,7 @@ export const GenButton = styled('button')<{}>`
   color: rgba(255, 255, 255, 0.7);
 `
 
-export const DisconnectButton = styled('GenButton')<{}>`
+export const DisconnectButton = styled(GenButton)<{}>`
   background: #AA1212;
   color: #fff;
   padding: 5px 20px;
@@ -505,14 +492,14 @@ export const Copy = styled('p')<{}>`
   margin-bottom: 11px;
 `
 
-export const DisconnectTitle = styled('Title')<{}>`
+export const DisconnectTitle = styled(Title)<{}>`
   font-size: 14px;
   max-width: 245px;
   margin: 0 auto;
   line-height: 18px;
 `
 
-export const DisconnectCopy = styled('Copy')<{}>`
+export const DisconnectCopy = styled(Copy)<{}>`
   color: #fff;
   max-width: 220px;
   line-height: 17px;

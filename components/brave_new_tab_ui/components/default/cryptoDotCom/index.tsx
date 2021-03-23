@@ -3,6 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as React from 'react'
 import { ThemeProvider } from 'styled-components'
+import Theme from 'brave-ui/theme/brave-default'
 
 import createWidget from '../widget/index'
 import { StyledTitleTab } from '../widgetTitleTab'
@@ -548,12 +549,17 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       return this.renderTitleTab()
     }
 
+    const extendedTheme = {
+      ...Theme,
+      palette: {
+        ...Theme.palette,
+        primary: 'rgba(68, 176, 255, 1)',
+        secondary: 'rgba(15, 28, 45, 0.7)'
+      }
+    }
+
     return (
-      <ThemeProvider theme={{
-          secondary: 'rgba(15, 28, 45, 0.7)',
-          primary: '#44B0FF',
-          danger: 'rgba(234, 78, 92, 1)'
-        }}>
+      <ThemeProvider theme={extendedTheme}>
         <WidgetWrapper>
           {
             this.props.disconnectInProgress
