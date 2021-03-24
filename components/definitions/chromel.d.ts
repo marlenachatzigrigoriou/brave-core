@@ -211,10 +211,16 @@ declare namespace chrome.cryptoDotCom {
     v: number
   }
 
+  type AssetRanking = {
+    lastPrice: string
+    pair: string
+    percentChange: string
+  }
+
   const getTickerInfo: (asset: string, callback: (info: TickerPrice) => void) => {}
   const getChartData: (asset: string, callback: (data: ChartDataPoint[]) => void) => {}
   const getSupportedPairs: (callback: (pairs: any[]) => void) => {}
-  const getAssetRankings: (callback: (assets: any) => void) => {}
+  const getAssetRankings: (callback: (assets: Record<string, AssetRanking[]>) => void) => {}
   const getAccountBalances: (callback: (balances: any, success: boolean) => void) => {}
   const getDepositAddress: (asset: string, callback: (address: any, success: boolean) => void) => {}
   const getNewsEvents: (callback: (newsEvents: any, success: boolean) => void) => {}

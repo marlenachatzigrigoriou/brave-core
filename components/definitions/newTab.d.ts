@@ -194,7 +194,7 @@ declare namespace NewTab {
     isConnected: boolean
     disconnectInProgress: boolean
     tickerPrices: Record<string, chrome.cryptoDotCom.TickerPrice>
-    losersGainers: Record<string, any>
+    losersGainers: Record<string, chrome.cryptoDotCom.AssetRanking[]>
     supportedPairs: Record<string, any>
     tradingPairs: Array<Record<string, any>>
     newsEvents: Array<Record<string, string>>
