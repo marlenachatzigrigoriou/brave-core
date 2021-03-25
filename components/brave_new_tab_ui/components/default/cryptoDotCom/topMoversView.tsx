@@ -24,7 +24,6 @@ import {
 
 import { getLocale } from '../../../../common/locale'
 
-// TODO(simonhong): Remove any.
 interface Props {
   losersGainers: Record<string, chrome.cryptoDotCom.AssetRanking[]>
   handleAssetClick: (base: string, quote?: string, view?: AssetViews) => Promise<void>
@@ -41,11 +40,11 @@ export default function TopMoversView ({
 
   const [filter, setFilter] = React.useState(FilterValues.GAINERS);
 
-  const sortTopMovers = (a: Record<string, any>, b: Record<string, any>) => {
+  const sortTopMovers = (a: chrome.cryptoDotCom.AssetRanking, b: chrome.cryptoDotCom.AssetRanking) => {
     if (filter === FilterValues.GAINERS) {
-      return b.percentChange - a.percentChange
+      return Number(b.percentChange) - Number(a.percentChange)
     } else {
-      return a.percentChange - b.percentChange
+      return Number(a.percentChange) - Number(b.percentChange)
     }
   }
 
@@ -57,7 +56,7 @@ export default function TopMoversView ({
     <List>
       {losersGainers && losersGainers[filter] && losersGainers[filter]
         .sort(sortTopMovers)
-        .map((asset: Record<string, any>) => {
+        .map((asset: chrome.cryptoDotCom.AssetRanking) => {
           const currency = asset.pair.split('_')[0];
           const { percentChange, lastPrice: price } = asset
 
@@ -71,7 +70,7 @@ export default function TopMoversView ({
                 <Text small={true} textColor='light'>{currencyNames[currency]}</Text>
               </FlexItem>
               <FlexItem textAlign='right' flex={1}>
-                {(price !== null) && <Text>{formattedNum(price)}</Text>}
+                {(price !== null) && <Text>{formattedNum(Number(price))}</Text>}
                 {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
               </FlexItem>
             </ListItem>

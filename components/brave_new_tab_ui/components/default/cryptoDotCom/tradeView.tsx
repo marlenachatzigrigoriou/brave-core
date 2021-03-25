@@ -27,12 +27,19 @@ import {
 import { SearchIcon } from '../../default/exchangeWidget/shared-assets'
 import { getLocale } from '../../../../common/locale'
 
+interface Props {
+  tickerPrices: Record<string, chrome.cryptoDotCom.TickerPrice>
+  losersGainers: Record<string, chrome.cryptoDotCom.AssetRanking[]>
+  tradingPairs: Array<Record<string, string>>
+  handleAssetClick: (base: string, quote?: string, view?: AssetViews) => Promise<void>
+}
+
 export default function TradeView ({
-  tickerPrices = {},
-  losersGainers = {},
-  tradingPairs = [],
+  tickerPrices,
+  losersGainers,
+  tradingPairs,
   handleAssetClick
-}: any) {
+}: Props) {
   const assetRankings = transformLosersGainers(losersGainers)
 
   enum FilterValues {

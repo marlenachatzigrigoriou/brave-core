@@ -27,19 +27,18 @@ import {
 } from './utils'
 import { getLocale } from '../../../../common/locale'
 
-// TODO(simonhong): Remove any
 interface ChartConfig {
-  data: Array<any>
+  chartData: chrome.cryptoDotCom.ChartDataPoint[]
   chartHeight: number
   chartWidth: number
 }
 
-function plotData ({ data, chartHeight, chartWidth }: ChartConfig) {
+function plotData ({ chartData, chartHeight, chartWidth }: ChartConfig) {
   const pointsPerDay = 4
   const daysInrange = 7
-  const yHighs = data.map((point: chrome.cryptoDotCom.ChartDataPoint) => point.h)
-  const yLows = data.map((point: chrome.cryptoDotCom.ChartDataPoint) => point.l)
-  const dataPoints = data.map((point: chrome.cryptoDotCom.ChartDataPoint) => point.c)
+  const yHighs = chartData.map((point: chrome.cryptoDotCom.ChartDataPoint) => point.h)
+  const yLows = chartData.map((point: chrome.cryptoDotCom.ChartDataPoint) => point.l)
+  const dataPoints = chartData.map((point: chrome.cryptoDotCom.ChartDataPoint) => point.c)
   const chartAreaY = chartHeight - 2
   const max = Math.max(...yHighs)
   const min = Math.min(...yLows)
@@ -128,7 +127,7 @@ export default function AssetDetailView ({
             stroke='#44B0FF'
             strokeWidth='3'
             points={plotData({
-              data: chartData,
+              chartData,
               chartHeight,
               chartWidth
             })}

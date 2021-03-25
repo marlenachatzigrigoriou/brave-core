@@ -55,20 +55,19 @@ interface State {
   clientAuthUrl: string
 }
 
-// TODO(simonhong): Remove any from Props.
 interface Props {
   showContent: boolean
   optInBTCPrice: boolean
   hideBalance: boolean
   isConnected: boolean
   disconnectInProgress: boolean
-  accountBalances: Record<string, any>
-  depositAddresses: Record<string, any>
+  accountBalances: chrome.cryptoDotCom.AccountBalances
+  depositAddresses: Record<string, NewTab.DepositAddress>
   tickerPrices: Record<string, chrome.cryptoDotCom.TickerPrice>
   losersGainers: Record<string, chrome.cryptoDotCom.AssetRanking[]>
   supportedPairs: Record<string, string[]>
   tradingPairs: Array<Record<string, string>>
-  newsEvents: Array<Record<string, string>>
+  newsEvents: chrome.cryptoDotCom.NewsEvent[]
   charts: Record<string, chrome.cryptoDotCom.ChartDataPoint[]>
   stackPosition: number
   onShowContent: () => void
@@ -240,7 +239,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
 
   renderEvents () {
     return <List>
-      {this.props.newsEvents.map((event: any) => (
+      {this.props.newsEvents.map((event: chrome.cryptoDotCom.NewsEvent) => (
         <ListItem $p={10} key={event.redirect_url}>
           <Text $fontSize={12} textColor='light'>{event.updated_at}</Text>
           <Text $fontSize={12}>{event.content}</Text>
@@ -289,7 +288,10 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       return 0
     }
 
-    const account = this.props.accountBalances.accounts.find((account: Record<string, any>) => account.currency === currency)
+    const account = this.props.accountBalances.accounts.find((account: chrome.cryptoDotCom.Account) => account.currency === currency)
+    if (!account) {
+      return 0
+    }
     return decimalizeCurrency(account.available, account.currency_decimals)
   }
 

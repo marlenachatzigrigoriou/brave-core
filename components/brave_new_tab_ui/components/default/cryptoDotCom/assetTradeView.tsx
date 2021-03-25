@@ -49,13 +49,13 @@ export default function AssetTradeView ({
 }: Props) {
 
   enum TradeModes {
-    BUY = 'buy',
-    SELL = 'sell'
+    BUY = 'BUY',
+    SELL = 'SELL'
   }
 
   const tradeModeLocaleStrings = {
-    buy: getLocale('cryptoDotComWidgetBuy'),
-    sell: getLocale('cryptoDotComWidgetSell')
+    BUY: getLocale('cryptoDotComWidgetBuy'),
+    SELL: getLocale('cryptoDotComWidgetSell')
   }
 
   enum Percentages {
@@ -73,7 +73,6 @@ export default function AssetTradeView ({
   const [showConfirmScreen, setConfirmScreen] = React.useState(false)
   const [counter, setCounter] = React.useState(confirmDelay)
 
-  let timerId: any;
   const { price: unitPrice = 0 } = tickerPrices[`${base}_${quote}`] || {}
   const approxTotal = Number(tradeAmount) * unitPrice
 
@@ -111,20 +110,26 @@ export default function AssetTradeView ({
     })
   )
 
+  const timerRef = React.useRef<number>();
   React.useEffect(() => {
-    if (showConfirmScreen) {
-      timerId = counter > 0 && setInterval(() => {
+    if (showConfirmScreen && counter > 0) {
+      const id = setInterval(() => {
         if (counter > 0) {
-          console.log(counter)
           setCounter(counter - 1)
         }
       }, 1000);
+      timerRef.current = id
     }
-    return () => clearInterval(timerId);
+
+    if (showConfirmScreen && counter == 0) {
+      makeOrder()
+    }
+
+    return () => clearInterval(timerRef.current);
   }, [counter, showConfirmScreen]);
 
   const clearTimers = () => {
-    clearTimeout(timerId)
+    clearInterval(timerRef.current)
     setCounter(confirmDelay)
   }
 
@@ -133,17 +138,20 @@ export default function AssetTradeView ({
   }
 
   const handleConfirmClick = () => {
+    makeOrder()
+  }
+
+  const makeOrder = () => {
     // Call order api.
     const order = {
       'instrument_name': `${base}_${quote}`,
       'type': 'MARKET',
+      'side': tradeMode
     }
 
     if (tradeMode === TradeModes.BUY) {
-      order['side'] = 'BUY'
       order['notional'] = decimalizeCurrency(approxTotal.toString(), Number(priceDecimals))
     } else {
-      order['side'] = 'SELL'
       order['quantity'] = decimalizeCurrency(tradeAmount.toString(), Number(quantityDecimals))
     }
 

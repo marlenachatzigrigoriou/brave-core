@@ -28,18 +28,11 @@ import {
 
 import { getLocale } from '../../../../common/locale'
 
-// TODO(simonhong): make this as global type such as chrome.cryptoDotCom.accountBalances.account
-interface Account {
-  currency: string
-  available: string
-  currency_decimals: number
-}
-
 interface Props {
   onSetHideBalance: (hide: boolean) => void
   hideBalance: boolean
   availableBalance: string
-  holdings: Account[]
+  holdings: chrome.cryptoDotCom.Account[]
 }
 
 export default function BalanceSummaryView ({

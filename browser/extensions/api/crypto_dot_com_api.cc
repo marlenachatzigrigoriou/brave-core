@@ -335,9 +335,21 @@ ExtensionFunction::ResponseAction CryptoDotComCreateMarketOrderFunction::Run() {
       crypto_dot_com::CreateMarketOrder::Params::Create(*args_));
   EXTENSION_FUNCTION_VALIDATE(params.get());
 
+  base::Value order_value(base::Value::Type::DICTIONARY);
+  order_value.SetStringKey("instrument_name", params->order.instrument_name);
+  order_value.SetStringKey("type", params->order.type);
+  order_value.SetStringKey("side", params->order.side);
+  if (params->order.notional) {
+    order_value.SetDoubleKey("notional", *params->order.notional);
+  } else if (params->order.quantity) {
+    order_value.SetDoubleKey("quantity", *params->order.quantity);
+  }
   auto* service = GetCryptoDotComService(browser_context());
-  bool ret = service->CreateMarketOrder(params->order->Clone(), base::BindOnce(
-      &CryptoDotComCreateMarketOrderFunction::OnCreateMarketOrderResult, this));
+  bool ret = service->CreateMarketOrder(
+      std::move(order_value),
+      base::BindOnce(
+          &CryptoDotComCreateMarketOrderFunction::OnCreateMarketOrderResult,
+          this));
 
   if (!ret) {
     return RespondNow(

@@ -3,14 +3,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include <string>
+#include <map>
+#include <vector>
 
 #include "brave/components/crypto_dot_com/browser/crypto_dot_com_json_parser.h"
 
 #include "base/json/json_reader.h"
 #include "base/logging.h"
 #include "base/strings/string_number_conversions.h"
-#include "base/values.h"
 
 namespace {
 
@@ -41,7 +41,7 @@ bool CryptoDotComJSONParser::GetTickerInfoFromJSON(
   }
 
   const base::Value* data = records_v->FindPath("response.result.data");
-  if (!data) {
+  if (!data || !data->is_dict()) {
     // Empty values on failed response
     info->insert({"volume", 0});
     info->insert({"price", 0});
@@ -266,4 +266,128 @@ bool CryptoDotComJSONParser::GetRankingsFromJSON(
   rankings->insert({"losers", losers});
 
   return true;
+}
+
+base::Value CryptoDotComJSONParser::GetValidAccountBalances(
+    const std::string& json) {
+  auto response_value = base::JSONReader::Read(json);
+  if (!response_value.has_value() || !response_value.value().is_dict()) {
+    return base::Value();
+  }
+
+  // Valid response has "0" for "code" property.
+  if (const auto* code = response_value->FindStringKey("code")) {
+    if (!code || *code != "0")
+      return base::Value();
+  }
+
+  const base::Value* result_value = response_value->FindKey("result");
+  if (!result_value || !result_value->is_dict()) {
+    return base::Value();
+  }
+
+  base::Value valid_balances(base::Value::Type::DICTIONARY);
+  const std::string* total_balance =
+      result_value->FindStringKey("total_balance");
+  if (!total_balance)
+    return base::Value();
+
+  const base::Value* accounts = result_value->FindListKey("accounts");
+  if (!accounts)
+    return base::Value();
+
+  base::Value accounts_list(base::Value::Type::LIST);
+  for (const base::Value& account : accounts->GetList()) {
+    if (account.FindKey("stake") &&
+        account.FindKey("balance") &&
+        account.FindKey("available") &&
+        account.FindKey("currency") &&
+        account.FindKey("order") &&
+        account.FindKey("currency_decimals")) {
+      accounts_list.Append(account.Clone());
+    }
+  }
+
+  if (accounts_list.GetList().empty())
+    return base::Value();
+
+  valid_balances.SetStringKey("total_balance", *total_balance);
+  valid_balances.SetKey("accounts", std::move(accounts_list));
+  return valid_balances;
+}
+
+base::Value CryptoDotComJSONParser::GetValidNewsEvents(
+    const std::string& json) {
+  auto response_value = base::JSONReader::Read(json);
+  if (!response_value.has_value() || !response_value.value().is_dict()) {
+    return base::Value();
+  }
+
+  if (const auto* code = response_value->FindStringKey("code")) {
+    if (!code || *code != "0")
+      return base::Value();
+  }
+
+  const base::Value* events = response_value->FindListPath("result.events");
+  if (!events)
+    return base::Value();
+
+  base::Value valid_events(base::Value::Type::LIST);
+  for (const base::Value& event : events->GetList()) {
+    const std::string* content = event.FindStringKey("content");
+    const std::string* redirect_url = event.FindStringKey("redirect_url");
+    const std::string* updated_at = event.FindStringKey("updated_at");
+    const std::string* redirect_title = event.FindStringKey("redirect_title");
+    if (content && redirect_url && updated_at && redirect_title) {
+      base::Value valid_event(base::Value::Type::DICTIONARY);
+      valid_event.SetStringKey("content", *content);
+      valid_event.SetStringKey("redirect_title", *redirect_title);
+      valid_event.SetStringKey("redirect_url", *redirect_url);
+      valid_event.SetStringKey("updated_at", *updated_at);
+      valid_events.Append(std::move(valid_event));
+    }
+  }
+
+  if (valid_events.GetList().empty())
+    return base::Value();
+
+  return valid_events;
+}
+
+// TODO(simonhong): Re-check return type from crypto.com service.
+// Current return type is different with their spec.
+base::Value CryptoDotComJSONParser::GetValidDepositAddress(
+    const std::string& json) {
+  auto response_value = base::JSONReader::Read(json);
+  if (!response_value.has_value() || !response_value.value().is_dict()) {
+    return base::Value();
+  }
+
+  // Valid response has "0" for "code" property.
+  if (const auto* code = response_value->FindStringKey("code")) {
+    if (*code != "0")
+      return base::Value();
+  }
+
+  const base::Value* addresses_value =
+      response_value->FindPath("result.addresses");
+  if (!addresses_value || !addresses_value->is_list() || !addresses_value->GetList().size()) {
+    return base::Value();
+  }
+
+  const std::string* address_str =
+      addresses_value->GetList()[0].FindStringKey("address");
+  const std::string* qr_code_str =
+      addresses_value->GetList()[0].FindStringKey("qr_code");
+  const std::string* currency_str =
+      addresses_value->GetList()[0].FindStringKey("currency");
+  if (!address_str || !qr_code_str || !currency_str) {
+    return base::Value();
+  }
+
+  base::Value address(base::Value::Type::DICTIONARY);
+  address.SetStringKey("address", *address_str);
+  address.SetStringKey("qr_code", *qr_code_str);
+  address.SetStringKey("currency", *currency_str);
+  return address;
 }

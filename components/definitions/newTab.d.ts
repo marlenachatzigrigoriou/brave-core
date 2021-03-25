@@ -188,6 +188,11 @@ declare namespace NewTab {
     authInvalid: boolean
   }
 
+  export interface DepositAddress {
+    address: string
+    qr_code: string
+  }
+
   export interface CryptoDotComWidgetState {
     optInBTCPrice: boolean
     hideBalance: boolean
@@ -195,12 +200,12 @@ declare namespace NewTab {
     disconnectInProgress: boolean
     tickerPrices: Record<string, chrome.cryptoDotCom.TickerPrice>
     losersGainers: Record<string, chrome.cryptoDotCom.AssetRanking[]>
-    supportedPairs: Record<string, any>
-    tradingPairs: Array<Record<string, any>>
-    newsEvents: Array<Record<string, string>>
+    supportedPairs: Record<string, string[]>
+    tradingPairs: chrome.cryptoDotCom.SupportedPair[]
+    newsEvents: chrome.cryptoDotCom.NewsEvent[]
     charts: Array<string, chrome.cryptoDotCom.CharData>
-    accountBalances: Record<string, any>
-    depositAddresses: Record<string, any>
+    accountBalances: chrome.cryptoDotCom.AccountBalances
+    depositAddresses: Record<string, DepositAddress>
   }
 
   export type BinanceTLD = 'us' | 'com'

@@ -191,23 +191,11 @@ void CryptoDotComService::OnGetAccountBalances(
     const int status, const std::string& body,
     const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
-  auto response_value = base::JSONReader::Read(body);
-  if (!response_value.has_value() || !response_value.value().is_dict()) {
-    std::move(callback).Run(empty_dict_.Clone(), false);
-    return;
-  }
-  // Valid response has "0" for "code" property.
-  if (const auto* code = response_value->FindStringKey("code")) {
-    if (*code != "0")
-      return std::move(callback).Run(empty_dict_.Clone(), false);
-  }
-
-  const base::Value* result_value = response_value->FindKey("result");
-  if (!result_value || !result_value->is_dict()) {
+  auto value = CryptoDotComJSONParser::GetValidAccountBalances(body);
+  if (value.is_none())
     return std::move(callback).Run(empty_dict_.Clone(), false);
-  }
 
-  std::move(callback).Run(result_value->Clone(), true);
+  std::move(callback).Run(std::move(value), true);
 }
 
 bool CryptoDotComService::IsLoggedIn() {
@@ -272,41 +260,11 @@ void CryptoDotComService::OnGetDepositAddress(
     const int status, const std::string& body,
     const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
-  auto response_value = base::JSONReader::Read(body);
-  if (!response_value.has_value() || !response_value.value().is_dict()) {
-    std::move(callback).Run(empty_dict_.Clone(), false);
-    return;
-  }
-
-  // Valid response has "0" for "code" property.
-  if (const auto* code = response_value->FindStringKey("code")) {
-    if (*code != "0")
-      return std::move(callback).Run(empty_dict_.Clone(), false);
-  }
-
-  const base::Value* addresses_value =
-      response_value->FindKey("result");
-  if (!addresses_value || !addresses_value->is_dict()) {
+  auto value = CryptoDotComJSONParser::GetValidDepositAddress(body);
+  if (value.is_none())
     return std::move(callback).Run(empty_dict_.Clone(), false);
-  }
 
-  const std::string* address_str =
-      addresses_value->FindStringKey("address");
-  const std::string* qr_code_str =
-      addresses_value->FindStringKey("qr_code");
-  const std::string* currency_str =
-      addresses_value->FindStringKey("currency");
-  if (!address_str || !qr_code_str || !currency_str) {
-    return std::move(callback).Run(empty_dict_.Clone(), false);
-  }
-
-  // Returns {BTC: { address: xxx, qr_code: xxx }}
-  base::Value address(base::Value::Type::DICTIONARY);
-  address.SetStringKey("address", *address_str);
-  address.SetStringKey("qr_code", *qr_code_str);
-  base::Value return_value(base::Value::Type::DICTIONARY);
-  return_value.SetKey(*currency_str, std::move(address));
-  std::move(callback).Run(std::move(return_value), true);
+  std::move(callback).Run(std::move(value), true);
 }
 
 bool CryptoDotComService::GetNewsEvents(GetNewsEventsCallback callback) {
@@ -323,25 +281,12 @@ void CryptoDotComService::OnGetNewsEvents(
     GetNewsEventsCallback callback,
     const int status, const std::string& body,
     const std::map<std::string, std::string>& headers) {
-  auto response_value = base::JSONReader::Read(body);
-  if (!response_value.has_value() || !response_value.value().is_dict()) {
-    std::move(callback).Run(empty_list_.Clone(), false);
-    return;
-  }
-
-  if (const auto* code = response_value->FindStringKey("code")) {
-    if (*code != "0")
-      return std::move(callback).Run(empty_list_.Clone(), false);
-  }
-
-  const base::Value* events_value =
-      response_value->FindPath("result.events");
-
-  if (!events_value || !events_value->is_list()) {
+  DVLOG(2) << __func__ << ": " << body;
+  auto value = CryptoDotComJSONParser::GetValidNewsEvents(body);
+  if (value.is_none())
     return std::move(callback).Run(empty_list_.Clone(), false);
-  }
 
-  std::move(callback).Run(events_value->Clone(), true);
+  std::move(callback).Run(std::move(value), true);
 }
 
 bool CryptoDotComService::CreateMarketOrder(
@@ -355,7 +300,7 @@ bool CryptoDotComService::CreateMarketOrder(
 
   std::string body;
   base::JSONWriter::Write(order, &body);
-  DVLOG(2) << __func__ << " ##### " << body;
+  DVLOG(2) << __func__ << ": " << body;
   return NetworkRequest(url, "POST", body, headers,
                         std::move(internal_callback));
 }
@@ -435,8 +380,7 @@ bool CryptoDotComService::NetworkRequest(const GURL &url,
       std::move(request), GetNetworkTrafficAnnotationTag());
 
   if (!post_data.empty()) {
-    url_loader->AttachStringForUpload(post_data,
-        "application/json");
+    url_loader->AttachStringForUpload(post_data, "application/json");
   }
 
   url_loader->SetRetryOptions(

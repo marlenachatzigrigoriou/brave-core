@@ -6,10 +6,9 @@
 #ifndef BRAVE_COMPONENTS_CRYPTO_DOT_COM_BROWSER_CRYPTO_DOT_COM_JSON_PARSER_H_
 #define BRAVE_COMPONENTS_CRYPTO_DOT_COM_BROWSER_CRYPTO_DOT_COM_JSON_PARSER_H_
 
-#include <map>
 #include <string>
-#include <vector>
 
+#include "base/values.h"
 #include "brave/components/crypto_dot_com/browser/crypto_dot_com_service.h"
 
 class CryptoDotComJSONParser {
@@ -22,6 +21,9 @@ class CryptoDotComJSONParser {
       CryptoDotComSupportedPairs* pairs);
   static bool GetRankingsFromJSON(const std::string& json,
       CryptoDotComAssetRankings* rankings);
+  static base::Value GetValidAccountBalances(const std::string& json);
+  static base::Value GetValidNewsEvents(const std::string& json);
+  static base::Value GetValidDepositAddress(const std::string& json);
 };
 
 #endif  // BRAVE_COMPONENTS_CRYPTO_DOT_COM_BROWSER_CRYPTO_DOT_COM_JSON_PARSER_H_

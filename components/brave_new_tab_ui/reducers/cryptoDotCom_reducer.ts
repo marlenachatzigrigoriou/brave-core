@@ -5,19 +5,11 @@
 import { Reducer } from 'redux'
 import { types } from '../constants/cryptoDotCom_types'
 
-interface SupportedPair {
-  base: string
-  pair: string
-  quote: string
-  price: string
-  quantity: string
-}
-
-function reducePairs (rawPairs: SupportedPair[]) {
+function reducePairs (rawPairs: chrome.cryptoDotCom.SupportedPair[]) {
   if (!rawPairs || !rawPairs.length) {
     return {}
   }
-  return rawPairs.reduce((pairs: object, currPair: SupportedPair) => {
+  return rawPairs.reduce((pairs: object, currPair: chrome.cryptoDotCom.SupportedPair) => {
     const { base, pair } = currPair
     pairs[base] = pairs[base]
       ? [...pairs[base], pair]
@@ -50,7 +42,8 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
           // Reset account specific state if not connected.
           newsEvents: isConnected ? state.cryptoDotComState.newsEvents : [],
           depositAddresses: isConnected ? state.cryptoDotComState.depositAddresses : {},
-          accountBalances: isConnected ? state.cryptoDotComState.accountBalances : {}
+          accountBalances: isConnected ? state.cryptoDotComState.accountBalances
+                                       : { total_balance: '0', accounts: [] }
         }
       }
       break;
@@ -80,7 +73,10 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
           },
           depositAddresses: {
             ...state.cryptoDotComState.depositAddresses,
-            ...payload.depositAddress
+            [payload.depositAddress.currency]: {
+              address: payload.depositAddress.address,
+              qr_code: payload.depositAddress.qr_code
+            }
           }
         }
       }

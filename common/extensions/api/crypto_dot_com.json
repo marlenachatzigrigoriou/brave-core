@@ -9,7 +9,55 @@
     "compiler_options": {
       "implemented_in": "brave/browser/extensions/api/crypto_dot_com_api.h"
     },
-    "events": [
+    "types": [
+      {
+        "id": "AssetRanking",
+        "type": "object",
+        "properties": {
+          "lastPrice": { "type": "string" },
+          "pair": { "type": "string" },
+          "percentChange": { "type": "string" }
+        }
+      },
+      {
+        "id": "AccountBalance",
+        "type": "object",
+        "properties": {
+          "stake": { "type": "string" },
+          "balance": { "type": "string" },
+          "available": { "type": "string" },
+          "currency": { "type": "string" },
+          "currency_decimals": { "type": "number" },
+          "order": { "type": "string" }
+        }
+      },
+      {
+        "id": "NewsEvent",
+        "type": "object",
+        "properties": {
+          "content": { "type": "string" },
+          "redirect_url": { "type": "string" },
+          "updated_at": { "type": "string" },
+          "redirect_title": { "type": "string" }
+        }
+      },
+      {
+        "id": "Order",
+        "type": "object",
+        "properties": {
+          "instrument_name": { "type": "string" },
+          "type": { "type": "string" },
+          "side": { "type": "string" },
+          "notional": {
+            "type": "number",
+            "optional": true
+          },
+          "quantity": {
+            "type": "number",
+            "optional": true
+          }
+        }
+      }
     ],
     "functions": [
       {
@@ -145,18 +193,12 @@
                   "gainers": {
                     "type": "array",
                     "description": "top gainers",
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": { "type": "any" }
-                    }
+                    "items": { "$ref": "AssetRanking" }
                   },
                   "losers": {
                     "type": "array",
                     "description": "top losers",
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": { "type": "any" }
-                    }
+                    "items": { "$ref": "AssetRanking" }
                   }
                 }
               }
@@ -192,7 +234,16 @@
             "parameters": [
               {
                 "name": "balances",
-                "type": "any"
+                "type": "object",
+                "properties": {
+                  "total_balance": {
+                    "type": "string"
+                  },
+                  "accounts": {
+                    "type": "array",
+                    "items": { "$ref": "AccountBalance" }
+                  }
+                }
               },
               {
                 "name": "success",
@@ -281,7 +332,8 @@
             "parameters": [
               {
                 "name": "events",
-                "type": "any"
+                "type": "array",
+                "items": { "$ref": "NewsEvent" }
               },
               {
                 "name": "success",
@@ -323,7 +375,7 @@
         "parameters": [
           {
             "name": "order",
-            "type": "any"
+            "$ref": "Order"
           },
           {
             "name": "callback",
@@ -338,9 +390,9 @@
         ]
       }
     ],
-    "types": [
-    ],
     "properties": {
-    }
+    },
+    "events": [
+    ]
   }
 ]

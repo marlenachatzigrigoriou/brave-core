@@ -217,14 +217,57 @@ declare namespace chrome.cryptoDotCom {
     percentChange: string
   }
 
+  type SupportedPair = {
+    pair: string
+    base: string
+    quote: string
+    price: string
+    quantity: string
+  }
+
+  type Account = {
+    stake: string
+    balance: string
+    available: string
+    currency: string
+    currency_decimals: number
+    order: string
+  }
+
+  type AccountBalances = {
+    total_balance: string
+    accounts: Account[]
+  }
+
+  type NewsEvent = {
+    content: string
+    redirect_url: string
+    updated_at: string
+    redirect_title: string
+  }
+
+  type DepositAddress = {
+    address: string
+    qr_code: string
+    currency: string
+  }
+
+  type Order = {
+    instrument_name: string
+    type: string
+    side: string
+    notional?: number
+    quantity?: number
+  }
+
   const getTickerInfo: (asset: string, callback: (info: TickerPrice) => void) => {}
   const getChartData: (asset: string, callback: (data: ChartDataPoint[]) => void) => {}
-  const getSupportedPairs: (callback: (pairs: any[]) => void) => {}
+  const getSupportedPairs: (callback: (pairs: SupportedPair[]) => void) => {}
   const getAssetRankings: (callback: (assets: Record<string, AssetRanking[]>) => void) => {}
-  const getAccountBalances: (callback: (balances: any, success: boolean) => void) => {}
-  const getDepositAddress: (asset: string, callback: (address: any, success: boolean) => void) => {}
-  const getNewsEvents: (callback: (newsEvents: any, success: boolean) => void) => {}
-  const createMarketOrder: (order: any, callback: (success: boolean) => void) => {}
+  const getAccountBalances: (callback: (balances: AccountBalances, success: boolean) => void) => {}
+  const getDepositAddress: (asset: string, callback: (address: DepositAddress, success: boolean) => void) => {}
+  const getNewsEvents: (callback: (newsEvents: NewsEvent[], success: boolean) => void) => {}
+  const createMarketOrder: (order: Order, callback: (success: boolean) => void) => {}
   const getClientUrl: (callback: (url: string) => void) => {}
   const disconnect: (callback: (success: boolean) => void) => {}
   const isConnected: (callback: (connected: boolean) => void) => {}

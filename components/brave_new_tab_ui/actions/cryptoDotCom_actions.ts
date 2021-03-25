@@ -16,7 +16,7 @@ export const onIsConnectedReceived = (isConnected: boolean) => {
   return action(types.ON_IS_CONNECTED_RECEIVED, { isConnected })
 }
 
-export const onCryptoDotComRefreshedDataReceived = (tickerPrices: object, losersGainers: object[], charts?: object, accountBalances?: object, newsEvents?: object, pairs?: object[]) => {
+export const onCryptoDotComRefreshedDataReceived = (tickerPrices: object, losersGainers: object, charts?: object, accountBalances?: object, newsEvents?: object, pairs?: object) => {
   return action(types.REFRESHED_DATA_RECEIVED, { tickerPrices, losersGainers, charts, accountBalances, newsEvents, pairs })
 }
 
