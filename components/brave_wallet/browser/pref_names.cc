@@ -13,3 +13,4 @@ const char kBraveWalletPrefVersion[] = "brave.wallet.pref_version";
 const char kBraveWalletWeb3Provider[] = "brave.wallet.web3_provider";
 const char kLoadCryptoWalletsOnStartup[] = "brave.wallet.load_on_startup";
 const char kOptedIntoCryptoWallets[] = "brave.wallet.opted_in";
+const char kShowWalletIcon[] = "brave.wallet.icon";
