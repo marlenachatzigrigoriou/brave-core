@@ -51,11 +51,14 @@ std::string ToHex(const std::string& data) {
 }
 
 std::string KeccakHash(const std::string& input) {
-  auto hash = ethash_keccak256(
-      reinterpret_cast<uint8_t*>(const_cast<char*>(input.data())),
-      input.size());
-  std::string result(hash.str, sizeof(hash.str) / sizeof(hash.str[0]));
-  return ToHex(result);
+  std::vector<uint8_t> bytes(input.begin(), input.end());
+  std::vector<uint8_t> result = KeccakHash(bytes);
+  return ToHex(std::string(result.begin(), result.end()));
+}
+
+std::vector<uint8_t> KeccakHash(const std::vector<uint8_t>& input) {
+  auto hash = ethash_keccak256(input.data(), input.size());
+  return std::vector<uint8_t>(hash.bytes, hash.bytes + 32);
 }
 
 std::string GetFunctionHash(const std::string& input) {
