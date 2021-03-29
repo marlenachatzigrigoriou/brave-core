@@ -1,0 +1,13 @@
+diff --git a/chrome/browser/extensions/install_verifier.cc b/chrome/browser/extensions/install_verifier.cc
+index 8ee620b57a0d029e0639ef8c11bc76c7ec7e888e..893dc7e3dc5999410f48ff93493b2e8629f9d69b 100644
+--- a/chrome/browser/extensions/install_verifier.cc
++++ b/chrome/browser/extensions/install_verifier.cc
+@@ -60,7 +60,7 @@ enum class VerifyStatus {
+ };
+ 
+ VerifyStatus GetExperimentStatus() {
+-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && (defined(OS_WIN) || defined(OS_MAC))
++#if (BUILDFLAG(GOOGLE_CHROME_BRANDING) || defined(OFFICIAL_BUILD)) && (defined(OS_WIN) || defined(OS_MAC))
+   return VerifyStatus::ENFORCE;
+ #else
+   return VerifyStatus::NONE;
