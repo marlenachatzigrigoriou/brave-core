@@ -57,6 +57,15 @@
             "optional": true
           }
         }
+      },
+      {
+        "id": "DepositAddress",
+        "type": "object",
+        "properties": {
+          "address": { "type": "string" },
+          "qr_code": { "type": "string" },
+          "currency": { "type": "string" }
+        }
       }
     ],
     "functions": [
@@ -358,7 +367,7 @@
             "parameters": [
               {
                 "name": "data",
-                "type": "any"
+                "$ref": "DepositAddress"
               },
               {
                 "name": "success",
