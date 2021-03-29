@@ -25,7 +25,10 @@ import {
   DismissAction
 } from './style'
 
-import { decimalizeCurrency } from './utils'
+import {
+  convertTimeToHumanReadable,
+  decimalizeCurrency
+} from './utils'
 
 import AssetDepositView from './assetDepositView'
 import AssetDetailView from './assetDetailView'
@@ -241,7 +244,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     return <List>
       {this.props.newsEvents.map((event: chrome.cryptoDotCom.NewsEvent) => (
         <ListItem $p={10} key={event.redirect_url}>
-          <Text $fontSize={12} textColor='light'>{event.updated_at}</Text>
+          <Text $fontSize={12} textColor='light'>{convertTimeToHumanReadable(event.updated_at)}</Text>
           <Text $fontSize={12}>{event.content}</Text>
           <Link $fontSize={12} $mt={5} inlineBlock={true} href={event.redirect_url} target='_blank'>{event.redirect_title}</Link>
         </ListItem>

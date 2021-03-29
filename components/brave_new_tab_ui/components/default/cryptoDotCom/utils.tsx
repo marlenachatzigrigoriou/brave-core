@@ -7,6 +7,14 @@ import * as React from 'react'
 
 import icons from './assets/icons'
 
+// Returns 'Monday, July 20 2020' style.
+function convertTimeToHumanReadable  (time: string) {
+  const d = new Date(time)
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()} ${d.getFullYear()}`
+}
+
 function renderIconAsset (key: string) {
   if (!(key in icons)) {
     return null
@@ -52,8 +60,9 @@ function transformLosersGainers ({ losers = [], gainers = [] }: Record<string, c
 }
 
 export {
-  formattedNum,
+  convertTimeToHumanReadable,
   decimalizeCurrency,
+  formattedNum,
   getPercentColor,
   renderIconAsset,
   transformLosersGainers
