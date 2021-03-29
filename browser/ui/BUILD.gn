@@ -439,6 +439,12 @@ source_set("ui") {
       sources += [
         "webui/brave_tip_ui.cc",
         "webui/brave_tip_ui.h",
+        "webui/brave_checkout_ui.cc",
+        "webui/brave_checkout_ui.h",
+      ]
+
+      deps += [
+        "//brave/components/brave_rewards/resources:checkout_generated_resources",
       ]
     }
 

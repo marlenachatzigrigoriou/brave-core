@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/ui/BUILD.gn b/chrome/browser/ui/BUILD.gn
-index e5dd5217c3ed853370856b42fae7859033cd84e0..183b9b5d8a430a282228d81b359f93123ba597c2 100644
+index e5dd5217c3ed853370856b42fae7859033cd84e0..fb2313714054daec83cce11ceb7cb8d82dfdbeb8 100644
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
 @@ -598,6 +598,7 @@ static_library("ui") {
@@ -28,3 +28,11 @@ index e5dd5217c3ed853370856b42fae7859033cd84e0..183b9b5d8a430a282228d81b359f9312
      }
    } else {  # 'OS!="win"
      # The Cast Linux build sets toolkit_views to false, but many files in this
+@@ -4298,6 +4302,7 @@ static_library("ui") {
+       "//ui/gfx/geometry",
+       "//ui/views:buildflags",
+     ]
++    deps += [ "//brave/vendor/bat-native-ledger:headers" ]
+     public_deps += [ "//ui/base/dragdrop/mojom:mojom_headers" ]
+ 
+     allow_circular_includes_from += [ "//chrome/browser/ui/views" ]

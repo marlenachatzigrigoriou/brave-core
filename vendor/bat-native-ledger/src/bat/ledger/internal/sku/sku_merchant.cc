@@ -79,7 +79,7 @@ void SKUMerchant::OnOrder(
           callback);
 
     ledger_->publisher()->GetServerPublisherInfo(
-        order->merchant_id,
+        order->location,
         publisher_callback);
     return;
   }

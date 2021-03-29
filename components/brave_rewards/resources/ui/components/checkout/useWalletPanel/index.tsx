@@ -1,9 +1,9 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
+/* Copyright 2021 The Brave Authors. All rights reserved.
+ * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as React from 'react'
-import { PlusIcon } from 'brave-ui/components/icons'
 
 import { LocaleContext, LocaleData, getLocaleWithTag } from '../localeContext'
 import { FormSection } from '../formSection'
@@ -34,20 +34,6 @@ function PayWithWalletButton (props: ActionButtonProps) {
       text={props.locale.get('payWithBat')}
       size='medium'
       onClick={handleClick}
-      type='accent'
-      brand='rewards'
-    />
-  )
-}
-
-function AddFundsButton (props: ActionButtonProps) {
-  const handleClick = () => props.onClick()
-  return (
-    <ActionPanelButton
-      text={props.locale.get('addFundsLinkText')}
-      size='medium'
-      onClick={handleClick}
-      icon={{ image: <PlusIcon />, position: 'before' }}
       type='accent'
       brand='rewards'
     />
@@ -89,10 +75,10 @@ export function UseWalletPanel (props: UseWalletPanelProps) {
           </WalletInfoPanel>
           <ActionPanel>
             {
-              props.hasSufficientFunds
-                ? <PayWithWalletButton locale={locale} onClick={props.onPayWithWallet} />
-                : props.walletVerified && props.canAddFunds
-                  ? <AddFundsButton locale={locale} onClick={props.onShowAddFunds} />
+              !props.walletVerified
+              ? <NotEnoughFunds>{locale.get('unverifiedWallet')}</NotEnoughFunds>
+                : props.hasSufficientFunds
+                  ? <PayWithWalletButton locale={locale} onClick={props.onPayWithWallet} />
                   : <NotEnoughFunds>{locale.get('notEnoughFunds')}</NotEnoughFunds>
             }
           </ActionPanel>

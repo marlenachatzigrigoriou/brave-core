@@ -436,12 +436,26 @@ void RewardsServiceImpl::StartLedgerProcessIfNecessary() {
   BLOG(1, "Starting ledger process");
 
   if (!bat_ledger_service_.is_bound()) {
-    content::ServiceProcessHost::Launch(
-        bat_ledger_service_.BindNewPipeAndPassReceiver(),
-        content::ServiceProcessHost::Options()
-            .WithDisplayName(IDS_UTILITY_PROCESS_LEDGER_NAME)
-            .Pass());
-
+    const base::CommandLine& command_line =
+        *base::CommandLine::ForCurrentProcess();
+    if (command_line.HasSwitch(brave_rewards::switches::kPaymentServiceUrl)) {
+      auto url = command_line.GetSwitchValueASCII(
+          brave_rewards::switches::kPaymentServiceUrl);
+      auto ledger_switch = base::JoinString({switches::kPaymentServiceUrl,
+                                             url}, "=");
+      content::ServiceProcessHost::Launch(
+          bat_ledger_service_.BindNewPipeAndPassReceiver(),
+          content::ServiceProcessHost::Options()
+              .WithDisplayName(IDS_UTILITY_PROCESS_LEDGER_NAME)
+              .WithExtraCommandLineSwitches({ledger_switch})
+              .Pass());
+    } else {
+      content::ServiceProcessHost::Launch(
+          bat_ledger_service_.BindNewPipeAndPassReceiver(),
+          content::ServiceProcessHost::Options()
+              .WithDisplayName(IDS_UTILITY_PROCESS_LEDGER_NAME)
+              .Pass());
+    }
     bat_ledger_service_.set_disconnect_handler(
       base::Bind(&RewardsServiceImpl::ConnectionClosed, AsWeakPtr()));
   }
@@ -3412,6 +3426,22 @@ void RewardsServiceImpl::OnWalletCreatedForSetAdsEnabled(
 
 std::string RewardsServiceImpl::GetExternalWalletType() const {
   return ledger::constant::kWalletUphold;
+}
+
+void RewardsServiceImpl::ProcessSKU(
+    std::vector<ledger::type::SKUOrderItemPtr> items,
+    const std::string& wallet_type,
+    ProcessSKUCallback callback) {
+  bat_ledger_->ProcessSKU(std::move(items),
+                           wallet_type,
+                           std::move(callback));
+}
+
+void RewardsServiceImpl::OnSKUProcessed(
+    ProcessSKUCallback callback,
+    const ledger::type::Result result,
+    const std::string& order_id) {
+  std::move(callback).Run(result, order_id);
 }
 
 }  // namespace brave_rewards

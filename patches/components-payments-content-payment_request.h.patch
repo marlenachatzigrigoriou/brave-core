@@ -1,0 +1,13 @@
+diff --git a/components/payments/content/payment_request.h b/components/payments/content/payment_request.h
+index cb2230b114f1fa965e5544b5378c7e42e8f3f8d9..1977a6b229ed8ef72b6847af0541fb0772992624 100644
+--- a/components/payments/content/payment_request.h
++++ b/components/payments/content/payment_request.h
+@@ -124,6 +124,8 @@ class PaymentRequest : public mojom::PaymentRequest,
+   // such as possibly closing the dialog.
+   void TerminateConnection();
+ 
++  BRAVE_PAYMENT_METHOD_UTIL_FUNCTIONS
++
+   // Called when the user clicks on the "Pay" button.
+   void Pay();
+ 

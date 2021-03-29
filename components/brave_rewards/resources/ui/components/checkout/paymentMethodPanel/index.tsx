@@ -14,7 +14,6 @@ import { CreditCardDetails } from '../creditCardForm'
 interface PaymentMethodPanelProps {
   canUseCreditCard: boolean
   rewardsEnabled: boolean
-  orderDescription: string
   orderTotal: string
   orderTotalConverted: string
   hasSufficientFunds: boolean
@@ -35,7 +34,6 @@ export function PaymentMethodPanel (props: PaymentMethodPanelProps) {
     <>
       <DialogTitle>{locale.get('paymentMethodTitle')}</DialogTitle>
       <OrderSummary
-        description={props.orderDescription}
         orderTotal={props.orderTotal}
         orderTotalConverted={props.orderTotalConverted}
       />

@@ -1,3 +1,5 @@
+import("//brave/build/config.gni")
+
 source_set("common") {
   sources = [
     "pref_names.cc",
@@ -5,4 +7,11 @@ source_set("common") {
     "url_constants.cc",
     "url_constants.h"
   ]
+
+   if (!is_android) {
+     sources += [
+       "constants.cc",
+       "constants.h"
+     ]
+   }
 }

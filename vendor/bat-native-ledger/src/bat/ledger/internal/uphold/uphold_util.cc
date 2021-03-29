@@ -60,7 +60,8 @@ std::string GetAuthorizeUrl(const std::string& state, const bool kyc_flow) {
       "transactions:deposit "
       "transactions:read "
       "transactions:transfer:application "
-      "transactions:transfer:others"
+      "transactions:transfer:others "
+      "transactions:transfer:self"
       "&intention=%s&"
       "state=%s",
       url.c_str(),

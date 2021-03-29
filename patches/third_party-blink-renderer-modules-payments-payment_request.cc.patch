@@ -1,0 +1,12 @@
+diff --git a/third_party/blink/renderer/modules/payments/payment_request.cc b/third_party/blink/renderer/modules/payments/payment_request.cc
+index ece75704825033a66c066866b856a330b7d939be..ad771453a14c78228190c515ecdb10b97ab31d97 100644
+--- a/third_party/blink/renderer/modules/payments/payment_request.cc
++++ b/third_party/blink/renderer/modules/payments/payment_request.cc
+@@ -123,6 +123,7 @@ struct TypeConverter<PaymentItemPtr, blink::PaymentItem> {
+     output->label = input.label();
+     output->amount = PaymentCurrencyAmount::From(*input.amount());
+     output->pending = input.pending();
++    output->sku = input.sku();
+     return output;
+   }
+ };

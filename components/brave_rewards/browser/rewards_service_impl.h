@@ -354,6 +354,14 @@ class RewardsServiceImpl : public RewardsService,
       base::OnceCallback<void(bool)> callback);
   void CheckInsufficientFundsForTesting();
   void ForTestingSetTestResponseCallback(GetTestResponseCallback callback);
+  void ProcessSKU(std::vector<ledger::type::SKUOrderItemPtr> items,
+                   const std::string& wallet_type,
+                   ProcessSKUCallback callback) override;
+
+  void OnSKUProcessed(
+    ProcessSKUCallback callback,
+    const ledger::type::Result result,
+    const std::string& order_id);
 
  private:
   friend class ::RewardsFlagBrowserTest;

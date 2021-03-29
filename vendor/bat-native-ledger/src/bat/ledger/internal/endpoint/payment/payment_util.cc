@@ -5,7 +5,9 @@
 
 #include "bat/ledger/internal/endpoint/payment/payment_util.h"
 
+#include "base/command_line.h"
 #include "bat/ledger/ledger.h"
+#include "brave/components/brave_rewards/browser/switches.h"
 
 namespace ledger {
 namespace endpoint {
@@ -19,16 +21,23 @@ std::string GetServerUrl(const std::string& path) {
   DCHECK(!path.empty());
 
   std::string url;
-  switch (ledger::_environment) {
-    case type::Environment::DEVELOPMENT:
-      url = kDevelopment;
-      break;
-    case type::Environment::STAGING:
-      url = kStaging;
-      break;
-    case type::Environment::PRODUCTION:
-      url = kProduction;
-      break;
+  const base::CommandLine& command_line =
+      *base::CommandLine::ForCurrentProcess();
+  if (command_line.HasSwitch(brave_rewards::switches::kPaymentServiceUrl)) {
+    url = command_line.GetSwitchValueASCII(
+        brave_rewards::switches::kPaymentServiceUrl);
+  } else {
+    switch (ledger::_environment) {
+      case type::Environment::DEVELOPMENT:
+        url = kDevelopment;
+        break;
+      case type::Environment::STAGING:
+        url = kStaging;
+        break;
+      case type::Environment::PRODUCTION:
+        url = kProduction;
+        break;
+    }
   }
 
   return url + path;
