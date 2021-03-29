@@ -156,7 +156,7 @@ export default function AssetTradeView ({
     }
 
     // Do we need show order feedback?
-    chrome.cryptoDotCom.createMarketOrder(order , (success: boolean) => { console.log(success)})
+    chrome.cryptoDotCom.createMarketOrder(order , (result: chrome.cryptoDotCom.OrderResult) => { console.log(`${result.success} - ${result.message}`)})
     clearTimers()
     setTradeAmount('')
     setConfirmScreen(false)

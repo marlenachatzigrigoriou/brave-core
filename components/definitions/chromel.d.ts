@@ -260,6 +260,11 @@ declare namespace chrome.cryptoDotCom {
     quantity?: number
   }
 
+  type OrderResult = {
+    success: boolean
+    message: string
+  }
+
   const getTickerInfo: (asset: string, callback: (info: TickerPrice) => void) => {}
   const getChartData: (asset: string, callback: (data: ChartDataPoint[]) => void) => {}
   const getSupportedPairs: (callback: (pairs: SupportedPair[]) => void) => {}
@@ -267,7 +272,7 @@ declare namespace chrome.cryptoDotCom {
   const getAccountBalances: (callback: (balances: AccountBalances, success: boolean) => void) => {}
   const getDepositAddress: (asset: string, callback: (address: DepositAddress, success: boolean) => void) => {}
   const getNewsEvents: (callback: (newsEvents: NewsEvent[], success: boolean) => void) => {}
-  const createMarketOrder: (order: Order, callback: (success: boolean) => void) => {}
+  const createMarketOrder: (order: Order, callback: (result: OrderResult) => void) => {}
   const getClientUrl: (callback: (url: string) => void) => {}
   const disconnect: (callback: (success: boolean) => void) => {}
   const isConnected: (callback: (connected: boolean) => void) => {}

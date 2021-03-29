@@ -24,6 +24,7 @@ class CryptoDotComJSONParser {
   static base::Value GetValidAccountBalances(const std::string& json);
   static base::Value GetValidNewsEvents(const std::string& json);
   static base::Value GetValidDepositAddress(const std::string& json);
+  static base::Value GetValidOrderResult(const std::string& json);
 };
 
 #endif  // BRAVE_COMPONENTS_CRYPTO_DOT_COM_BROWSER_CRYPTO_DOT_COM_JSON_PARSER_H_

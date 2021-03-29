@@ -391,3 +391,25 @@ base::Value CryptoDotComJSONParser::GetValidDepositAddress(
   address.SetStringKey("currency", *currency_str);
   return address;
 }
+
+base::Value CryptoDotComJSONParser::GetValidOrderResult(
+    const std::string& json) {
+  auto response_value = base::JSONReader::Read(json);
+  if (!response_value.has_value() || !response_value.value().is_dict()) {
+    return base::Value();
+  }
+
+  base::Value result(base::Value::Type::DICTIONARY);
+  if (const auto* code = response_value->FindStringPath("result.order_id")) {
+    result.SetBoolKey("success", true);
+    result.SetStringKey("message", "");
+    return result;
+  }
+
+  result.SetBoolKey("success", false);
+  result.SetStringKey("message", "");
+  if (auto* message_str = response_value->FindStringKey("result")) {
+    result.SetStringKey("message", *message_str);
+  }
+  return result;
+}

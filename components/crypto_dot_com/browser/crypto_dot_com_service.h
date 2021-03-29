@@ -72,7 +72,7 @@ class CryptoDotComService : public KeyedService {
   using GetDepositAddressCallback =
         base::OnceCallback<void(base::Value, bool)>;
   using CreateMarketOrderCallback =
-        base::OnceCallback<void(bool)>;
+        base::OnceCallback<void(base::Value)>;
 
   bool GetTickerInfo(const std::string& asset,
                      GetTickerInfoCallback callback);

@@ -322,8 +322,8 @@ void CryptoDotComService::OnGetNewsEvents(
   auto value = CryptoDotComJSONParser::GetValidNewsEvents(body);
   if (value.is_none()) {
     auto empty_news_events = base::JSONReader::Read(kEmptyNewsEvents);
-    return std::move(callback).Run(empty_news_events->FindListKey("events")->Clone(),
-                                   false);
+    return std::move(callback).Run(
+        empty_news_events->FindListKey("events")->Clone(), false);
   }
 
   std::move(callback).Run(std::move(value), true);
@@ -349,9 +349,8 @@ void CryptoDotComService::OnCreateMarketOrder(
     CreateMarketOrderCallback callback,
     const int status, const std::string& body,
     const std::map<std::string, std::string>& headers) {
-  DVLOG(2) << __func__ << ": " << status;
   DVLOG(2) << __func__ << ": " << body;
-  std::move(callback).Run(true);
+  std::move(callback).Run(CryptoDotComJSONParser::GetValidOrderResult(body));
 }
 
 std::string CryptoDotComService::GetAuthClientUrl() const {

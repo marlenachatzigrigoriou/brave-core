@@ -59,6 +59,14 @@
         }
       },
       {
+        "id": "OrderResult",
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" }
+        }
+      },
+      {
         "id": "DepositAddress",
         "type": "object",
         "properties": {
@@ -391,8 +399,8 @@
             "type": "function",
             "parameters": [
               {
-                "name": "success",
-                "type": "boolean"
+                "name": "result",
+                "$ref": "OrderResult"
               }
             ]
           }

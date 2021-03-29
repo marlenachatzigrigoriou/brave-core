@@ -360,8 +360,8 @@ ExtensionFunction::ResponseAction CryptoDotComCreateMarketOrderFunction::Run() {
 }
 
 void CryptoDotComCreateMarketOrderFunction::OnCreateMarketOrderResult(
-    bool success) {
-  Respond(OneArgument(base::Value(success)));
+    base::Value result) {
+  Respond(OneArgument(std::move(result)));
 }
 
 }  // namespace api

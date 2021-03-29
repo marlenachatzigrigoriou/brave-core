@@ -151,7 +151,7 @@ class CryptoDotComCreateMarketOrderFunction : public ExtensionFunction {
  protected:
   ~CryptoDotComCreateMarketOrderFunction() override {}
   ResponseAction Run() override;
-  void OnCreateMarketOrderResult(bool success);
+  void OnCreateMarketOrderResult(base::Value result);
 };
 
 }  // namespace api
