@@ -41,6 +41,39 @@ const char root_host[] = "crypto.com";
 const char api_host[] = "api.crypto.com";
 const unsigned int kRetriesCountOnNetworkChange = 1;
 
+constexpr char kEmptyAccountBalances[] = R"(
+    {
+      "total_balance": "0",
+      "accounts": [
+        {
+          "stake": "0",
+          "balance": "0",
+          "available": "0",
+          "currency": "0",
+          "currency_decimals": 0,
+          "order": "0"
+        }
+      ]
+    })";
+
+constexpr char kEmptyNewsEvents[] = R"(
+    {
+      "events": [
+        "content": "",
+        "redirect_title": "",
+        "redirect_url": "",
+        "updated_at": ""
+      ]
+    }
+)";
+
+constexpr char kEmptyDepositAddress[] = R"(
+    {
+      "address": "",
+      "qr_code": "",
+      "currency": ""
+    })";
+
 net::NetworkTrafficAnnotationTag GetNetworkTrafficAnnotationTag() {
   return net::DefineNetworkTrafficAnnotation("crypto_dot_com_service", R"(
       semantics {
@@ -192,8 +225,10 @@ void CryptoDotComService::OnGetAccountBalances(
     const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   auto value = CryptoDotComJSONParser::GetValidAccountBalances(body);
-  if (value.is_none())
-    return std::move(callback).Run(empty_dict_.Clone(), false);
+  if (value.is_none()) {
+    auto empty_balance = base::JSONReader::Read(kEmptyAccountBalances);
+    return std::move(callback).Run(std::move(*empty_balance), false);
+  }
 
   std::move(callback).Run(std::move(value), true);
 }
@@ -261,8 +296,10 @@ void CryptoDotComService::OnGetDepositAddress(
     const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   auto value = CryptoDotComJSONParser::GetValidDepositAddress(body);
-  if (value.is_none())
-    return std::move(callback).Run(empty_dict_.Clone(), false);
+  if (value.is_none()) {
+    auto empty_deposit = base::JSONReader::Read(kEmptyDepositAddress);
+    return std::move(callback).Run(std::move(*empty_deposit), false);
+  }
 
   std::move(callback).Run(std::move(value), true);
 }
@@ -283,8 +320,11 @@ void CryptoDotComService::OnGetNewsEvents(
     const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   auto value = CryptoDotComJSONParser::GetValidNewsEvents(body);
-  if (value.is_none())
-    return std::move(callback).Run(empty_list_.Clone(), false);
+  if (value.is_none()) {
+    auto empty_news_events = base::JSONReader::Read(kEmptyNewsEvents);
+    return std::move(callback).Run(empty_news_events->FindListKey("events")->Clone(),
+                                   false);
+  }
 
   std::move(callback).Run(std::move(value), true);
 }
