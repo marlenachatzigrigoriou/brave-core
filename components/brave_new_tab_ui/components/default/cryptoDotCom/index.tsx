@@ -273,8 +273,10 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     if (currentView === MainViews.BALANCE) {
       return <BalanceSummaryView
         hideBalance={this.props.hideBalance}
+        handleAssetClick={this.handleAssetClick}
         onSetHideBalance={this.props.onSetHideBalance}
         availableBalance={this.props.accountBalances.total_balance}
+        supportedPairs={this.props.supportedPairs}
         holdings={this.props.accountBalances.accounts}
       />
     }

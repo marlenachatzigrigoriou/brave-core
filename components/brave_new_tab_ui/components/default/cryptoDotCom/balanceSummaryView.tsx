@@ -14,6 +14,7 @@ import {
   ListItem,
   Text
 } from './style'
+import { AssetViews } from './types'
 
 import {
   formattedNum,
@@ -30,6 +31,8 @@ import { getLocale } from '../../../../common/locale'
 
 interface Props {
   onSetHideBalance: (hide: boolean) => void
+  handleAssetClick: (base: string, quote?: string, view?: AssetViews) => Promise<void>
+  supportedPairs: Record<string, string[]>
   hideBalance: boolean
   availableBalance: string
   holdings: chrome.cryptoDotCom.Account[]
@@ -37,12 +40,20 @@ interface Props {
 
 export default function BalanceSummaryView ({
   onSetHideBalance,
+  handleAssetClick,
   hideBalance,
   availableBalance,
+  supportedPairs,
   holdings
 }: Props) {
   // Only shows non-empty holdings.
   holdings = holdings ? holdings.filter(item => item.available !== '0') : []
+
+  const showDetailView = (currency: string) => {
+    if (supportedPairs[currency] === undefined)
+      return
+    handleAssetClick(currency)
+  }
 
   return <>
     <BasicBox isFlex={true} $mb={18}>
@@ -66,7 +77,7 @@ export default function BalanceSummaryView ({
     <List>
       {holdings.map(({currency, available, currency_decimals}) => {
         return (
-          <ListItem key={currency} isFlex={true} $height={40}>
+          <ListItem key={currency} isFlex={true} onClick={() => showDetailView(currency)} $height={40}>
             <FlexItem $pl={5} $pr={5}>
               {renderIconAsset(currency.toLowerCase())}
             </FlexItem>
