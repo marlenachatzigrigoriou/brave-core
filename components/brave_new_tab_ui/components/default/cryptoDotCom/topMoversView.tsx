@@ -10,7 +10,8 @@ import { AssetViews } from './types'
 import {
   formattedNum,
   getPercentColor,
-  renderIconAsset
+  renderIconAsset,
+  transformLosersGainers
 } from './utils'
 
 import {
@@ -34,11 +35,12 @@ export default function TopMoversView ({
   handleAssetClick
 }: Props) {
   enum FilterValues {
+    ALL = 'all',
     LOSERS = 'losers',
     GAINERS = 'gainers'
   }
 
-  const [filter, setFilter] = React.useState(FilterValues.GAINERS);
+  const [filter, setFilter] = React.useState(FilterValues.ALL);
 
   const sortTopMovers = (a: chrome.cryptoDotCom.AssetRanking, b: chrome.cryptoDotCom.AssetRanking) => {
     if (filter === FilterValues.GAINERS) {
@@ -48,8 +50,56 @@ export default function TopMoversView ({
     }
   }
 
+  const renderListItem = (asset: chrome.cryptoDotCom.AssetRanking) => {
+    const currency = asset.pair.split('_')[0];
+    const { percentChange, lastPrice: price } = asset
+    return (
+      <ListItem key={currency} isFlex={true} onClick={() => handleAssetClick(currency)} $height={48}>
+        <FlexItem $pl={5} $pr={5}>
+          {renderIconAsset(currency.toLowerCase())}
+        </FlexItem>
+        <FlexItem>
+          <Text>{currency}</Text>
+          <Text small={true} textColor='light'>{currencyNames[currency]}</Text>
+        </FlexItem>
+        <FlexItem textAlign='right' flex={1}>
+          {(price !== null) && <Text>{formattedNum(Number(price))}</Text>}
+          {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
+        </FlexItem>
+      </ListItem>
+    )
+  }
+
+  const renderFilteredView = () => {
+    return (
+      losersGainers && losersGainers[filter] && losersGainers[filter]
+        .sort(sortTopMovers)
+        .map(renderListItem)
+    )
+  }
+
+  const renderAllView = () => {
+    const topMovers: string[] = Object.keys(currencyNames)
+    const transformedlosersGainers = transformLosersGainers(losersGainers || {})
+    if (Object.keys(transformedlosersGainers).length === 0) {
+      return null
+    }
+
+    return (
+      topMovers.map(currency => renderListItem(transformedlosersGainers[currency]))
+    )
+  }
+
+
   return <>
     <ButtonGroup>
+      <PlainButton
+        onClick={() => setFilter(FilterValues.ALL)}
+        inButtonGroup={true}
+        isActive={filter === FilterValues.ALL}
+      >
+        {getLocale('cryptoDotComWidgetAll')}
+      </PlainButton>
       <PlainButton
         onClick={() => setFilter(FilterValues.GAINERS)}
         inButtonGroup={true}
@@ -66,28 +116,7 @@ export default function TopMoversView ({
       </PlainButton>
     </ButtonGroup>
     <List>
-      {losersGainers && losersGainers[filter] && losersGainers[filter]
-        .sort(sortTopMovers)
-        .map((asset: chrome.cryptoDotCom.AssetRanking) => {
-          const currency = asset.pair.split('_')[0];
-          const { percentChange, lastPrice: price } = asset
-
-          return (
-            <ListItem key={currency} isFlex={true} onClick={() => handleAssetClick(currency)} $height={48}>
-              <FlexItem $pl={5} $pr={5}>
-                {renderIconAsset(currency.toLowerCase())}
-              </FlexItem>
-              <FlexItem>
-                <Text>{currency}</Text>
-                <Text small={true} textColor='light'>{currencyNames[currency]}</Text>
-              </FlexItem>
-              <FlexItem textAlign='right' flex={1}>
-                {(price !== null) && <Text>{formattedNum(Number(price))}</Text>}
-                {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
-              </FlexItem>
-            </ListItem>
-          )
-      })}
+      { filter === FilterValues.ALL ? renderAllView() : renderFilteredView() }
     </List>
   </>
 }

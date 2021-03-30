@@ -44,17 +44,16 @@ function getPercentColor (percentChange: string) {
   return percentChangeNum === 0 ? 'light' : (percentChangeNum > 0 ? 'green' : 'red')
 }
 
-// This is a temporary function only necessary for MVP
 // Merges losers/gainers into one table
 function transformLosersGainers ({ losers = [], gainers = [] }: Record<string, chrome.cryptoDotCom.AssetRanking[]>): Record<string, chrome.cryptoDotCom.AssetRanking> {
   const losersGainersMerged = [ ...losers, ...gainers ]
   return losersGainersMerged.reduce((mergedTable: object, asset: chrome.cryptoDotCom.AssetRanking) => {
-    let { pair: assetName, ...assetRanking } = asset
+    let { pair: assetName } = asset
     assetName = assetName.split('_')[0]
 
     return {
       ...mergedTable,
-      [assetName]: assetRanking
+      [assetName]: asset
     }
   }, {})
 }
