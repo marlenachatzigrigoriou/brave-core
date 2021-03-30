@@ -329,6 +329,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
         priceDecimals={pair[0] ? pair[0].price : '0'}
         quantityDecimals={pair[0] ? pair[0].quantity : '0'}
         handleBackClick={this.clearAsset}
+        handleAssetClick={this.handleAssetClick}
       />
     }
 

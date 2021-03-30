@@ -25,6 +25,7 @@ import {
   PlainButton,
   Text
 } from './style'
+import { AssetViews } from './types'
 
 interface Props {
   base : string
@@ -35,6 +36,7 @@ interface Props {
   quantityDecimals: string
   tickerPrices: Record<string, chrome.cryptoDotCom.TickerPrice>
   handleBackClick: () => void
+  handleAssetClick: (base: string, quote?: string, view?: AssetViews) => Promise<void>
 }
 
 export default function AssetTradeView ({
@@ -43,9 +45,10 @@ export default function AssetTradeView ({
   availableBalanceBase,
   availableBalanceQuote,
   handleBackClick,
+  handleAssetClick,
   tickerPrices,
   priceDecimals,
-  quantityDecimals,
+  quantityDecimals
 }: Props) {
 
   enum TradeModes {
@@ -173,6 +176,11 @@ export default function AssetTradeView ({
     setConfirmScreen(false)
   }
 
+  const showDepositView = () => {
+    const currency = tradeMode === TradeModes.BUY ? quote : base
+    handleAssetClick(currency, undefined, AssetViews.DEPOSIT)
+  }
+
   const buyingString = getLocale('cryptoDotComWidgetBuying')
   const sellingString = getLocale('cryptoDotComWidgetSelling')
   return showConfirmScreen ? (
@@ -278,7 +286,23 @@ export default function AssetTradeView ({
         hasPadding={true}
         isFullWidth={true}
       >
-        <ActionButton onClick={handlePurchaseClick} disabled={!tradeAmount} textOpacity={tradeAmount ? 1 : 0.6} $bg={tradeMode === TradeModes.BUY ? 'green' : 'red-bright'} upperCase={false}>{tradeModeLocaleStrings[tradeMode]} {base}</ActionButton>
+        <ActionButton
+          onClick={handlePurchaseClick}
+          disabled={!tradeAmount}
+          textOpacity={tradeAmount ? 1 : 0.6}
+          $bg={tradeMode === TradeModes.BUY ? 'green' : 'red-bright'}
+          upperCase={false}
+        >
+          {tradeModeLocaleStrings[tradeMode]} {base}
+        </ActionButton>
+        <ActionButton
+          onClick={showDepositView}
+          small={true}
+          light={true}
+          $mt={10}
+        >
+          {getLocale('cryptoDotComWidgetDepositMore', { currency: tradeMode === TradeModes.BUY ? quote : base })}
+        </ActionButton>
       </FlexItem>
     </Box>
   )
