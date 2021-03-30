@@ -515,3 +515,44 @@ export const DismissAction = styled('span')<{}>`
   margin-top: 20px;
   font-weight: bold;
 `
+
+export const InvalidWrapper = styled(DisconnectWrapper)`
+  min-width: 244px;
+`
+
+export const StyledParty = styled('div')<{}>`
+  font-size: 35px;
+  margin: 10px 0px;
+`
+
+export const InvalidTitle = styled(DisconnectTitle)`
+  max-width: unset;
+  margin-bottom: 20px;
+`
+
+export const InvalidCopy = styled(DisconnectCopy)`
+  max-width: 210px;
+`
+
+export const ConnectButton = styled('button')<StyleProps>`
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 20px;
+  width: 100%;
+  background: #3D3D3D;
+  border: 0;
+  padding: 10px;
+  cursor: pointer;
+  color: #fff;
+  text-decoration: none;
+  min-width: 245px;
+
+  &:focus {
+    outline: 0;
+  }
+`
+
+export const SmallButton = styled(ConnectButton)`
+  width: 50%;
+  margin-bottom: 10px;
+`

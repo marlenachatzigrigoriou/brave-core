@@ -20,9 +20,14 @@ import {
   BackArrow,
   BasicBox,
   Box,
-  FlexItem,
   ButtonGroup,
+  FlexItem,
+  InvalidCopy,
+  InvalidTitle,
+  InvalidWrapper,
   PlainButton,
+  SmallButton,
+  StyledParty,
   Text
 } from './style'
 import { AssetViews } from './types'
@@ -75,6 +80,9 @@ export default function AssetTradeView ({
   const [tradeAmount, setTradeAmount] = React.useState('')
   const [showConfirmScreen, setConfirmScreen] = React.useState(false)
   const [counter, setCounter] = React.useState(confirmDelay)
+  const [tradeSuccess, setTradeSuccess] = React.useState(false)
+  const [tradeFailed, setTradeFailed] = React.useState(false)
+  const [tradeFailedMessage, setTradeFailedMessage] = React.useState('')
 
   const { price: unitPrice = 0 } = tickerPrices[`${base}_${quote}`] || {}
   const approxTotal = Number(tradeAmount) * unitPrice
@@ -144,6 +152,16 @@ export default function AssetTradeView ({
     makeOrder()
   }
 
+  const makeOrderCallback = (result: chrome.cryptoDotCom.OrderResult) => {
+    if (result.success) {
+      setTradeSuccess(true)
+    } else {
+      setTradeFailed(true)
+      setTradeFailedMessage(result.message)
+    }
+    console.log(`${result.success} - ${result.message}`)
+  }
+
   const makeOrder = () => {
     // Call order api.
     const order = {
@@ -158,10 +176,8 @@ export default function AssetTradeView ({
       order['quantity'] = decimalizeCurrency(tradeAmount.toString(), Number(quantityDecimals))
     }
 
-    // Do we need show order feedback?
-    chrome.cryptoDotCom.createMarketOrder(order , (result: chrome.cryptoDotCom.OrderResult) => { console.log(`${result.success} - ${result.message}`)})
+    chrome.cryptoDotCom.createMarketOrder(order , makeOrderCallback)
     clearTimers()
-    setTradeAmount('')
     setConfirmScreen(false)
   }
 
@@ -183,34 +199,91 @@ export default function AssetTradeView ({
 
   const buyingString = getLocale('cryptoDotComWidgetBuying')
   const sellingString = getLocale('cryptoDotComWidgetSelling')
-  return showConfirmScreen ? (
-    <>
-      <Box>
-        <Text center={true} weight={600} $pb={15}>{getLocale('cryptoDotComWidgetConfirmOrder')}</Text>
-        <BasicBox $pb={7}>
-          <Text weight={600} textColor='light' $fontSize={12}>{tradeMode === TradeModes.BUY ? buyingString : sellingString}</Text>
-          <Text $fontSize={16}>{tradeAmount} {base}</Text>
+
+  const renderConfirmScreen = () => {
+    return (
+      <>
+        <Box>
+          <Text center={true} weight={600} $pb={15}>{getLocale('cryptoDotComWidgetConfirmOrder')}</Text>
+          <BasicBox $pb={7}>
+            <Text weight={600} textColor='light' $fontSize={12}>{tradeMode === TradeModes.BUY ? buyingString : sellingString}</Text>
+            <Text $fontSize={16}>{tradeAmount} {base}</Text>
+          </BasicBox>
+          <BasicBox $pb={7}>
+            <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxPrice')}</Text>
+            <Text $fontSize={16}>{quote === 'USDT' ? formattedNum(unitPrice) : unitPrice} {base}/{quote}</Text>
+          </BasicBox>
+          <BasicBox $pb={7}>
+            {tradeMode === TradeModes.BUY ? (
+              <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxTotalSpent')}</Text>
+            ) : (
+              <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxTotalReceived')}</Text>
+            )}
+            <Text $fontSize={16}>{quote === 'USDT' ? formattedNum(approxTotal) : approxTotal} {quote}</Text>
+          </BasicBox>
+          <Text textColor='light' $fontSize={12}>* {getLocale('cryptoDotComWidgetApproxFootnote')}</Text>
+        </Box>
+        <BasicBox $pt={15}>
+          <ActionButton onClick={handleConfirmClick}>{getLocale('cryptoDotComWidgetConfirm')} ({counter}s)</ActionButton>
+          <PlainButton $pb={5} onClick={handleCancelClick} $pt={10} $m='0 auto' textColor='light'>{getLocale('cryptoDotComWidgetCancel')}</PlainButton>
         </BasicBox>
-        <BasicBox $pb={7}>
-          <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxPrice')}</Text>
-          <Text $fontSize={16}>{quote === 'USDT' ? formattedNum(unitPrice) : unitPrice} {base}/{quote}</Text>
-        </BasicBox>
-        <BasicBox $pb={7}>
-          {tradeMode === TradeModes.BUY ? (
-            <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxTotalSpent')}</Text>
-          ) : (
-            <Text weight={600} textColor='light' $fontSize={12}>*{getLocale('cryptoDotComWidgetApproxTotalReceived')}</Text>
-          )}
-          <Text $fontSize={16}>{quote === 'USDT' ? formattedNum(approxTotal) : approxTotal} {quote}</Text>
-        </BasicBox>
-        <Text textColor='light' $fontSize={12}>* {getLocale('cryptoDotComWidgetApproxFootnote')}</Text>
-      </Box>
-      <BasicBox $pt={15}>
-        <ActionButton onClick={handleConfirmClick}>{getLocale('cryptoDotComWidgetConfirm')} ({counter}s)</ActionButton>
-        <PlainButton $pb={5} onClick={handleCancelClick} $pt={10} $m='0 auto' textColor='light'>{getLocale('cryptoDotComWidgetCancel')}</PlainButton>
-      </BasicBox>
-    </>
-  ) : (
+      </>
+    )
+  }
+
+  const finishTrade = () => {
+    setTradeAmount('')
+    setTradeSuccess(false)
+    setTradeFailed(false)
+  }
+
+  const renderTradeSuccess = () => {
+    const amount = decimalizeCurrency(tradeAmount.toString(), Number(quantityDecimals))
+    const actionLabel = tradeMode === TradeModes.BUY ? 'cryptoDotComWidgetBought' : 'cryptoDotComWidgetSold'
+
+    return (
+      <InvalidWrapper>
+        <StyledParty>
+          🎉
+        </StyledParty>
+        <InvalidTitle>
+          {`${getLocale(actionLabel)} ${amount} ${base}!`}
+        </InvalidTitle>
+        <SmallButton onClick={finishTrade}>
+          {getLocale('cryptoDotComWidgetContinue')}
+        </SmallButton>
+      </InvalidWrapper>
+    )
+  }
+
+  const renderTradeFailed = () => {
+    const errorMessage = tradeFailedMessage || getLocale('cryptoDotComWidgetError')
+
+    return (
+      <InvalidWrapper>
+        <InvalidTitle>
+          {getLocale('cryptoDotComWidgetFailedTrade')}
+        </InvalidTitle>
+        <InvalidCopy>
+          {errorMessage}
+        </InvalidCopy>
+        <SmallButton onClick={finishTrade}>
+          {getLocale('cryptoDotComWidgetContinue')}
+        </SmallButton>
+      </InvalidWrapper>
+    )
+  }
+
+  if (showConfirmScreen)
+    return renderConfirmScreen()
+
+  if (tradeSuccess)
+    return renderTradeSuccess()
+
+  if (tradeFailed)
+    return renderTradeFailed()
+
+  return (
     <Box $p={0}>
       <FlexItem
         hasPadding={true}
