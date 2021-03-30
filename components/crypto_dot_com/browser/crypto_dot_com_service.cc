@@ -59,10 +59,12 @@ constexpr char kEmptyAccountBalances[] = R"(
 constexpr char kEmptyNewsEvents[] = R"(
     {
       "events": [
-        "content": "",
-        "redirect_title": "",
-        "redirect_url": "",
-        "updated_at": ""
+        {
+          "content": "",
+          "redirect_title": "",
+          "redirect_url": "",
+          "updated_at": ""
+        }
       ]
     }
 )";
