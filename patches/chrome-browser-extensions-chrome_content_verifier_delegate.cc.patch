@@ -1,0 +1,13 @@
+diff --git a/chrome/browser/extensions/chrome_content_verifier_delegate.cc b/chrome/browser/extensions/chrome_content_verifier_delegate.cc
+index 4d3fa7b3c30ed60c288ef62454dc65e7b7b8e32a..aee2a1fab2ba5be9c21d9781b368567cb2a4a575 100644
+--- a/chrome/browser/extensions/chrome_content_verifier_delegate.cc
++++ b/chrome/browser/extensions/chrome_content_verifier_delegate.cc
+@@ -77,7 +77,7 @@ ChromeContentVerifierDelegate::GetDefaultMode() {
+   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+ 
+   VerifyInfo::Mode experiment_value;
+-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
++#if BUILDFLAG(GOOGLE_CHROME_BRANDING) || defined(OFFICIAL_BUILD)
+   experiment_value = VerifyInfo::Mode::ENFORCE_STRICT;
+ #else
+   experiment_value = VerifyInfo::Mode::NONE;
