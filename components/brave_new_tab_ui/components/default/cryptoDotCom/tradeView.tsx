@@ -43,12 +43,13 @@ export default function TradeView ({
   const assetRankings = transformLosersGainers(losersGainers)
 
   enum FilterValues {
+    ALL = 'ALL',
     BTC = 'BTC',
     CRO = 'CRO',
     USDT = 'USDT'
   }
 
-  const [filter, setFilter] = React.useState(FilterValues.BTC)
+  const [filter, setFilter] = React.useState(FilterValues.ALL)
   const [searchInput, setSearchInput] = React.useState('')
 
   const handleSearchChange = ({ target }: any) => {
@@ -65,8 +66,50 @@ export default function TradeView ({
     }
   }
 
+  const renderListItem = (pair: Record<string, string>) => {
+    const { price = null } = tickerPrices[pair.pair] || {}
+    const { percentChange = null } = assetRankings[pair.base] || {}
+
+    return (
+      <ListItem key={pair.pair} isFlex={true} $height={48} onClick={() => handleAssetClick(pair.base, pair.quote, AssetViews.TRADE)}
+      >
+        <FlexItem $pl={5} $pr={5}>
+          {renderIconAsset(pair.base.toLowerCase())}
+        </FlexItem>
+        <FlexItem>
+          <Text>{pair.base}/{pair.quote}</Text>
+        </FlexItem>
+        <FlexItem textAlign='right' flex={1}>
+          {(price !== null) && <Text>
+            {filter === FilterValues.USDT ? formattedNum(price) : price}
+          </Text>}
+          {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
+        </FlexItem>
+      </ListItem>
+      )
+  }
+
+  const renderAllView = () => {
+    return tradingPairs.filter(searchFilter)
+                       .map(renderListItem)
+  }
+
+  const renderFilterView = () => {
+    return tradingPairs
+      .filter((pair: Record<string, string>) => pair.quote === filter)
+      .filter(searchFilter)
+      .map(renderListItem)
+  }
+
   return <>
     <ButtonGroup>
+      <PlainButton
+        onClick={() => setFilter(FilterValues.ALL)}
+        inButtonGroup={true}
+        isActive={filter === FilterValues.ALL}
+      >
+        ALL
+      </PlainButton>
       <PlainButton
         onClick={() => setFilter(FilterValues.BTC)}
         inButtonGroup={true}
@@ -94,31 +137,7 @@ export default function TradeView ({
       <InputField value={searchInput} onChange={handleSearchChange} placeholder={getLocale('cryptoDotComWidgetSearch')} />
     </Box>
     <List>
-      {tradingPairs
-        .filter((pair: Record<string, string>) => pair.quote === filter)
-        .filter(searchFilter)
-        .map((pair: Record<string, string>) => {
-          const { price = null } = tickerPrices[pair.pair] || {}
-          const { percentChange = null } = assetRankings[pair.base] || {}
-
-          return (
-            <ListItem key={pair.pair} isFlex={true} $height={48} onClick={() => handleAssetClick(pair.base, pair.quote, AssetViews.TRADE)}
-            >
-              <FlexItem $pl={5} $pr={5}>
-                {renderIconAsset(pair.base.toLowerCase())}
-              </FlexItem>
-              <FlexItem>
-                <Text>{pair.base}/{pair.quote}</Text>
-              </FlexItem>
-              <FlexItem textAlign='right' flex={1}>
-                {(price !== null) && <Text>
-                  {filter === FilterValues.USDT ? formattedNum(price) : price}
-                </Text>}
-                {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
-              </FlexItem>
-            </ListItem>
-          )
-      })}
+      {filter === FilterValues.ALL ? renderAllView() : renderFilterView()}
     </List>
   </>
 }
