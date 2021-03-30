@@ -67,9 +67,27 @@ export default function TradeView ({
 
   return <>
     <ButtonGroup>
-      <PlainButton onClick={() => setFilter(FilterValues.BTC)} isActive={filter === FilterValues.BTC}>BTC</PlainButton>
-      <PlainButton onClick={() => setFilter(FilterValues.CRO)} isActive={filter === FilterValues.CRO}>CRO</PlainButton>
-      <PlainButton onClick={() => setFilter(FilterValues.USDT)} isActive={filter === FilterValues.USDT}>USDT</PlainButton>
+      <PlainButton
+        onClick={() => setFilter(FilterValues.BTC)}
+        inButtonGroup={true}
+        isActive={filter === FilterValues.BTC}
+      >
+        BTC
+      </PlainButton>
+      <PlainButton
+        onClick={() => setFilter(FilterValues.CRO)}
+        inButtonGroup={true}
+        isActive={filter === FilterValues.CRO}
+      >
+        CRO
+      </PlainButton>
+      <PlainButton
+        onClick={() => setFilter(FilterValues.USDT)}
+        inButtonGroup={true}
+        isActive={filter === FilterValues.USDT}
+      >
+        USDT
+      </PlainButton>
     </ButtonGroup>
     <Box isFlex={true} $height={30} hasBottomBorder={false}>
       <img width={15} src={SearchIcon} />

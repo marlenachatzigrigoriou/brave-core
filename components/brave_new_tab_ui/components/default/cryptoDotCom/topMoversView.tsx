@@ -50,8 +50,20 @@ export default function TopMoversView ({
 
   return <>
     <ButtonGroup>
-      <PlainButton onClick={() => setFilter(FilterValues.GAINERS)} isActive={filter === FilterValues.GAINERS}>{getLocale('cryptoDotComWidgetGainers')}</PlainButton>
-      <PlainButton onClick={() => setFilter(FilterValues.LOSERS)} isActive={filter === FilterValues.LOSERS}>{getLocale('cryptoDotComWidgetLosers')}</PlainButton>
+      <PlainButton
+        onClick={() => setFilter(FilterValues.GAINERS)}
+        inButtonGroup={true}
+        isActive={filter === FilterValues.GAINERS}
+      >
+        {getLocale('cryptoDotComWidgetGainers')}
+      </PlainButton>
+      <PlainButton
+        onClick={() => setFilter(FilterValues.LOSERS)}
+        inButtonGroup={true}
+        isActive={filter === FilterValues.LOSERS}
+      >
+        {getLocale('cryptoDotComWidgetLosers')}
+      </PlainButton>
     </ButtonGroup>
     <List>
       {losersGainers && losersGainers[filter] && losersGainers[filter]

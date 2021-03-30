@@ -226,8 +226,20 @@ export default function AssetTradeView ({
         </FlexItem>
         <FlexItem $pl={5}>
           <ButtonGroup>
-            <PlainButton onClick={() => handleSetTradeMode(TradeModes.BUY)} textColor='green'>Buy</PlainButton>
-            <PlainButton onClick={() => handleSetTradeMode(TradeModes.SELL)} textColor='red'>Sell</PlainButton>
+            <PlainButton
+              onClick={() => handleSetTradeMode(TradeModes.BUY)}
+              inButtonGroup={true}
+              textColor='green'
+            >
+              Buy
+            </PlainButton>
+            <PlainButton
+              onClick={() => handleSetTradeMode(TradeModes.SELL)}
+              inButtonGroup={true}
+              textColor='red'
+            >
+              Sell
+            </PlainButton>
           </ButtonGroup>
         </FlexItem>
       </FlexItem>

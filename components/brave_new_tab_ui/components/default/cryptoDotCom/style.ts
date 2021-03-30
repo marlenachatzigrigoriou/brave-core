@@ -25,6 +25,7 @@ interface StyleProps {
   hideBalance?: boolean
   hideOverflow?: boolean
   href?: string
+  inButtonGroup?: boolean
   inline?: boolean
   inlineBlock?: boolean
   isActive?: boolean
@@ -197,18 +198,18 @@ export const PlainButton = styled('button')<StyleProps>`
 
   ${getBoxStyle}
 
-  ${ButtonGroup} & {
-    color: ${p => p.isActive
-      ? p.theme.palette.primary
-      : getColor(p.textColor) || getColor('light')};
+  ${(p) =>
+    p.inButtonGroup &&
+    `
+    color: ${p.isActive ? p.theme.palette.primary
+                        : getColor(p.textColor) || getColor('light')};
     font-weight: 500;
     text-transform: uppercase;
     border-right: 1px solid rgba(255, 255, 255, 0.2);
-
     &:last-child {
       border-right: none;
     }
-  }
+  `}
 `
 
 export const ActionButton = styled('button')<StyleProps>`
