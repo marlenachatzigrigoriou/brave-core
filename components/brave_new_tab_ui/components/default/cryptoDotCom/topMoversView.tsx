@@ -10,8 +10,7 @@ import { AssetViews } from './types'
 import {
   formattedNum,
   getPercentColor,
-  renderIconAsset,
-  transformLosersGainers
+  renderIconAsset
 } from './utils'
 
 import {
@@ -35,12 +34,11 @@ export default function TopMoversView ({
   handleAssetClick
 }: Props) {
   enum FilterValues {
-    ALL = 'all',
     LOSERS = 'losers',
     GAINERS = 'gainers'
   }
 
-  const [filter, setFilter] = React.useState(FilterValues.ALL);
+  const [filter, setFilter] = React.useState(FilterValues.GAINERS);
 
   const sortTopMovers = (a: chrome.cryptoDotCom.AssetRanking, b: chrome.cryptoDotCom.AssetRanking) => {
     if (filter === FilterValues.GAINERS) {
@@ -78,28 +76,8 @@ export default function TopMoversView ({
     )
   }
 
-  const renderAllView = () => {
-    const topMovers: string[] = Object.keys(currencyNames)
-    const transformedlosersGainers = transformLosersGainers(losersGainers || {})
-    if (Object.keys(transformedlosersGainers).length === 0) {
-      return null
-    }
-
-    return (
-      topMovers.map(currency => renderListItem(transformedlosersGainers[currency]))
-    )
-  }
-
-
   return <>
     <ButtonGroup>
-      <PlainButton
-        onClick={() => setFilter(FilterValues.ALL)}
-        inButtonGroup={true}
-        isActive={filter === FilterValues.ALL}
-      >
-        {getLocale('cryptoDotComWidgetAll')}
-      </PlainButton>
       <PlainButton
         onClick={() => setFilter(FilterValues.GAINERS)}
         inButtonGroup={true}
@@ -116,7 +94,7 @@ export default function TopMoversView ({
       </PlainButton>
     </ButtonGroup>
     <List>
-      { filter === FilterValues.ALL ? renderAllView() : renderFilteredView() }
+      {renderFilteredView()}
     </List>
   </>
 }
