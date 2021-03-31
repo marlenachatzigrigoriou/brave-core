@@ -371,7 +371,7 @@ bool BraveContentBrowserClient::HandleExternalProtocol(
   }
 #endif
 
-#if BUILDFLAG(BINANCE_ENABLED)
+#if BUILDFLAG(CRYPTO_DOT_COM_ENABLED)
   if (crypto_dot_com::IsCryptoDotComProtocol(url)) {
     crypto_dot_com::HandleCryptoDotComProtocol(
         url, std::move(web_contents_getter), page_transition, has_user_gesture,

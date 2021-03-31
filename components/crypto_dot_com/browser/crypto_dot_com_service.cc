@@ -75,9 +75,7 @@ std::string GetFormattedResponseBody(const std::string& json_response) {
 }  // namespace
 
 CryptoDotComService::CryptoDotComService(content::BrowserContext* context)
-    : empty_dict_(base::Value::Type::DICTIONARY),
-      empty_list_(base::Value::Type::LIST),
-      context_(context),
+    : context_(context),
       url_loader_factory_(
           content::BrowserContext::GetDefaultStoragePartition(context_)
               ->GetURLLoaderFactoryForBrowserProcess()),

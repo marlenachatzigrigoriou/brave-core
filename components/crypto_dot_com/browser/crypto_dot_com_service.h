@@ -145,9 +145,6 @@ class CryptoDotComService : public KeyedService {
       URLRequestCallback callback,
       const std::unique_ptr<std::string> response_body);
 
-  // TODO(simonhong): Pass proper empty value for each api.
-  const base::Value empty_dict_;
-  const base::Value empty_list_;
   std::string access_token_;
   content::BrowserContext* context_;
   scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory_;
