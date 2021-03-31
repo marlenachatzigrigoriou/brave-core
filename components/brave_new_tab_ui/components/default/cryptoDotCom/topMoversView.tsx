@@ -52,7 +52,7 @@ export default function TopMoversView ({
     const currency = asset.pair.split('_')[0]
     const { percentChange, lastPrice: price } = asset
     return (
-      <ListItem key={currency} isFlex={true} onClick={handleAssetClick.bind(this, currency)} $height={48}>
+      <ListItem key={currency} isFlex={true} onClick={handleAssetClick.bind(this, currency, undefined, AssetViews.DETAILS)} $height={48}>
         <FlexItem $pl={5} $pr={5}>
           {renderIconAsset(currency.toLowerCase())}
         </FlexItem>
