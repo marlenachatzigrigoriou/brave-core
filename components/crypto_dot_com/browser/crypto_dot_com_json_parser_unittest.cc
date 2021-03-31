@@ -3,9 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include <limits>
-
 #include "brave/components/crypto_dot_com/browser/crypto_dot_com_json_parser.h"
+
+#include <map>
+#include <vector>
 
 #include "brave/components/crypto_dot_com/browser/crypto_dot_com_service.h"
 #include "brave/components/content_settings/core/common/content_settings_util.h"
@@ -15,9 +16,8 @@
 
 namespace {
 
-double GetValueFromStringMap(
-    const std::map<std::string, double>& map,
-    const std::string& key) {
+double GetValueFromStringMap(const std::map<std::string, double>& map,
+                             const std::string& key) {
   double value = -1.0;
   std::map<std::string, double>::const_iterator it = map.find(key);
   if (it != map.end()) {

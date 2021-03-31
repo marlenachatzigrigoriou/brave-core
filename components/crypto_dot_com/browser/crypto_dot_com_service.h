@@ -66,13 +66,11 @@ class CryptoDotComService : public KeyedService {
   using GetAssetRankingsCallback =
         base::OnceCallback<void(const CryptoDotComAssetRankings&)>;
   using GetAccountBalancesCallback =
-        base::OnceCallback<void(base::Value, bool)>;
+      base::OnceCallback<void(base::Value, bool)>;
   using IsConnectedCallback = base::OnceCallback<void(bool)>;
   using GetNewsEventsCallback = base::OnceCallback<void(base::Value, bool)>;
-  using GetDepositAddressCallback =
-        base::OnceCallback<void(base::Value, bool)>;
-  using CreateMarketOrderCallback =
-        base::OnceCallback<void(base::Value)>;
+  using GetDepositAddressCallback = base::OnceCallback<void(base::Value, bool)>;
+  using CreateMarketOrderCallback = base::OnceCallback<void(base::Value)>;
 
   bool GetTickerInfo(const std::string& asset,
                      GetTickerInfoCallback callback);
@@ -86,8 +84,7 @@ class CryptoDotComService : public KeyedService {
   bool IsLoggedIn();
   bool GetDepositAddress(const std::string& asset,
                          GetDepositAddressCallback callback);
-  bool CreateMarketOrder(base::Value order,
-                         CreateMarketOrderCallback callback);
+  bool CreateMarketOrder(base::Value order, CreateMarketOrderCallback callback);
   bool GetNewsEvents(GetNewsEventsCallback callback);
   std::string GetAuthClientUrl() const;
 
@@ -113,29 +110,35 @@ class CryptoDotComService : public KeyedService {
                        const int status, const std::string& body,
                        const std::map<std::string, std::string>& headers);
   void OnGetAccountBalances(GetAccountBalancesCallback callback,
-                            const int status, const std::string& body,
+                            const int status,
+                            const std::string& body,
                             const std::map<std::string, std::string>& headers);
   void OnIsConnected(IsConnectedCallback callback,
-                     const int status, const std::string& body,
+                     const int status,
+                     const std::string& body,
                      const std::map<std::string, std::string>& headers);
   // Delete |asset| args when crypto.com api is fixed.
   void OnGetDepositAddress(GetDepositAddressCallback callback,
                            const std::string& asset,
-                           const int status, const std::string& body,
+                           const int status,
+                           const std::string& body,
                            const std::map<std::string, std::string>& headers);
   void OnCreateMarketOrder(CreateMarketOrderCallback callback,
-                           const int status, const std::string& body,
+                           const int status,
+                           const std::string& body,
                            const std::map<std::string, std::string>& headers);
   void OnGetNewsEvents(GetNewsEventsCallback callback,
-                   const int status, const std::string& body,
-                   const std::map<std::string, std::string>& headers);
+                       const int status,
+                       const std::string& body,
+                       const std::map<std::string, std::string>& headers);
 
   bool LoadTokenFromPrefs();
 
-  bool NetworkRequest(const GURL& url, const std::string& method,
-      const std::string& post_data,
-      const net::HttpRequestHeaders& headers,
-      URLRequestCallback callback);
+  bool NetworkRequest(const GURL& url,
+                      const std::string& method,
+                      const std::string& post_data,
+                      const net::HttpRequestHeaders& headers,
+                      URLRequestCallback callback);
 
   void OnURLLoaderComplete(
       SimpleURLLoaderList::iterator iter,

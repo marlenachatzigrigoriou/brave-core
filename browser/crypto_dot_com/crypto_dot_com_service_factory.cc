@@ -17,7 +17,7 @@ CryptoDotComServiceFactory* CryptoDotComServiceFactory::GetInstance() {
 }
 
 // static
-CryptoDotComService*CryptoDotComServiceFactory::GetForProfile(
+CryptoDotComService* CryptoDotComServiceFactory::GetForProfile(
     content::BrowserContext* context) {
   if (!brave::IsRegularProfile(context)) {
     return nullptr;

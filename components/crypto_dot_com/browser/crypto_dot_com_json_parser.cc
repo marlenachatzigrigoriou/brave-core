@@ -4,6 +4,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include <map>
+#include <utility>
 #include <vector>
 
 #include "brave/components/crypto_dot_com/browser/crypto_dot_com_json_parser.h"
@@ -16,7 +17,7 @@ namespace {
 
 double CalculateAssetVolume(double v, double h, double l) {
   // Volume is v * ((h + l) / 2)
-  return  v * ((h + l) / 2.0);
+  return v * ((h + l) / 2.0);
 }
 
 }  // namespace
@@ -56,8 +57,8 @@ bool CryptoDotComJSONParser::GetTickerInfoFromJSON(
     return false;
   }
 
-  const double volume = CalculateAssetVolume(
-      v->GetDouble(), h->GetDouble(), l->GetDouble());
+  const double volume =
+      CalculateAssetVolume(v->GetDouble(), h->GetDouble(), l->GetDouble());
 
   info->insert({"volume", volume});
   info->insert({"price", price->GetDouble()});
@@ -150,10 +151,8 @@ bool CryptoDotComJSONParser::GetPairsFromJSON(
     const base::Value* price = instrument.FindKey("price_decimals");
     const base::Value* quantity = instrument.FindKey("quantity_decimals");
 
-    if (!(pair && pair->is_string()) ||
-        !(quote && quote->is_string()) ||
-        !(base && base->is_string()) ||
-        !(price && price->is_int()) ||
+    if (!(pair && pair->is_string()) || !(quote && quote->is_string()) ||
+        !(base && base->is_string()) || !(price && price->is_int()) ||
         !(quantity && quantity->is_int())) {
       pairs->clear();
       return false;
@@ -269,11 +268,9 @@ base::Value CryptoDotComJSONParser::GetValidAccountBalances(
 
   base::Value accounts_list(base::Value::Type::LIST);
   for (const base::Value& account : accounts->GetList()) {
-    if (account.FindStringKey("stake") &&
-        account.FindStringKey("balance") &&
+    if (account.FindStringKey("stake") && account.FindStringKey("balance") &&
         account.FindStringKey("available") &&
-        account.FindStringKey("currency") &&
-        account.FindStringKey("order") &&
+        account.FindStringKey("currency") && account.FindStringKey("order") &&
         account.FindIntKey("currency_decimals")) {
       accounts_list.Append(account.Clone());
     }
@@ -342,7 +339,8 @@ base::Value CryptoDotComJSONParser::GetValidDepositAddress(
 
   const base::Value* addresses_value =
       response_value->FindPath("result.addresses");
-  if (!addresses_value || !addresses_value->is_list() || !addresses_value->GetList().size()) {
+  if (!addresses_value || !addresses_value->is_list() ||
+      !addresses_value->GetList().size()) {
     return base::Value();
   }
 

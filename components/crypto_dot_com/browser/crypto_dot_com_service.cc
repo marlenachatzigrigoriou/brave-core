@@ -94,8 +94,8 @@ bool CryptoDotComService::GetTickerInfo(const std::string& asset,
       base::Unretained(this), std::move(callback));
   GURL url = GetURLWithPath(api_host, get_ticker_info_path);
   url = net::AppendQueryParameter(url, "instrument_name", asset);
-  return NetworkRequest(
-      url, "GET", "", net::HttpRequestHeaders(), std::move(internal_callback));
+  return NetworkRequest(url, "GET", "", net::HttpRequestHeaders(),
+                        std::move(internal_callback));
 }
 
 void CryptoDotComService::OnTickerInfo(
@@ -120,8 +120,8 @@ bool CryptoDotComService::GetChartData(const std::string& asset,
   url = net::AppendQueryParameter(url, "instrument_name", asset);
   url = net::AppendQueryParameter(url, "timeframe", "4h");
   url = net::AppendQueryParameter(url, "depth", "42");
-  return NetworkRequest(
-      url, "GET", "", net::HttpRequestHeaders(), std::move(internal_callback));
+  return NetworkRequest(url, "GET", "", net::HttpRequestHeaders(),
+                        std::move(internal_callback));
 }
 
 void CryptoDotComService::OnChartData(
@@ -133,8 +133,7 @@ void CryptoDotComService::OnChartData(
   const std::string json_body = GetFormattedResponseBody(body);
   if (!CryptoDotComJSONParser::GetChartDataFromJSON(json_body, &data)) {
     const std::map<std::string, double> empty_data_point = {
-        {"t", 0}, {"o", 0}, {"h", 0}, {"l", 0}, {"c", 0}, {"v", 0}
-    };
+        {"t", 0}, {"o", 0}, {"h", 0}, {"l", 0}, {"c", 0}, {"v", 0}};
     data.push_back(empty_data_point);
   }
   std::move(callback).Run(data);
@@ -146,8 +145,8 @@ bool CryptoDotComService::GetSupportedPairs(
       &CryptoDotComService::OnSupportedPairs,
       base::Unretained(this), std::move(callback));
   GURL url = GetURLWithPath(api_host, get_pairs_path);
-  return NetworkRequest(
-      url, "GET", "", net::HttpRequestHeaders(), std::move(internal_callback));
+  return NetworkRequest(url, "GET", "", net::HttpRequestHeaders(),
+                        std::move(internal_callback));
 }
 
 void CryptoDotComService::OnSupportedPairs(
@@ -158,9 +157,11 @@ void CryptoDotComService::OnSupportedPairs(
   CryptoDotComSupportedPairs pairs;
   const std::string json_body = GetFormattedResponseBody(body);
   if (!CryptoDotComJSONParser::GetPairsFromJSON(json_body, &pairs)) {
-    const std::map<std::string, std::string> empty_pair = {
-        {"pair", ""}, {"quote", ""}, {"base", ""}, {"price", ""}, {"quantity", ""}
-    };
+    const std::map<std::string, std::string> empty_pair = {{"pair", ""},
+                                                           {"quote", ""},
+                                                           {"base", ""},
+                                                           {"price", ""},
+                                                           {"quantity", ""}};
     pairs.push_back(empty_pair);
   }
   std::move(callback).Run(pairs);
@@ -173,8 +174,8 @@ bool CryptoDotComService::GetAssetRankings(
       base::Unretained(this), std::move(callback));
   GURL url = GetURLWithPath(root_host, get_gainers_losers_path);
   std::map<std::string, std::string> headers;
-  return NetworkRequest(
-      url, "GET", "", net::HttpRequestHeaders(), std::move(internal_callback));
+  return NetworkRequest(url, "GET", "", net::HttpRequestHeaders(),
+                        std::move(internal_callback));
 }
 
 void CryptoDotComService::OnAssetRankings(
@@ -195,18 +196,19 @@ void CryptoDotComService::OnAssetRankings(
 
 bool CryptoDotComService::GetAccountBalances(
     GetAccountBalancesCallback callback) {
-  auto internal_callback = base::BindOnce(
-      &CryptoDotComService::OnGetAccountBalances,
-      base::Unretained(this), std::move(callback));
+  auto internal_callback =
+      base::BindOnce(&CryptoDotComService::OnGetAccountBalances,
+                     base::Unretained(this), std::move(callback));
   net::HttpRequestHeaders headers;
   headers.SetHeader("widget-token", access_token_);
   return NetworkRequest(GURL(kCryptoDotComGetAccountBalanceURL), "GET", "",
-      headers, std::move(internal_callback));
+                        headers, std::move(internal_callback));
 }
 
 void CryptoDotComService::OnGetAccountBalances(
     GetAccountBalancesCallback callback,
-    const int status, const std::string& body,
+    const int status,
+    const std::string& body,
     const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   auto value = CryptoDotComJSONParser::GetValidAccountBalances(body);
@@ -232,18 +234,19 @@ bool CryptoDotComService::IsConnected(IsConnectedCallback callback) {
     return true;
   }
 
-  auto internal_callback = base::BindOnce(
-      &CryptoDotComService::OnIsConnected,
-      base::Unretained(this), std::move(callback));
+  auto internal_callback =
+      base::BindOnce(&CryptoDotComService::OnIsConnected,
+                     base::Unretained(this), std::move(callback));
   net::HttpRequestHeaders headers;
   headers.SetHeader("widget-token", access_token_);
   return NetworkRequest(GURL(kCryptoDotComGetAccountBalanceURL), "GET", "",
-      headers, std::move(internal_callback));
+                        headers, std::move(internal_callback));
 }
 
 void CryptoDotComService::OnIsConnected(
     IsConnectedCallback callback,
-    const int status, const std::string& body,
+    const int status,
+    const std::string& body,
     const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   auto balances_value = base::JSONReader::Read(body);
@@ -263,10 +266,11 @@ void CryptoDotComService::OnIsConnected(
 }
 
 bool CryptoDotComService::GetDepositAddress(
-    const std::string& asset, GetDepositAddressCallback callback) {
-  auto internal_callback = base::BindOnce(
-      &CryptoDotComService::OnGetDepositAddress,
-      base::Unretained(this), std::move(callback), asset);
+    const std::string& asset,
+    GetDepositAddressCallback callback) {
+  auto internal_callback =
+      base::BindOnce(&CryptoDotComService::OnGetDepositAddress,
+                     base::Unretained(this), std::move(callback), asset);
   net::HttpRequestHeaders headers;
   headers.SetHeader("widget-token", access_token_);
   GURL url(kCryptoDotComGetDepositAddressURL);
@@ -277,7 +281,8 @@ bool CryptoDotComService::GetDepositAddress(
 void CryptoDotComService::OnGetDepositAddress(
     GetDepositAddressCallback callback,
     const std::string& asset,
-    const int status, const std::string& body,
+    const int status,
+    const std::string& body,
     const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   auto value = CryptoDotComJSONParser::GetValidDepositAddress(body);
@@ -290,9 +295,9 @@ void CryptoDotComService::OnGetDepositAddress(
 }
 
 bool CryptoDotComService::GetNewsEvents(GetNewsEventsCallback callback) {
-  auto internal_callback = base::BindOnce(
-      &CryptoDotComService::OnGetNewsEvents,
-      base::Unretained(this), std::move(callback));
+  auto internal_callback =
+      base::BindOnce(&CryptoDotComService::OnGetNewsEvents,
+                     base::Unretained(this), std::move(callback));
   net::HttpRequestHeaders headers;
   headers.SetHeader("widget-token", access_token_);
   GURL url(kCryptoDotComGetNewsEventsURL);
@@ -301,7 +306,8 @@ bool CryptoDotComService::GetNewsEvents(GetNewsEventsCallback callback) {
 
 void CryptoDotComService::OnGetNewsEvents(
     GetNewsEventsCallback callback,
-    const int status, const std::string& body,
+    const int status,
+    const std::string& body,
     const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   auto value = CryptoDotComJSONParser::GetValidNewsEvents(body);
@@ -315,10 +321,11 @@ void CryptoDotComService::OnGetNewsEvents(
 }
 
 bool CryptoDotComService::CreateMarketOrder(
-    base::Value order, CreateMarketOrderCallback callback) {
-  auto internal_callback = base::BindOnce(
-      &CryptoDotComService::OnCreateMarketOrder,
-      base::Unretained(this), std::move(callback));
+    base::Value order,
+    CreateMarketOrderCallback callback) {
+  auto internal_callback =
+      base::BindOnce(&CryptoDotComService::OnCreateMarketOrder,
+                     base::Unretained(this), std::move(callback));
   net::HttpRequestHeaders headers;
   headers.SetHeader("widget-token", access_token_);
   GURL url(kCryptoDotComCreateMarketOrderURL);
@@ -332,7 +339,8 @@ bool CryptoDotComService::CreateMarketOrder(
 
 void CryptoDotComService::OnCreateMarketOrder(
     CreateMarketOrderCallback callback,
-    const int status, const std::string& body,
+    const int status,
+    const std::string& body,
     const std::map<std::string, std::string>& headers) {
   DVLOG(2) << __func__ << ": " << body;
   std::move(callback).Run(CryptoDotComJSONParser::GetValidOrderResult(body));
@@ -372,7 +380,6 @@ bool CryptoDotComService::LoadTokenFromPrefs() {
   std::string encrypted_access_token;
   if (!base::Base64Decode(encoded_encrypted_access_token,
                           &encrypted_access_token)) {
-
     LOG(ERROR) << "Could not decode CryptoDotCom Token info";
     return false;
   }
@@ -385,11 +392,11 @@ bool CryptoDotComService::LoadTokenFromPrefs() {
   return true;
 }
 
-bool CryptoDotComService::NetworkRequest(const GURL &url,
-                                  const std::string& method,
-                                  const std::string& post_data,
-                                  const net::HttpRequestHeaders& headers,
-                                  URLRequestCallback callback) {
+bool CryptoDotComService::NetworkRequest(const GURL& url,
+                                         const std::string& method,
+                                         const std::string& post_data,
+                                         const net::HttpRequestHeaders& headers,
+                                         URLRequestCallback callback) {
   DVLOG(2) << __func__ << ": " << url;
   auto request = std::make_unique<network::ResourceRequest>();
   request->url = url;

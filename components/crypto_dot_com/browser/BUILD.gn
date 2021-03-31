@@ -4,16 +4,14 @@ import("//brave/components/crypto_dot_com/browser/buildflags/buildflags.gni")
 assert(crypto_dot_com_enabled)
 
 source_set("browser") {
-  public_deps = [
-    "buildflags"
-  ]
+  public_deps = [ "buildflags" ]
   sources = [
-    "crypto_dot_com_service.cc",
-    "crypto_dot_com_service.h",
     "crypto_dot_com_json_parser.cc",
     "crypto_dot_com_json_parser.h",
     "crypto_dot_com_pref_utils.cc",
     "crypto_dot_com_pref_utils.h",
+    "crypto_dot_com_service.cc",
+    "crypto_dot_com_service.h",
     "regions.h",
   ]
 
@@ -22,6 +20,7 @@ source_set("browser") {
     "//brave/components/crypto_dot_com/common",
     "//components/keyed_service/content",
     "//components/keyed_service/core",
+    "//components/os_crypt",
     "//components/prefs",
     "//components/user_prefs",
     "//content/public/browser",

@@ -5,6 +5,9 @@
 
 #include "brave/browser/crypto_dot_com/crypto_dot_com_protocol_handler.h"
 
+#include <string>
+#include <utility>
+
 #include "base/task/post_task.h"
 #include "brave/browser/crypto_dot_com/crypto_dot_com_service_factory.h"
 #include "brave/common/url_constants.h"
@@ -25,12 +28,11 @@ std::string GetTokenFromURL(const GURL& url) {
   return token;
 }
 
-void LoadNewTabURL(
-    const GURL& url,
-    content::WebContents::OnceGetter web_contents_getter,
-    ui::PageTransition page_transition,
-    bool has_user_gesture,
-    const base::Optional<url::Origin>& initiating_origin) {
+void LoadNewTabURL(const GURL& url,
+                   content::WebContents::OnceGetter web_contents_getter,
+                   ui::PageTransition page_transition,
+                   bool has_user_gesture,
+                   const base::Optional<url::Origin>& initiating_origin) {
   content::WebContents* web_contents = std::move(web_contents_getter).Run();
   if (!web_contents) {
     return;
@@ -61,12 +63,13 @@ void LoadNewTabURL(
   }
 
   std::string token = GetTokenFromURL(url);
-  CryptoDotComServiceFactory::GetInstance()->
-      GetForProfile(web_contents->GetBrowserContext())->SetAccessToken(token);
+  CryptoDotComServiceFactory::GetInstance()
+      ->GetForProfile(web_contents->GetBrowserContext())
+      ->SetAccessToken(token);
 
-  web_contents->GetController().LoadURL(
-      GURL(chrome::kChromeUINewTabURL), content::Referrer(),
-      page_transition, std::string());
+  web_contents->GetController().LoadURL(GURL(chrome::kChromeUINewTabURL),
+                                        content::Referrer(), page_transition,
+                                        std::string());
 }
 
 }  // namespace

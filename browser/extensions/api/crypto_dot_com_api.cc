@@ -10,9 +10,9 @@
 #include <utility>
 
 #include "base/values.h"
+#include "brave/browser/crypto_dot_com/crypto_dot_com_service_factory.h"
 #include "brave/browser/profiles/profile_util.h"
 #include "brave/common/extensions/api/crypto_dot_com.h"
-#include "brave/browser/crypto_dot_com/crypto_dot_com_service_factory.h"
 #include "brave/components/crypto_dot_com/browser/crypto_dot_com_service.h"
 #include "brave/components/crypto_dot_com/browser/regions.h"
 #include "brave/components/crypto_dot_com/common/pref_names.h"
@@ -211,10 +211,9 @@ CryptoDotComGetAccountBalancesFunction::Run() {
   }
 
   auto* service = GetCryptoDotComService(browser_context());
-  bool ret = service->GetAccountBalances(
-      base::BindOnce(
-          &CryptoDotComGetAccountBalancesFunction::OnGetAccountBalancesResult,
-          this));
+  bool ret = service->GetAccountBalances(base::BindOnce(
+      &CryptoDotComGetAccountBalancesFunction::OnGetAccountBalancesResult,
+      this));
 
   if (!ret) {
     return RespondNow(
@@ -225,7 +224,8 @@ CryptoDotComGetAccountBalancesFunction::Run() {
 }
 
 void CryptoDotComGetAccountBalancesFunction::OnGetAccountBalancesResult(
-    base::Value balances, bool success) {
+    base::Value balances,
+    bool success) {
   Respond(TwoArguments(std::move(balances), base::Value(success)));
 }
 
@@ -273,8 +273,7 @@ ExtensionFunction::ResponseAction CryptoDotComIsLoggedInFunction::Run() {
   return RespondNow(OneArgument(base::Value(service->IsLoggedIn())));
 }
 
-void CryptoDotComIsConnectedFunction::OnIsConnectedResult(
-    bool connected) {
+void CryptoDotComIsConnectedFunction::OnIsConnectedResult(bool connected) {
   Respond(OneArgument(base::Value(connected)));
 }
 
@@ -288,15 +287,15 @@ ExtensionFunction::ResponseAction CryptoDotComGetNewsEventsFunction::Run() {
       &CryptoDotComGetNewsEventsFunction::OnGetNewsEventsResult, this));
 
   if (!ret) {
-    return RespondNow(
-        Error("Could not make request for fetching news events"));
+    return RespondNow(Error("Could not make request for fetching news events"));
   }
 
   return RespondLater();
 }
 
 void CryptoDotComGetNewsEventsFunction::OnGetNewsEventsResult(
-    base::Value events, bool success) {
+    base::Value events,
+    bool success) {
   Respond(TwoArguments(std::move(events), base::Value(success)));
 }
 
@@ -310,8 +309,11 @@ ExtensionFunction::ResponseAction CryptoDotComGetDepositAddressFunction::Run() {
   EXTENSION_FUNCTION_VALIDATE(params.get());
 
   auto* service = GetCryptoDotComService(browser_context());
-  bool ret = service->GetDepositAddress(params->asset, base::BindOnce(
-      &CryptoDotComGetDepositAddressFunction::OnGetDepositAddressResult, this));
+  bool ret = service->GetDepositAddress(
+      params->asset,
+      base::BindOnce(
+          &CryptoDotComGetDepositAddressFunction::OnGetDepositAddressResult,
+          this));
 
   if (!ret) {
     return RespondNow(
@@ -322,7 +324,8 @@ ExtensionFunction::ResponseAction CryptoDotComGetDepositAddressFunction::Run() {
 }
 
 void CryptoDotComGetDepositAddressFunction::OnGetDepositAddressResult(
-    base::Value address, bool success) {
+    base::Value address,
+    bool success) {
   Respond(TwoArguments(std::move(address), base::Value(success)));
 }
 

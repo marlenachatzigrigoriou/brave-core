@@ -122,8 +122,7 @@ TEST_F(BraveExtensionsAPIClientTests, IsBraveProtectedUrlCryptoDotCom) {
     return request;
   };
 
-  WebRequestInfo blocked1(
-      create_request_params("https://auth.crypto.com/"));
+  WebRequestInfo blocked1(create_request_params("https://auth.crypto.com/"));
   WebRequestInfo blocked2(create_request_params(
       "com.brave.cryptodotcom://oauth_callback?token=Sggjh9s"));
 

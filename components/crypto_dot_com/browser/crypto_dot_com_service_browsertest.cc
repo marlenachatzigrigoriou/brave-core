@@ -16,8 +16,8 @@
 #include "chrome/test/base/ui_test_utils.h"
 #include "content/public/test/browser_test.h"
 #include "content/public/test/browser_test_utils.h"
-#include "net/dns/mock_host_resolver.h"
 #include "net/base/url_util.h"
+#include "net/dns/mock_host_resolver.h"
 #include "net/test/embedded_test_server/http_request.h"
 #include "net/test/embedded_test_server/http_response.h"
 
@@ -273,7 +273,7 @@ class CryptoDotComAPIBrowserTest : public InProcessBrowserTest {
   }
 
   void WaitForValueResponse(base::Value expected_value) {
-   if (wait_for_request_) {
+    if (wait_for_request_) {
       return;
     }
 
@@ -314,18 +314,18 @@ class CryptoDotComAPIBrowserTest : public InProcessBrowserTest {
   CryptoDotComChartData GetEmptyChartData() {
     CryptoDotComChartData empty_data;
     const std::map<std::string, double> empty_data_point = {
-        {"t", 0}, {"o", 0}, {"h", 0}, {"l", 0}, {"c", 0}, {"v", 0}
-    };
+        {"t", 0}, {"o", 0}, {"h", 0}, {"l", 0}, {"c", 0}, {"v", 0}};
     empty_data.push_back(empty_data_point);
     return empty_data;
   }
 
   CryptoDotComSupportedPairs GetEmptyPairs() {
     CryptoDotComSupportedPairs empty_pairs;
-    const std::map<std::string, std::string> empty_pair = {
-        {"pair", ""}, {"quote", ""}, {"base", ""}, {"price", ""},
-        {"quantity", ""}
-    };
+    const std::map<std::string, std::string> empty_pair = {{"pair", ""},
+                                                           {"quote", ""},
+                                                           {"base", ""},
+                                                           {"price", ""},
+                                                           {"quantity", ""}};
     empty_pairs.push_back(empty_pair);
     return empty_pairs;
   }
@@ -496,41 +496,34 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
-    GetAccountBalanceServerError) {
+                       GetAccountBalanceServerError) {
   ResetHTTPSServer(base::BindRepeating(&HandleRequestServerError));
   EXPECT_TRUE(NavigateToNewTabUntilLoadStop());
   auto* service = GetCryptoDotComService();
-  ASSERT_TRUE(service->GetAccountBalances(
-      base::BindOnce(
-          &CryptoDotComAPIBrowserTest::OnGetValue,
-          base::Unretained(this))));
+  ASSERT_TRUE(service->GetAccountBalances(base::BindOnce(
+      &CryptoDotComAPIBrowserTest::OnGetValue, base::Unretained(this))));
   auto expected_response = base::JSONReader::Read(kEmptyAccountBalances);
   WaitForValueResponse(std::move(*expected_response));
 }
 
-IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
-    GetNewsEventsServerError) {
+IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetNewsEventsServerError) {
   ResetHTTPSServer(base::BindRepeating(&HandleRequestServerError));
   EXPECT_TRUE(NavigateToNewTabUntilLoadStop());
   auto* service = GetCryptoDotComService();
-  ASSERT_TRUE(service->GetNewsEvents(
-      base::BindOnce(
-          &CryptoDotComAPIBrowserTest::OnGetValue,
-          base::Unretained(this))));
+  ASSERT_TRUE(service->GetNewsEvents(base::BindOnce(
+      &CryptoDotComAPIBrowserTest::OnGetValue, base::Unretained(this))));
   auto expected_response = base::JSONReader::Read(kEmptyNewsEvents);
   WaitForValueResponse(expected_response->FindListKey("events")->Clone());
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
-    GetDepositAddressServerError) {
+                       GetDepositAddressServerError) {
   ResetHTTPSServer(base::BindRepeating(&HandleRequestServerError));
   EXPECT_TRUE(NavigateToNewTabUntilLoadStop());
   auto* service = GetCryptoDotComService();
   ASSERT_TRUE(service->GetDepositAddress(
-      "BAT",
-      base::BindOnce(
-          &CryptoDotComAPIBrowserTest::OnGetValue,
-          base::Unretained(this))));
+      "BAT", base::BindOnce(&CryptoDotComAPIBrowserTest::OnGetValue,
+                            base::Unretained(this))));
   auto expected_response = base::JSONReader::Read(kEmptyDepositAddress);
   WaitForValueResponse(std::move(*expected_response));
 }
