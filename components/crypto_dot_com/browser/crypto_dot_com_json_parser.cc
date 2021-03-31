@@ -298,12 +298,12 @@ base::Value CryptoDotComJSONParser::GetValidAccountBalances(
 
   base::Value accounts_list(base::Value::Type::LIST);
   for (const base::Value& account : accounts->GetList()) {
-    if (account.FindKey("stake") &&
-        account.FindKey("balance") &&
-        account.FindKey("available") &&
-        account.FindKey("currency") &&
-        account.FindKey("order") &&
-        account.FindKey("currency_decimals")) {
+    if (account.FindStringKey("stake") &&
+        account.FindStringKey("balance") &&
+        account.FindStringKey("available") &&
+        account.FindStringKey("currency") &&
+        account.FindStringKey("order") &&
+        account.FindIntKey("currency_decimals")) {
       accounts_list.Append(account.Clone());
     }
   }
