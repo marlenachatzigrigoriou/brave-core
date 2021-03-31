@@ -41,41 +41,6 @@ const char root_host[] = "crypto.com";
 const char api_host[] = "api.crypto.com";
 const unsigned int kRetriesCountOnNetworkChange = 1;
 
-constexpr char kEmptyAccountBalances[] = R"(
-    {
-      "total_balance": "0",
-      "accounts": [
-        {
-          "stake": "0",
-          "balance": "0",
-          "available": "0",
-          "currency": "0",
-          "currency_decimals": 0,
-          "order": "0"
-        }
-      ]
-    })";
-
-constexpr char kEmptyNewsEvents[] = R"(
-    {
-      "events": [
-        {
-          "content": "",
-          "redirect_title": "",
-          "redirect_url": "",
-          "updated_at": ""
-        }
-      ]
-    }
-)";
-
-constexpr char kEmptyDepositAddress[] = R"(
-    {
-      "address": "",
-      "qr_code": "",
-      "currency": ""
-    })";
-
 net::NetworkTrafficAnnotationTag GetNetworkTrafficAnnotationTag() {
   return net::DefineNetworkTrafficAnnotation("crypto_dot_com_service", R"(
       semantics {
@@ -140,7 +105,10 @@ void CryptoDotComService::OnTickerInfo(
   DVLOG(2) << __func__ << ": " << body;
   CryptoDotComTickerInfo info;
   const std::string json_body = GetFormattedResponseBody(body);
-  CryptoDotComJSONParser::GetTickerInfoFromJSON(json_body, &info);
+  if (!CryptoDotComJSONParser::GetTickerInfoFromJSON(json_body, &info)) {
+    info.insert({"volume", 0});
+    info.insert({"price", 0});
+  }
   std::move(callback).Run(info);
 }
 
@@ -163,7 +131,12 @@ void CryptoDotComService::OnChartData(
   DVLOG(2) << __func__ << ": " << body;
   CryptoDotComChartData data;
   const std::string json_body = GetFormattedResponseBody(body);
-  CryptoDotComJSONParser::GetChartDataFromJSON(json_body, &data);
+  if (!CryptoDotComJSONParser::GetChartDataFromJSON(json_body, &data)) {
+    const std::map<std::string, double> empty_data_point = {
+        {"t", 0}, {"o", 0}, {"h", 0}, {"l", 0}, {"c", 0}, {"v", 0}
+    };
+    data.push_back(empty_data_point);
+  }
   std::move(callback).Run(data);
 }
 
@@ -184,7 +157,12 @@ void CryptoDotComService::OnSupportedPairs(
   DVLOG(2) << __func__ << ": " << body;
   CryptoDotComSupportedPairs pairs;
   const std::string json_body = GetFormattedResponseBody(body);
-  CryptoDotComJSONParser::GetPairsFromJSON(json_body, &pairs);
+  if (!CryptoDotComJSONParser::GetPairsFromJSON(json_body, &pairs)) {
+    const std::map<std::string, std::string> empty_pair = {
+        {"pair", ""}, {"quote", ""}, {"base", ""}, {"price", ""}, {"quantity", ""}
+    };
+    pairs.push_back(empty_pair);
+  }
   std::move(callback).Run(pairs);
 }
 
@@ -206,7 +184,12 @@ void CryptoDotComService::OnAssetRankings(
   DVLOG(2) << __func__ << ": " << body;
   CryptoDotComAssetRankings rankings;
   const std::string json_body = GetFormattedResponseBody(body);
-  CryptoDotComJSONParser::GetRankingsFromJSON(json_body, &rankings);
+  if (!CryptoDotComJSONParser::GetRankingsFromJSON(json_body, &rankings)) {
+    std::vector<std::map<std::string, std::string>> gainers;
+    std::vector<std::map<std::string, std::string>> losers;
+    rankings.insert({"gainers", gainers});
+    rankings.insert({"losers", losers});
+  }
   std::move(callback).Run(rankings);
 }
 

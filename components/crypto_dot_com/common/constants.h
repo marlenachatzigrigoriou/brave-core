@@ -22,4 +22,39 @@ constexpr char kCryptoDotComCreateMarketOrderURL[] =
 // prod url: https://crypto.com/fe-ex-api/widget/get-events
 constexpr char kCryptoDotComGetNewsEventsURL[] =
     "https://xdev-www.3ona.co/fe-ex-api/widget/get-events";
+
+constexpr char kEmptyAccountBalances[] = R"(
+    {
+      "total_balance": "0",
+      "accounts": [
+        {
+          "stake": "0",
+          "balance": "0",
+          "available": "0",
+          "currency": "0",
+          "currency_decimals": 0,
+          "order": "0"
+        }
+      ]
+    })";
+
+constexpr char kEmptyNewsEvents[] = R"(
+    {
+      "events": [
+        {
+          "content": "",
+          "redirect_title": "",
+          "redirect_url": "",
+          "updated_at": ""
+        }
+      ]
+    })";
+
+constexpr char kEmptyDepositAddress[] = R"(
+    {
+      "address": "",
+      "qr_code": "",
+      "currency": ""
+    })";
+
 #endif  // BRAVE_COMPONENTS_CRYPTO_DOT_COM_COMMON_CONSTANTS_H_

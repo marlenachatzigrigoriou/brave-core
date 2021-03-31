@@ -3,11 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "base/json/json_reader.h"
 #include "base/path_service.h"
 #include "base/scoped_observer.h"
 #include "brave/browser/crypto_dot_com/crypto_dot_com_service_factory.h"
 #include "brave/common/brave_paths.h"
 #include "brave/components/crypto_dot_com/browser/crypto_dot_com_service.h"
+#include "brave/components/crypto_dot_com/common/constants.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/test/base/in_process_browser_test.h"
@@ -261,6 +263,26 @@ class CryptoDotComAPIBrowserTest : public InProcessBrowserTest {
     wait_for_request_->Run();
   }
 
+  void OnGetValue(base::Value value, bool success) {
+    if (wait_for_request_) {
+      wait_for_request_->Quit();
+    }
+
+    EXPECT_EQ(expected_value_, value);
+    EXPECT_FALSE(success);
+  }
+
+  void WaitForValueResponse(base::Value expected_value) {
+   if (wait_for_request_) {
+      return;
+    }
+
+    expected_value_ = std::move(expected_value);
+
+    wait_for_request_.reset(new base::RunLoop);
+    wait_for_request_->Run();
+  }
+
   content::WebContents* active_contents() {
     return browser()->tab_strip_model()->GetActiveWebContents();
   }
@@ -282,6 +304,41 @@ class CryptoDotComAPIBrowserTest : public InProcessBrowserTest {
     return service;
   }
 
+  CryptoDotComTickerInfo GetEmptyTickerInfo() {
+    CryptoDotComTickerInfo empty_info;
+    empty_info.insert({"volume", 0});
+    empty_info.insert({"price", 0});
+    return empty_info;
+  }
+
+  CryptoDotComChartData GetEmptyChartData() {
+    CryptoDotComChartData empty_data;
+    const std::map<std::string, double> empty_data_point = {
+        {"t", 0}, {"o", 0}, {"h", 0}, {"l", 0}, {"c", 0}, {"v", 0}
+    };
+    empty_data.push_back(empty_data_point);
+    return empty_data;
+  }
+
+  CryptoDotComSupportedPairs GetEmptyPairs() {
+    CryptoDotComSupportedPairs empty_pairs;
+    const std::map<std::string, std::string> empty_pair = {
+        {"pair", ""}, {"quote", ""}, {"base", ""}, {"price", ""},
+        {"quantity", ""}
+    };
+    empty_pairs.push_back(empty_pair);
+    return empty_pairs;
+  }
+
+  CryptoDotComAssetRankings GetEmptyRankings() {
+    CryptoDotComAssetRankings empty_rankings;
+    std::vector<std::map<std::string, std::string>> gainers;
+    std::vector<std::map<std::string, std::string>> losers;
+    empty_rankings.insert({"gainers", gainers});
+    empty_rankings.insert({"losers", losers});
+    return empty_rankings;
+  }
+
  private:
   net::EmbeddedTestServer* https_server() { return https_server_.get(); }
 
@@ -289,6 +346,7 @@ class CryptoDotComAPIBrowserTest : public InProcessBrowserTest {
   CryptoDotComChartData expected_chart_data_;
   CryptoDotComSupportedPairs expected_pairs_;
   CryptoDotComAssetRankings expected_rankings_;
+  base::Value expected_value_;
 
   std::unique_ptr<base::RunLoop> wait_for_request_;
   std::unique_ptr<net::EmbeddedTestServer> https_server_;
@@ -304,7 +362,7 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetTickerInfo) {
       base::BindOnce(
           &CryptoDotComAPIBrowserTest::OnTickerInfo,
           base::Unretained(this))));
-  WaitForGetTickerInfo(CryptoDotComTickerInfo());
+  WaitForGetTickerInfo(GetEmptyTickerInfo());
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetTickerInfoUnauthorized) {
@@ -316,7 +374,7 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetTickerInfoUnauthorized) {
       base::BindOnce(
           &CryptoDotComAPIBrowserTest::OnTickerInfo,
           base::Unretained(this))));
-  WaitForGetTickerInfo(CryptoDotComTickerInfo());
+  WaitForGetTickerInfo(GetEmptyTickerInfo());
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetTickerInfoServerError) {
@@ -328,7 +386,7 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetTickerInfoServerError) {
       base::BindOnce(
           &CryptoDotComAPIBrowserTest::OnTickerInfo,
           base::Unretained(this))));
-  WaitForGetTickerInfo(CryptoDotComTickerInfo());
+  WaitForGetTickerInfo(GetEmptyTickerInfo());
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetChartData) {
@@ -340,7 +398,7 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetChartData) {
       base::BindOnce(
           &CryptoDotComAPIBrowserTest::OnChartData,
           base::Unretained(this))));
-  WaitForGetChartData(CryptoDotComChartData());
+  WaitForGetChartData(GetEmptyChartData());
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetChartDataUnauthorized) {
@@ -352,7 +410,7 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetChartDataUnauthorized) {
       base::BindOnce(
           &CryptoDotComAPIBrowserTest::OnChartData,
           base::Unretained(this))));
-  WaitForGetChartData(CryptoDotComChartData());
+  WaitForGetChartData(GetEmptyChartData());
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetChartDataServerError) {
@@ -364,7 +422,7 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetChartDataServerError) {
       base::BindOnce(
           &CryptoDotComAPIBrowserTest::OnChartData,
           base::Unretained(this))));
-  WaitForGetChartData(CryptoDotComChartData());
+  WaitForGetChartData(GetEmptyChartData());
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetSupportedPairs) {
@@ -375,7 +433,7 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetSupportedPairs) {
       base::BindOnce(
           &CryptoDotComAPIBrowserTest::OnSupportedPairs,
           base::Unretained(this))));
-  WaitForGetSupportedPairs(CryptoDotComSupportedPairs());
+  WaitForGetSupportedPairs(GetEmptyPairs());
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
@@ -387,7 +445,7 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
       base::BindOnce(
           &CryptoDotComAPIBrowserTest::OnSupportedPairs,
           base::Unretained(this))));
-  WaitForGetSupportedPairs(CryptoDotComSupportedPairs());
+  WaitForGetSupportedPairs(GetEmptyPairs());
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
@@ -399,7 +457,7 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
       base::BindOnce(
           &CryptoDotComAPIBrowserTest::OnSupportedPairs,
           base::Unretained(this))));
-  WaitForGetSupportedPairs(CryptoDotComSupportedPairs());
+  WaitForGetSupportedPairs(GetEmptyPairs());
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetAssetRankings) {
@@ -410,7 +468,7 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest, GetAssetRankings) {
       base::BindOnce(
           &CryptoDotComAPIBrowserTest::OnAssetRankings,
           base::Unretained(this))));
-  WaitForGetAssetRankings(CryptoDotComAssetRankings());
+  WaitForGetAssetRankings(GetEmptyRankings());
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
@@ -422,7 +480,7 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
       base::BindOnce(
           &CryptoDotComAPIBrowserTest::OnAssetRankings,
           base::Unretained(this))));
-  WaitForGetAssetRankings(CryptoDotComAssetRankings());
+  WaitForGetAssetRankings(GetEmptyRankings());
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
@@ -434,7 +492,47 @@ IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
       base::BindOnce(
           &CryptoDotComAPIBrowserTest::OnAssetRankings,
           base::Unretained(this))));
-  WaitForGetAssetRankings(CryptoDotComAssetRankings());
+  WaitForGetAssetRankings(GetEmptyRankings());
+}
+
+IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
+    GetAccountBalanceServerError) {
+  ResetHTTPSServer(base::BindRepeating(&HandleRequestServerError));
+  EXPECT_TRUE(NavigateToNewTabUntilLoadStop());
+  auto* service = GetCryptoDotComService();
+  ASSERT_TRUE(service->GetAccountBalances(
+      base::BindOnce(
+          &CryptoDotComAPIBrowserTest::OnGetValue,
+          base::Unretained(this))));
+  auto expected_response = base::JSONReader::Read(kEmptyAccountBalances);
+  WaitForValueResponse(std::move(*expected_response));
+}
+
+IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
+    GetNewsEventsServerError) {
+  ResetHTTPSServer(base::BindRepeating(&HandleRequestServerError));
+  EXPECT_TRUE(NavigateToNewTabUntilLoadStop());
+  auto* service = GetCryptoDotComService();
+  ASSERT_TRUE(service->GetNewsEvents(
+      base::BindOnce(
+          &CryptoDotComAPIBrowserTest::OnGetValue,
+          base::Unretained(this))));
+  auto expected_response = base::JSONReader::Read(kEmptyNewsEvents);
+  WaitForValueResponse(expected_response->FindListKey("events")->Clone());
+}
+
+IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,
+    GetDepositAddressServerError) {
+  ResetHTTPSServer(base::BindRepeating(&HandleRequestServerError));
+  EXPECT_TRUE(NavigateToNewTabUntilLoadStop());
+  auto* service = GetCryptoDotComService();
+  ASSERT_TRUE(service->GetDepositAddress(
+      "BAT",
+      base::BindOnce(
+          &CryptoDotComAPIBrowserTest::OnGetValue,
+          base::Unretained(this))));
+  auto expected_response = base::JSONReader::Read(kEmptyDepositAddress);
+  WaitForValueResponse(std::move(*expected_response));
 }
 
 IN_PROC_BROWSER_TEST_F(CryptoDotComAPIBrowserTest,

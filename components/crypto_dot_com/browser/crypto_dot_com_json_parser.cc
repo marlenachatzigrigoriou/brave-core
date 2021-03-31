@@ -35,16 +35,11 @@ bool CryptoDotComJSONParser::GetTickerInfoFromJSON(
 
   if (!records_v) {
     LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
-    info->insert({"volume", 0});
-    info->insert({"price", 0});
     return false;
   }
 
   const base::Value* data = records_v->FindPath("response.result.data");
   if (!data || !data->is_dict()) {
-    // Empty values on failed response
-    info->insert({"volume", 0});
-    info->insert({"price", 0});
     return false;
   }
 
@@ -58,8 +53,6 @@ bool CryptoDotComJSONParser::GetTickerInfoFromJSON(
       !(h && (h->is_double() || h->is_int())) ||
       !(l && (l->is_double() || l->is_int())) ||
       !(price && (price->is_double() || price->is_int()))) {
-    info->insert({"volume", 0});
-    info->insert({"price", 0});
     return false;
   }
 
@@ -84,19 +77,13 @@ bool CryptoDotComJSONParser::GetChartDataFromJSON(
           json, base::JSONParserOptions::JSON_PARSE_RFC);
   base::Optional<base::Value>& records_v = value_with_error.value;
 
-  const std::map<std::string, double> empty_data_point = {
-    {"t", 0}, {"o", 0}, {"h", 0}, {"l", 0}, {"c", 0}, {"v", 0}
-  };
-
   if (!records_v) {
     LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
-    data->push_back(empty_data_point);
     return false;
   }
 
   const base::Value* data_arr = records_v->FindPath("response.result.data");
   if (!data_arr || !data_arr->is_list()) {
-    data->push_back(empty_data_point);
     return false;
   }
 
@@ -116,7 +103,6 @@ bool CryptoDotComJSONParser::GetChartDataFromJSON(
         !(c && c->is_double()) ||
         !(v && v->is_double())) {
       data->clear();
-      data->push_back(empty_data_point);
       return false;
     }
 
@@ -145,20 +131,14 @@ bool CryptoDotComJSONParser::GetPairsFromJSON(
           json, base::JSONParserOptions::JSON_PARSE_RFC);
   base::Optional<base::Value>& records_v = value_with_error.value;
 
-  const std::map<std::string, std::string> empty_pair = {
-    {"pair", ""}, {"quote", ""}, {"base", ""}, {"price", ""}, {"quantity", ""}
-  };
-
   if (!records_v) {
     LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
-    pairs->push_back(empty_pair);
     return false;
   }
 
   const base::Value* instruments =
       records_v->FindPath("response.result.instruments");
   if (!instruments || !instruments->is_list()) {
-    pairs->push_back(empty_pair);
     return false;
   }
 
@@ -176,7 +156,6 @@ bool CryptoDotComJSONParser::GetPairsFromJSON(
         !(price && price->is_int()) ||
         !(quantity && quantity->is_int())) {
       pairs->clear();
-      pairs->push_back(empty_pair);
       return false;
     }
 
@@ -203,21 +182,13 @@ bool CryptoDotComJSONParser::GetRankingsFromJSON(
       base::JSONReader::ReadAndReturnValueWithError(
           json, base::JSONParserOptions::JSON_PARSE_RFC);
   base::Optional<base::Value>& records_v = value_with_error.value;
-
-  std::vector<std::map<std::string, std::string>> gainers;
-  std::vector<std::map<std::string, std::string>> losers;
-
   if (!records_v) {
     LOG(ERROR) << "Invalid response, could not parse JSON, JSON is: " << json;
-    rankings->insert({"gainers", gainers});
-    rankings->insert({"losers", losers});
     return false;
   }
 
   const base::Value* result = records_v->FindPath("response.result");
   if (!result) {
-    rankings->insert({"gainers", gainers});
-    rankings->insert({"losers", losers});
     return false;
   }
 
@@ -225,11 +196,11 @@ bool CryptoDotComJSONParser::GetRankingsFromJSON(
   const base::Value* rankings_list = result->FindKey("gainers");
   if (!rankings_list || !rankings_list->is_list()) {
     // Gainers and losers should return empty on a bad response
-    rankings->insert({"gainers", gainers});
-    rankings->insert({"losers", losers});
     return false;
   }
 
+  std::vector<std::map<std::string, std::string>> gainers;
+  std::vector<std::map<std::string, std::string>> losers;
   for (const base::Value &ranking : rankings_list->GetList()) {
     std::map<std::string, std::string> ranking_data;
     const base::Value* pair = ranking.FindKey("instrument_name");
