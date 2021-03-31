@@ -70,12 +70,12 @@ interface StyleProps {
 
 function getTextStyle (p: StyleProps) {
   return [
-    ["weight", `font-weight: ${p.weight || (p.small ? '500' : 'normal')};`],
-    ["$fontSize", `font-size: ${(
+    ['weight', `font-weight: ${p.weight || (p.small ? '500' : 'normal')};`],
+    ['$fontSize', `font-size: ${(
         (p.$fontSize && `${p.$fontSize}px`) || (p.small ? '11px' : (p.large ? '19px' : '13px'))
     )};`],
-    ["center", `text-align: ${p.center ? 'center' : 'inherit'};`],
-    ["lineHeight", `line-height: ${p.lineHeight || 'normal'};]`]
+    ['center', `text-align: ${p.center ? 'center' : 'inherit'};`],
+    ['lineHeight', `line-height: ${p.lineHeight || 'normal'};]`]
   ].reduce((aggr, v) => {
     return p[v[0]] ? `${aggr}${v[1]}` : aggr
   }, '')
@@ -108,7 +108,7 @@ const colorNameToColor = {
 }
 
 function getColor (p: any) {
-  let colorName;
+  let colorName
   if (!/(string|undefined)/.test(typeof p)) {
     const keys = Object.keys(p)
     colorName = keys.find((key) => key in colorNameToColor)
@@ -338,9 +338,9 @@ export const SVG = styled('svg')<StyleProps>`
   margin: 1rem 0;
 `
 
-/**
-* Dropdown styles
-*/
+/*
+ * Dropdown styles
+ */
 
 export const InputWrapper = styled(BasicBox)<StyleProps>`
   height: 30px;

@@ -15,7 +15,7 @@ import {
   Box,
   FlexItem,
   PlainButton,
-  Text,
+  Text
 } from './style'
 
 import { renderIconAsset } from './utils'
@@ -49,7 +49,7 @@ export default function AssetDepositView ({
   ? (
     <Box isFlex={true} column={true} $p={10}>
       <img src={assetQR} />
-      <ActionButton onClick={() => setShowQR(false)} $mt={10} small={true} light={true} isFullWidth={false}>
+      <ActionButton onClick={setShowQR.bind(this, false)} $mt={10} small={true} light={true} isFullWidth={false}>
         Done
       </ActionButton>
     </Box>
@@ -76,7 +76,7 @@ export default function AssetDepositView ({
           </Text>
         </FlexItem>
         <FlexItem $pl={5}>
-          <PlainButton onClick={() => setShowQR(true)}>
+          <PlainButton onClick={setShowQR.bind(this, true)}>
             <img width={25} src={QRIcon} />
           </PlainButton>
         </FlexItem>
@@ -87,7 +87,7 @@ export default function AssetDepositView ({
       >
         <Text $fontSize={13} weight={600}>{base} Address</Text>
         <Text $fontSize={13} breakWord={true}>{assetAddress}</Text>
-        <ActionButton onClick={() => copyToClipboard(assetAddress)} $mt={5} $mb={15} small={true} light={true} isFullWidth={false}>
+        <ActionButton onClick={copyToClipboard.bind(this, assetAddress)} $mt={5} $mb={15} small={true} light={true} isFullWidth={false}>
           {getLocale('cryptoDotComWidgetCopyAddress')}
         </ActionButton>
         <Text $fontSize={13} weight={600}>{getLocale('cryptoDotComWidgetSendCaveatHeading', { currency: base })}</Text>

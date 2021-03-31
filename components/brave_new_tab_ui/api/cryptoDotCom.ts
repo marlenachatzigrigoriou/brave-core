@@ -64,7 +64,6 @@ function getCryptoDotComDepositAddress (asset: string) {
 
 export async function fetchCryptoDotComTickerPrices (assets: string[]) {
   const assetReqs = assets.map(asset => getCryptoDotComTickerInfo(asset))
-  //const assetResps = await Promise.all(assetReqs).then((resps: Array<Record<string, chrome.cryptoDotCom.TickerPrice>>) => resps)
   const assetResps = await Promise.all(assetReqs).then((resps: object[]) => resps)
   return assetResps.reduce((all, current) => ({ ...current, ...all }), {})
 }
@@ -75,7 +74,6 @@ export async function fetchCryptoDotComLosersGainers () {
 
 export async function fetchCryptoDotComCharts (assets: string[]) {
   const chartReqs = assets.map(asset => getCryptoDotComChartData(asset))
-  //const chartResps = await Promise.all(chartReqs).then((resps: Array<Record<string, chrome.cryptoDotCom.ChartDataPoint[]>>) => resps)
   const chartResps = await Promise.all(chartReqs).then((resps: object[]) => resps)
   return chartResps.reduce((all, current) => ({ ...current, ...all }), {})
 }

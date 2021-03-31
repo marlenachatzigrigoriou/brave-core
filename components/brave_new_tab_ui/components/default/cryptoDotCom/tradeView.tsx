@@ -31,7 +31,7 @@ interface Props {
   tickerPrices: Record<string, chrome.cryptoDotCom.TickerPrice>
   losersGainers: Record<string, chrome.cryptoDotCom.AssetRanking[]>
   tradingPairs: Array<Record<string, string>>
-  handleAssetClick: (base: string, quote?: string, view?: AssetViews) => Promise<void>
+  handleAssetClick: (base: string, quote?: string, view?: AssetViews) => void
 }
 
 export default function TradeView ({
@@ -62,7 +62,7 @@ export default function TradeView ({
       const search = new RegExp(searchInput, 'i')
       return search.test(pair.base)
     } else {
-      return pair;
+      return pair
     }
   }
 
@@ -71,8 +71,7 @@ export default function TradeView ({
     const { percentChange = null } = assetRankings[pair.base] || {}
 
     return (
-      <ListItem key={pair.pair} isFlex={true} $height={48} onClick={() => handleAssetClick(pair.base, pair.quote, AssetViews.TRADE)}
-      >
+      <ListItem key={pair.pair} isFlex={true} $height={48} onClick={handleAssetClick.bind(this, pair.base, pair.quote, AssetViews.TRADE)}>
         <FlexItem $pl={5} $pr={5}>
           {renderIconAsset(pair.base.toLowerCase())}
         </FlexItem>
@@ -86,7 +85,7 @@ export default function TradeView ({
           {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
         </FlexItem>
       </ListItem>
-      )
+    )
   }
 
   const renderAllView = () => {
@@ -101,43 +100,45 @@ export default function TradeView ({
       .map(renderListItem)
   }
 
-  return <>
-    <ButtonGroup>
-      <PlainButton
-        onClick={() => setFilter(FilterValues.ALL)}
-        inButtonGroup={true}
-        isActive={filter === FilterValues.ALL}
-      >
-        ALL
-      </PlainButton>
-      <PlainButton
-        onClick={() => setFilter(FilterValues.BTC)}
-        inButtonGroup={true}
-        isActive={filter === FilterValues.BTC}
-      >
-        BTC
-      </PlainButton>
-      <PlainButton
-        onClick={() => setFilter(FilterValues.CRO)}
-        inButtonGroup={true}
-        isActive={filter === FilterValues.CRO}
-      >
-        CRO
-      </PlainButton>
-      <PlainButton
-        onClick={() => setFilter(FilterValues.USDT)}
-        inButtonGroup={true}
-        isActive={filter === FilterValues.USDT}
-      >
-        USDT
-      </PlainButton>
-    </ButtonGroup>
-    <Box isFlex={true} $height={30} hasBottomBorder={false}>
-      <img width={15} src={SearchIcon} />
-      <InputField value={searchInput} onChange={handleSearchChange} placeholder={getLocale('cryptoDotComWidgetSearch')} />
-    </Box>
-    <List>
-      {filter === FilterValues.ALL ? renderAllView() : renderFilterView()}
-    </List>
-  </>
+  return (
+    <>
+      <ButtonGroup>
+        <PlainButton
+          onClick={setFilter.bind(this, FilterValues.ALL)}
+          inButtonGroup={true}
+          isActive={filter === FilterValues.ALL}
+        >
+          ALL
+        </PlainButton>
+        <PlainButton
+          onClick={setFilter.bind(this, FilterValues.BTC)}
+          inButtonGroup={true}
+          isActive={filter === FilterValues.BTC}
+        >
+          BTC
+        </PlainButton>
+        <PlainButton
+          onClick={setFilter.bind(this, FilterValues.CRO)}
+          inButtonGroup={true}
+          isActive={filter === FilterValues.CRO}
+        >
+          CRO
+        </PlainButton>
+        <PlainButton
+          onClick={setFilter.bind(this, FilterValues.USDT)}
+          inButtonGroup={true}
+          isActive={filter === FilterValues.USDT}
+        >
+          USDT
+        </PlainButton>
+      </ButtonGroup>
+      <Box isFlex={true} $height={30} hasBottomBorder={false}>
+        <img width={15} src={SearchIcon} />
+        <InputField value={searchInput} onChange={handleSearchChange} placeholder={getLocale('cryptoDotComWidgetSearch')} />
+      </Box>
+      <List>
+        {filter === FilterValues.ALL ? renderAllView() : renderFilterView()}
+      </List>
+    </>
+  )
 }

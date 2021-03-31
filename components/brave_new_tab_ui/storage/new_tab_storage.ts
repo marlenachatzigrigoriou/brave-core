@@ -129,7 +129,7 @@ export const defaultState: NewTab.State = {
     tradingPairs: [],
     newsEvents: [],
     charts: [],
-    accountBalances: { total_balance: '0', accounts: []},
+    accountBalances: { total_balance: '0', accounts: [] },
     depositAddresses: {}
   }
 }

@@ -97,11 +97,11 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       currentAssetView: AssetViews.DETAILS,
       selectedBase: '',
       selectedQuote: '',
-      clientAuthUrl: '',
+      clientAuthUrl: ''
     }
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate (prevProps: Props) {
     if (prevProps.isConnected !== this.props.isConnected ||
         prevProps.optInBTCPrice !== this.props.optInBTCPrice ||
         prevProps.showContent !== this.props.showContent) {
@@ -132,12 +132,12 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
         this.setCheckIsConnectedInterval()
 
         chrome.cryptoDotCom.isConnected(async (isConnected: boolean) => {
-          this.props.onUpdateActions()
+          await this.props.onUpdateActions()
           this.checkSetRefreshInterval()
           this.props.onIsConnected(isConnected)
         })
       } else if (this.props.optInBTCPrice) {
-        this.props.onUpdateActions()
+        await this.props.onUpdateActions()
         this.checkSetRefreshInterval()
         this.props.onIsConnected(false)
       }
@@ -190,7 +190,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     })
   }
 
-  handleAssetClick = async (base: string, quote?: string, view?: AssetViews) => {
+  handleAssetClick = (base: string, quote?: string, view?: AssetViews) => {
     this.setState({
       selectedBase: base,
       selectedQuote: quote || '',
@@ -231,8 +231,8 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   renderNav () {
     const { currentView } = this.state
     return (
-      <BasicBox isFlex={true} justify="start" $mb={13.5}>
-        <PlainButton $pl="0" weight={500} textColor={currentView === MainViews.TOP ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.TOP)}>{getLocale('cryptoDotComWidgetTop')}</PlainButton>
+      <BasicBox isFlex={true} justify='start' $mb={13.5}>
+        <PlainButton $pl='0' weight={500} textColor={currentView === MainViews.TOP ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.TOP)}>{getLocale('cryptoDotComWidgetTop')}</PlainButton>
         <PlainButton weight={500} textColor={currentView === MainViews.TRADE ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.TRADE)}>{getLocale('cryptoDotComWidgetTrade')}</PlainButton>
         <PlainButton weight={500} textColor={currentView === MainViews.EVENTS ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.EVENTS)}>{getLocale('cryptoDotComWidgetEvents')}</PlainButton>
         <PlainButton weight={500} textColor={currentView === MainViews.BALANCE ? 'white' : 'light'} onClick={this.setMainView.bind(null, MainViews.BALANCE)}>{getLocale('cryptoDotComWidgetBalance')}</PlainButton>
@@ -241,51 +241,59 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   }
 
   renderEvents () {
-    return <List>
-      {this.props.newsEvents.map((event: chrome.cryptoDotCom.NewsEvent) => (
-        <ListItem $p={10} key={event.redirect_url}>
-          <Text $fontSize={12} textColor='light'>{convertTimeToHumanReadable(event.updated_at)}</Text>
-          <Text $fontSize={12}>{event.content}</Text>
-          <Link $fontSize={12} $mt={5} inlineBlock={true} href={event.redirect_url} target='_blank'>{event.redirect_title}</Link>
-        </ListItem>
-      ))}
-    </List>
+    return (
+      <List>
+        {this.props.newsEvents.map((event: chrome.cryptoDotCom.NewsEvent) => (
+          <ListItem $p={10} key={event.redirect_url}>
+            <Text $fontSize={12} textColor='light'>{convertTimeToHumanReadable(event.updated_at)}</Text>
+            <Text $fontSize={12}>{event.content}</Text>
+            <Link $fontSize={12} $mt={5} inlineBlock={true} href={event.redirect_url} target='_blank'>{event.redirect_title}</Link>
+          </ListItem>
+        ))}
+      </List>
+    )
   }
 
   renderCurrentView () {
     const { currentView } = this.state
     if (currentView === MainViews.TOP) {
-      return <TopMoversView
-        losersGainers={this.props.losersGainers}
-        handleAssetClick={this.handleAssetClick}
-      />
+      return (
+        <TopMoversView
+          losersGainers={this.props.losersGainers}
+          handleAssetClick={this.handleAssetClick}
+        />
+      )
     }
 
     if (currentView === MainViews.TRADE) {
-      return <TradeView
-        tickerPrices={this.props.tickerPrices}
-        losersGainers={this.props.losersGainers}
-        tradingPairs={this.props.tradingPairs}
-        handleAssetClick={this.handleAssetClick}
-      />
+      return (
+        <TradeView
+          tickerPrices={this.props.tickerPrices}
+          losersGainers={this.props.losersGainers}
+          tradingPairs={this.props.tradingPairs}
+          handleAssetClick={this.handleAssetClick}
+        />
+      )
     }
 
     if (currentView === MainViews.BALANCE) {
-      return <BalanceSummaryView
-        hideBalance={this.props.hideBalance}
-        handleAssetClick={this.handleAssetClick}
-        onSetHideBalance={this.props.onSetHideBalance}
-        availableBalance={this.props.accountBalances.total_balance}
-        supportedPairs={this.props.supportedPairs}
-        holdings={this.props.accountBalances.accounts}
-      />
+      return (
+        <BalanceSummaryView
+          hideBalance={this.props.hideBalance}
+          handleAssetClick={this.handleAssetClick}
+          onSetHideBalance={this.props.onSetHideBalance}
+          availableBalance={this.props.accountBalances.total_balance}
+          supportedPairs={this.props.supportedPairs}
+          holdings={this.props.accountBalances.accounts}
+        />
+      )
     }
 
     if (currentView === MainViews.EVENTS) {
       return this.renderEvents()
     }
 
-    return null;
+    return null
   }
 
   getAvailableBalanceForCurrency = (currency: string) => {
@@ -302,45 +310,51 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
 
   renderAssetView () {
     const { currentAssetView, selectedBase, selectedQuote } = this.state
-    const { tickerPrices, supportedPairs, charts, losersGainers} = this.props
+    const { tickerPrices, supportedPairs, charts, losersGainers } = this.props
 
     if (currentAssetView === AssetViews.DETAILS) {
-      return <AssetDetailView
-        currency={selectedBase}
-        tickerPrice={tickerPrices[`${selectedBase}_USDT`]}
-        pairs={supportedPairs[selectedBase] || []}
-        chartData={charts[`${selectedBase}_USDT`] || []}
-        losersGainers={losersGainers}
-        handleAssetClick={this.handleAssetClick}
-        handleBackClick={this.clearAsset}
-      />
+      return (
+        <AssetDetailView
+          currency={selectedBase}
+          tickerPrice={tickerPrices[`${selectedBase}_USDT`]}
+          pairs={supportedPairs[selectedBase] || []}
+          chartData={charts[`${selectedBase}_USDT`] || []}
+          losersGainers={losersGainers}
+          handleAssetClick={this.handleAssetClick}
+          handleBackClick={this.clearAsset}
+        />
+      )
     }
 
     if (currentAssetView === AssetViews.TRADE) {
       const baseAvailable = this.getAvailableBalanceForCurrency(selectedBase)
       const quoteAvailable = this.getAvailableBalanceForCurrency(selectedQuote)
       const pair = this.props.tradingPairs.filter(pair => pair.base === selectedBase && pair.quote === selectedQuote)
-      return <AssetTradeView
-        tickerPrices={this.props.tickerPrices}
-        availableBalanceBase={baseAvailable}
-        availableBalanceQuote={quoteAvailable}
-        base={selectedBase}
-        quote={selectedQuote}
-        priceDecimals={pair[0] ? pair[0].price : '0'}
-        quantityDecimals={pair[0] ? pair[0].quantity : '0'}
-        handleBackClick={this.clearAsset}
-        handleAssetClick={this.handleAssetClick}
-      />
+      return (
+        <AssetTradeView
+          tickerPrices={this.props.tickerPrices}
+          availableBalanceBase={baseAvailable}
+          availableBalanceQuote={quoteAvailable}
+          base={selectedBase}
+          quote={selectedQuote}
+          priceDecimals={pair[0] ? pair[0].price : '0'}
+          quantityDecimals={pair[0] ? pair[0].quantity : '0'}
+          handleBackClick={this.clearAsset}
+          handleAssetClick={this.handleAssetClick}
+        />
+      )
     }
 
     if (currentAssetView === AssetViews.DEPOSIT) {
       const depositAddress = this.props.depositAddresses[selectedBase]
-      return <AssetDepositView
-        assetAddress={depositAddress ? depositAddress.address : ''}
-        assetQR={depositAddress ? depositAddress.qr_code : ''}
-        base={selectedBase}
-        handleBackClick={this.clearAsset}
-      />
+      return (
+        <AssetDepositView
+          assetAddress={depositAddress ? depositAddress.address : ''}
+          assetQR={depositAddress ? depositAddress.qr_code : ''}
+          base={selectedBase}
+          handleBackClick={this.clearAsset}
+        />
+      )
     }
 
     return null
@@ -352,10 +366,12 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     if (selectedBase) {
       return this.renderAssetView()
     } else {
-      return <>
-        {this.renderNav()}
-        {this.renderCurrentView()}
-      </>
+      return (
+        <>
+          {this.renderNav()}
+          {this.renderCurrentView()}
+        </>
+      )
     }
   }
 

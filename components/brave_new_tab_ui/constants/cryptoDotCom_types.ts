@@ -9,5 +9,5 @@ export const enum types {
   ON_BTC_PRICE_OPT_IN = '@@cryptoDotCom/ON_BTC_PRICE_OPT_IN',
   ON_IS_CONNECTED_RECEIVED = '@@cryptoDotCom/ON_IS_CONNECTED_RECEIVED',
   SET_DISCONNECT_IN_PROGRESS = '@@cryptoDotCom/SET_DISCONNECT_IN_PROGRESS',
-  HIDE_BALANCE = '@@cryptoDotCom/HIDE_BALANCE',
+  HIDE_BALANCE = '@@cryptoDotCom/HIDE_BALANCE'
 }

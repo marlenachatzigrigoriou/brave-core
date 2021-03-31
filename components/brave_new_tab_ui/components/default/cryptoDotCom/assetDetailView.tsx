@@ -58,7 +58,7 @@ interface Props {
   tickerPrice: chrome.cryptoDotCom.TickerPrice
   pairs: string[]
   chartData: chrome.cryptoDotCom.ChartDataPoint[]
-  handleAssetClick: (base: string, quote?: string, view?: AssetViews) => Promise<void>
+  handleAssetClick: (base: string, quote?: string, view?: AssetViews) => void
   handleBackClick: () => void
 }
 
@@ -100,7 +100,7 @@ export default function AssetDetailView ({
           </Text>
         </FlexItem>
         <FlexItem $pl={5}>
-          <ActionButton onClick={() => handleAssetClick(currency, undefined, AssetViews.DEPOSIT)} small={true} light={true}>
+          <ActionButton onClick={handleAssetClick.bind(this, currency, undefined, AssetViews.DEPOSIT)} small={true} light={true}>
             <UpperCaseText>
             {getLocale('cryptoDotComWidgetDeposit')}
             </UpperCaseText>
@@ -159,7 +159,7 @@ export default function AssetDetailView ({
             const [base, quote] = pair.split('_')
             const pairName = pair.replace('_', '/')
             return (
-              <ActionButton onClick={() => handleAssetClick(base, quote, AssetViews.TRADE)} key={pair} small={true} inline={true} $mr={i === 0 ? 5 : 0} $mb={5}>
+              <ActionButton onClick={handleAssetClick.bind(this, base, quote, AssetViews.TRADE)} key={pair} small={true} inline={true} $mr={i === 0 ? 5 : 0} $mb={5}>
                 {pairName}
               </ActionButton>
             )

@@ -46,7 +46,7 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
                                        : { total_balance: '0', accounts: [] }
         }
       }
-      break;
+      break
 
     case types.SET_DISCONNECT_IN_PROGRESS:
       state = {
@@ -56,7 +56,7 @@ const cryptoDotComReducer: Reducer<NewTab.State | undefined> = (state: NewTab.St
           disconnectInProgress: payload.inProgress
         }
       }
-      break;
+      break
 
     case types.ALL_ASSETS_DETAILS_RECEIVED:
       state = {

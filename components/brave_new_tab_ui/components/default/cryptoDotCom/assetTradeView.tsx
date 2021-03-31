@@ -33,7 +33,7 @@ import {
 import { AssetViews } from './types'
 
 interface Props {
-  base : string
+  base: string
   quote: string
   availableBalanceBase: number
   availableBalanceQuote: number
@@ -41,7 +41,7 @@ interface Props {
   quantityDecimals: string
   tickerPrices: Record<string, chrome.cryptoDotCom.TickerPrice>
   handleBackClick: () => void
-  handleAssetClick: (base: string, quote?: string, view?: AssetViews) => Promise<void>
+  handleAssetClick: (base: string, quote?: string, view?: AssetViews) => void
 }
 
 export default function AssetTradeView ({
@@ -97,7 +97,7 @@ export default function AssetTradeView ({
 
   const handleAmountChange = ({ target }: any) => {
     const { value } = target
-    if (value === "." || !Number.isNaN(value * 1)) {
+    if (value === '.' || !Number.isNaN(value * 1)) {
       const available = tradeMode === TradeModes.BUY ? availableBalanceQuote
                                                      : availableBalanceBase
       // Can't put more larger amount than available.
@@ -121,37 +121,6 @@ export default function AssetTradeView ({
     })
   )
 
-  const timerRef = React.useRef<number>();
-  React.useEffect(() => {
-    if (showConfirmScreen && counter > 0) {
-      const id = setInterval(() => {
-        if (counter > 0) {
-          setCounter(counter - 1)
-        }
-      }, 1000);
-      timerRef.current = id
-    }
-
-    if (showConfirmScreen && counter == 0) {
-      makeOrder()
-    }
-
-    return () => clearInterval(timerRef.current);
-  }, [counter, showConfirmScreen]);
-
-  const clearTimers = () => {
-    clearInterval(timerRef.current)
-    setCounter(confirmDelay)
-  }
-
-  const handlePurchaseClick = () => {
-    setConfirmScreen(true)
-  }
-
-  const handleConfirmClick = () => {
-    makeOrder()
-  }
-
   const makeOrderCallback = (result: chrome.cryptoDotCom.OrderResult) => {
     if (result.success) {
       setTradeSuccess(true)
@@ -159,7 +128,12 @@ export default function AssetTradeView ({
       setTradeFailed(true)
       setTradeFailedMessage(result.message)
     }
-    console.log(`${result.success} - ${result.message}`)
+  }
+
+  const timerRef = React.useRef<number>()
+  const clearTimers = () => {
+    clearInterval(timerRef.current)
+    setCounter(confirmDelay)
   }
 
   const makeOrder = () => {
@@ -179,6 +153,31 @@ export default function AssetTradeView ({
     chrome.cryptoDotCom.createMarketOrder(order , makeOrderCallback)
     clearTimers()
     setConfirmScreen(false)
+  }
+
+  React.useEffect(() => {
+    if (showConfirmScreen && counter > 0) {
+      const id = setInterval(() => {
+        if (counter > 0) {
+          setCounter(counter - 1)
+        }
+      }, 1000)
+      timerRef.current = id
+    }
+
+    if (showConfirmScreen && counter === 0) {
+      makeOrder()
+    }
+
+    return () => clearInterval(timerRef.current)
+  }, [counter, showConfirmScreen])
+
+  const handlePurchaseClick = () => {
+    setConfirmScreen(true)
+  }
+
+  const handleConfirmClick = () => {
+    makeOrder()
   }
 
   // Reset amount whenever changing between buy/sell.
@@ -274,14 +273,17 @@ export default function AssetTradeView ({
     )
   }
 
-  if (showConfirmScreen)
+  if (showConfirmScreen) {
     return renderConfirmScreen()
+  }
 
-  if (tradeSuccess)
+  if (tradeSuccess) {
     return renderTradeSuccess()
+  }
 
-  if (tradeFailed)
+  if (tradeFailed) {
     return renderTradeFailed()
+  }
 
   return (
     <Box $p={0}>
@@ -308,14 +310,14 @@ export default function AssetTradeView ({
         <FlexItem $pl={5}>
           <ButtonGroup>
             <PlainButton
-              onClick={() => handleSetTradeMode(TradeModes.BUY)}
+              onClick={handleSetTradeMode.bind(this, TradeModes.BUY)}
               inButtonGroup={true}
               textColor='green'
             >
               Buy
             </PlainButton>
             <PlainButton
-              onClick={() => handleSetTradeMode(TradeModes.SELL)}
+              onClick={handleSetTradeMode.bind(this, TradeModes.SELL)}
               inButtonGroup={true}
               textColor='red'
             >
@@ -335,19 +337,20 @@ export default function AssetTradeView ({
           <Text $mt={15} center={true}>{availableBalanceBase} {base} {getLocale('cryptoDotComWidgetAvailable')}</Text>
         )}
         <AmountInputField
-          $mt={10} $mb={10}
+          $mt={10}
+          $mb={10}
           placeholder={getPlaceholderText()}
           onChange={handleAmountChange}
           value={tradeAmount}
         />
-        <BasicBox isFlex={true} justify="center" $mb={13.5}>
+        <BasicBox isFlex={true} justify='center' $mb={13.5}>
           {Object.values(Percentages).map(percentage => {
             return (typeof percentage === 'number') && (
               <PlainButton
                 key={percentage}
                 weight={500}
                 textColor={tradePercentage === percentage ? 'white' : 'light'}
-                onClick={() => handlePercentageClick(percentage)}
+                onClick={handlePercentageClick.bind(this, percentage)}
               >
                 {percentage}%
               </PlainButton>

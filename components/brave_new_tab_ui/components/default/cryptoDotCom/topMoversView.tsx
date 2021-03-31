@@ -26,7 +26,7 @@ import { getLocale } from '../../../../common/locale'
 
 interface Props {
   losersGainers: Record<string, chrome.cryptoDotCom.AssetRanking[]>
-  handleAssetClick: (base: string, quote?: string, view?: AssetViews) => Promise<void>
+  handleAssetClick: (base: string, quote?: string, view?: AssetViews) => void
 }
 
 export default function TopMoversView ({
@@ -38,7 +38,7 @@ export default function TopMoversView ({
     GAINERS = 'gainers'
   }
 
-  const [filter, setFilter] = React.useState(FilterValues.GAINERS);
+  const [filter, setFilter] = React.useState(FilterValues.GAINERS)
 
   const sortTopMovers = (a: chrome.cryptoDotCom.AssetRanking, b: chrome.cryptoDotCom.AssetRanking) => {
     if (filter === FilterValues.GAINERS) {
@@ -49,10 +49,10 @@ export default function TopMoversView ({
   }
 
   const renderListItem = (asset: chrome.cryptoDotCom.AssetRanking) => {
-    const currency = asset.pair.split('_')[0];
+    const currency = asset.pair.split('_')[0]
     const { percentChange, lastPrice: price } = asset
     return (
-      <ListItem key={currency} isFlex={true} onClick={() => handleAssetClick(currency)} $height={48}>
+      <ListItem key={currency} isFlex={true} onClick={handleAssetClick.bind(this, currency)} $height={48}>
         <FlexItem $pl={5} $pr={5}>
           {renderIconAsset(currency.toLowerCase())}
         </FlexItem>
@@ -61,8 +61,8 @@ export default function TopMoversView ({
           <Text small={true} textColor='light'>{currencyNames[currency]}</Text>
         </FlexItem>
         <FlexItem textAlign='right' flex={1}>
-          {(price !== null) && <Text>{formattedNum(Number(price))}</Text>}
-          {(percentChange !== null) && <Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
+          {<Text>{formattedNum(Number(price))}</Text>}
+          {<Text textColor={getPercentColor(percentChange)}>{percentChange}%</Text>}
         </FlexItem>
       </ListItem>
     )
@@ -76,25 +76,27 @@ export default function TopMoversView ({
     )
   }
 
-  return <>
-    <ButtonGroup>
-      <PlainButton
-        onClick={() => setFilter(FilterValues.GAINERS)}
-        inButtonGroup={true}
-        isActive={filter === FilterValues.GAINERS}
-      >
-        {getLocale('cryptoDotComWidgetGainers')}
-      </PlainButton>
-      <PlainButton
-        onClick={() => setFilter(FilterValues.LOSERS)}
-        inButtonGroup={true}
-        isActive={filter === FilterValues.LOSERS}
-      >
-        {getLocale('cryptoDotComWidgetLosers')}
-      </PlainButton>
-    </ButtonGroup>
-    <List>
-      {renderFilteredView()}
-    </List>
-  </>
+  return (
+    <>
+      <ButtonGroup>
+        <PlainButton
+          onClick={setFilter.bind(this, FilterValues.GAINERS)}
+          inButtonGroup={true}
+          isActive={filter === FilterValues.GAINERS}
+        >
+          {getLocale('cryptoDotComWidgetGainers')}
+        </PlainButton>
+        <PlainButton
+          onClick={setFilter.bind(this, FilterValues.LOSERS)}
+          inButtonGroup={true}
+          isActive={filter === FilterValues.LOSERS}
+        >
+          {getLocale('cryptoDotComWidgetLosers')}
+        </PlainButton>
+      </ButtonGroup>
+      <List>
+        {renderFilteredView()}
+      </List>
+    </>
+  )
 }

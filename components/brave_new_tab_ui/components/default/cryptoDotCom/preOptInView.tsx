@@ -11,7 +11,7 @@ import {
   Box,
   FlexItem,
   PlainButton,
-  Text,
+  Text
 } from './style'
 
 import {
@@ -29,7 +29,7 @@ interface Props {
   onBTCPriceOptedIn: () => void
 }
 
-export default function PreOptInView({
+export default function PreOptInView ({
   optInBTCPrice,
   tickerPrices,
   losersGainers,
