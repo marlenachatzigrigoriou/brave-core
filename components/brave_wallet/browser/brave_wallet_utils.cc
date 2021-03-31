@@ -94,6 +94,16 @@ bool IsValidHexString(const std::string& hex_input) {
   if (hex_input.substr(0, 2) != "0x") {
     return false;
   }
+  for (const auto& c : hex_input.substr(3, hex_input.length() - 1)) {
+    if (isalnum(c)) {
+      if ( c > 'F' && c <= 'Z')
+        return false;
+      if ( c > 'f' && c <= 'z')
+        return false;
+    } else {
+      return false;
+    }
+  }
   return true;
 }
 
