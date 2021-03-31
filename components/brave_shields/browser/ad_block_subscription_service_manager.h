@@ -19,11 +19,16 @@
 #include "brave/components/adblock_rust_ffi/src/wrapper.h"
 #include "brave/components/brave_component_updater/browser/brave_component.h"
 #include "brave/components/brave_shields/browser/ad_block_subscription_service.h"
+#include "brave/components/brave_shields/browser/custom_subscription_download_manager.h"
+#include "chrome/browser/profiles/profile.h"
 #include "third_party/blink/public/mojom/loader/resource_load_info.mojom-shared.h"
 #include "url/gurl.h"
 
+class PrefService;
+
 namespace base {
 class ListValue;
+class FilePath;
 }  // namespace base
 
 class AdBlockServiceTest;
@@ -68,17 +73,26 @@ class AdBlockSubscriptionServiceManager {
           const std::vector<std::string>& ids,
           const std::vector<std::string>& exceptions);
 
+  CustomSubscriptionDownloadManager* download_manager() { return download_manager_.get(); }
+
  private:
   friend class ::AdBlockServiceTest;
   bool Init();
   void StartSubscriptionServices();
+  void InitializeDownloadManager(Profile* system_profile);
   void UpdateFilterListPrefs(const SubscriptionIdentifier& uuid, const FilterListSubscriptionInfo& info);
   void ClearFilterListPrefs(const SubscriptionIdentifier& uuid);
+
+  void OnSystemProfileCreated(Profile* profile, Profile::CreateStatus status);
 
   brave_component_updater::BraveComponent::Delegate* delegate_;  // NOT OWNED
   bool initialized_;
   base::Lock subscriptions_services_lock_;
   std::map<SubscriptionIdentifier, std::unique_ptr<AdBlockSubscriptionService>> subscription_services_;
+
+  std::unique_ptr<CustomSubscriptionDownloadManager> download_manager_;
+
+  base::WeakPtrFactory<AdBlockSubscriptionServiceManager> weak_ptr_factory_{this};
 
   AdBlockSubscriptionServiceManager(const AdBlockSubscriptionServiceManager&) = delete;
   AdBlockSubscriptionServiceManager& operator=(const AdBlockSubscriptionServiceManager&) = delete;

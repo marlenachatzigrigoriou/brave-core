@@ -6,6 +6,8 @@ source_set("download") {
   sources = [
     "brave_download_item_model.cc",
     "brave_download_item_model.h",
+    "brave_download_service_factory.cc",
+    "brave_download_service_factory.h",
   ]
 
   deps = [
@@ -14,6 +16,8 @@ source_set("download") {
     # //chrome/common/buildflag.h is referenced indirectly while building
     # brave_download_item_model.cc.
     "//chrome/common",
+
+    "//brave/components/brave_shields/browser",
 
     # Need for //chrome/common/safe_browsing/download_file_types.pb.h included
     # from download_item_model.h.
