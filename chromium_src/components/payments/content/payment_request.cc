@@ -8,18 +8,14 @@
 #include "base/bind.h"
 #include "brave/browser/brave_rewards/rewards_service_factory.h"
 #include "brave/components/brave_rewards/common/constants.h"
-#include "chrome/browser/profiles/profile.h"
+#include "brave/components/payments/content/buildflags/buildflags.h"
+#include "content/public/browser/browser_context.h"
 #include "third_party/blink/public/mojom/payments/payment_request.mojom.h"
 
 using payments::mojom::PaymentErrorReason;
 
-#define Init Init_ChromiumImpl
-#include "../../../../../components/payments/content/payment_request.cc"
-#undef Init
-
+#if BUILDFLAG(ENABLE_PAY_WITH_BAT)
 namespace payments {
-
-#if !defined(OS_ANDROID)
 
 void PaymentRequest::GetPublisherDetailsCallback(
     mojo::PendingRemote<mojom::PaymentRequestClient> client,
@@ -44,18 +40,11 @@ void PaymentRequest::TerminateConnectionWithMessage(PaymentErrorReason reason,
   TerminateConnection();
 }
 
-#endif
-
 void PaymentRequest::Init(
     mojo::PendingRemote<mojom::PaymentRequestClient> client,
     std::vector<mojom::PaymentMethodDataPtr> method_data,
     mojom::PaymentDetailsPtr details,
     mojom::PaymentOptionsPtr options) {
-#if defined(OS_ANDROID)
-  Init_ChromiumImpl(std::move(client), std::move(method_data),
-                    std::move(details), std::move(options));
-  return;
-#else
   bool result = false;
   content::WebContents* contents = web_contents();
   content::BrowserContext* context = contents->GetBrowserContext();
@@ -69,16 +58,15 @@ void PaymentRequest::Init(
 
   if (!result) {
     Init_ChromiumImpl(std::move(client), std::move(method_data),
-                    std::move(details), std::move(options));
+                      std::move(details), std::move(options));
     return;
   }
 
   // For BAT payment method, every item should have an associated SKU token
   if (details->display_items.has_value()) {
-    for (const mojom::PaymentItemPtr& display_item :
-         *details->display_items) {
+    for (const mojom::PaymentItemPtr& display_item : *details->display_items) {
       if (!(display_item->sku.has_value())) {
-        log_.Error(brave_rewards::errors::kMissingSKUTokens);
+        log_.Error(brave_rewards::errors::kInvalidData);
         TerminateConnection();
         return;
       }
@@ -86,31 +74,38 @@ void PaymentRequest::Init(
   } else {
     log_.Error(brave_rewards::errors::kInvalidData);
     TerminateConnection();
+    return;
   }
 
   // BAT payment method only works in regular mode.
-  Profile* profile = Profile::FromBrowserContext(context);
-  if (profile->IsOffTheRecord()) {
-    log_.Error(brave_rewards::errors::kUnavailableInPrivateMode);
+  if (context->IsOffTheRecord()) {
+    log_.Error(brave_rewards::errors::kBraveRewardsNotEnabled);
     TerminateConnection();
     return;
   }
 
   // BAT payment method only works for verified publishers
-  auto* service = brave_rewards::RewardsServiceFactory::GetForProfile(
-      Profile::FromBrowserContext(context));
+  auto* service =
+      brave_rewards::RewardsServiceFactory::FromBrowserContext(context);
   if (service->IsRewardsEnabled()) {
     service->GetPublisherInfo(
-      contents->GetLastCommittedURL().GetOrigin().host(),
-      base::BindOnce(&PaymentRequest::GetPublisherDetailsCallback,
-                     weak_ptr_factory_.GetWeakPtr(), std::move(client),
-                     std::move(method_data), std::move(details),
-                     std::move(options)));
+        contents->GetLastCommittedURL().GetOrigin().host(),
+        base::BindOnce(&PaymentRequest::GetPublisherDetailsCallback,
+                       weak_ptr_factory_.GetWeakPtr(), std::move(client),
+                       std::move(method_data), std::move(details),
+                       std::move(options)));
   } else {
     log_.Error(brave_rewards::errors::kBraveRewardsNotEnabled);
     TerminateConnection();
   }
-#endif
 }
 
 }  // namespace payments
+
+#define Init Init_ChromiumImpl
+#endif
+#include "../../../../../components/payments/content/payment_request.cc"
+
+#if BUILDFLAG(ENABLE_PAY_WITH_BAT)
+#undef Init
+#endif

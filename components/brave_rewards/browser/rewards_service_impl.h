@@ -197,7 +197,7 @@ class RewardsServiceImpl : public RewardsService,
   void GetRewardsInternalsInfo(
       GetRewardsInternalsInfoCallback callback) override;
 
-  void HandleFlags(const std::string& options);
+  void HandleFlags(const std::string& flag, const std::string& options);
   void SetEnvironment(ledger::type::Environment environment);
   void GetEnvironment(const GetEnvironmentCallback& callback);
   void SetDebug(bool debug);
@@ -750,6 +750,9 @@ class RewardsServiceImpl : public RewardsService,
       GetBraveWalletCallback callback,
       ledger::type::BraveWalletPtr wallet);
 
+  void HandlePaymentServiceUrlFlag(const std::string& options);
+  void HandleRewardsFlag(const std::string& options);
+
 #if defined(OS_ANDROID)
   ledger::type::Environment GetServerEnvironmentForAndroid();
   void GrantAttestationResult(
@@ -794,6 +797,7 @@ class RewardsServiceImpl : public RewardsService,
   bool ledger_for_testing_ = false;
   bool resetting_rewards_ = false;
   bool should_persist_logs_ = false;
+  std::string payment_service_url_ = "";
 
   GetTestResponseCallback test_response_callback_;
 

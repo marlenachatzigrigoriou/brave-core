@@ -1,4 +1,5 @@
 import("//brave/build/config.gni")
+import("//brave/components/payments/content/buildflags/buildflags.gni")
 
 source_set("common") {
   sources = [
@@ -8,7 +9,7 @@ source_set("common") {
     "url_constants.h"
   ]
 
-   if (!is_android) {
+   if (enable_pay_with_bat) {
      sources += [
        "constants.cc",
        "constants.h"

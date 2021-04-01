@@ -13,6 +13,10 @@
 
 class Profile;
 
+namespace content {
+  class BrowserContext;
+}
+
 namespace brave_rewards {
 class RewardsService;
 
@@ -23,6 +27,8 @@ class RewardsServiceFactory : public BrowserContextKeyedServiceFactory {
   RewardsServiceFactory& operator=(const RewardsServiceFactory&) = delete;
 
   static brave_rewards::RewardsService* GetForProfile(Profile* profile);
+  static brave_rewards::RewardsService* FromBrowserContext(
+      content::BrowserContext* context);
 
   static RewardsServiceFactory* GetInstance();
 

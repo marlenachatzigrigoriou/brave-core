@@ -18,10 +18,8 @@ extern const char kInsufficientBalance[];
 extern const char kInvalidData[];
 extern const char kInvalidPublisher[];
 extern const char kInvalidRenderer[];
-extern const char kMissingSKUTokens[];
 extern const char kRewardsNotInitialized[];
 extern const char kTransactionCancelled[];
-extern const char kUnavailableInPrivateMode[];
 extern const char kUnverifiedUserWallet[];
 
 }  // namespace errors

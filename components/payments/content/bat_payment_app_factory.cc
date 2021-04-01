@@ -10,6 +10,7 @@
 #include "brave/components/brave_rewards/common/constants.h"
 #include "brave/components/payments/content/bat_payment_app.h"
 #include "components/payments/content/content_payment_request_delegate.h"
+#include "components/payments/content/payment_request.h"
 #include "components/payments/content/payment_request_spec.h"
 
 namespace payments {
@@ -31,6 +32,12 @@ bool BatPaymentAppFactory::IsBatSupportedMethod(
     }
   }
   return false;
+}
+
+// static
+bool BatPaymentAppFactory::IsBatSupportedMethod(
+    base::WeakPtr<PaymentRequest> request) {
+  return BatPaymentAppFactory::IsBatSupportedMethod(request->spec());
 }
 
 void BatPaymentAppFactory::Create(base::WeakPtr<Delegate> delegate) {

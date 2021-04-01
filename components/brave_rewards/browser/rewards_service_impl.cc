@@ -436,26 +436,12 @@ void RewardsServiceImpl::StartLedgerProcessIfNecessary() {
   BLOG(1, "Starting ledger process");
 
   if (!bat_ledger_service_.is_bound()) {
-    const base::CommandLine& command_line =
-        *base::CommandLine::ForCurrentProcess();
-    if (command_line.HasSwitch(brave_rewards::switches::kPaymentServiceUrl)) {
-      auto url = command_line.GetSwitchValueASCII(
-          brave_rewards::switches::kPaymentServiceUrl);
-      auto ledger_switch = base::JoinString({switches::kPaymentServiceUrl,
-                                             url}, "=");
-      content::ServiceProcessHost::Launch(
-          bat_ledger_service_.BindNewPipeAndPassReceiver(),
-          content::ServiceProcessHost::Options()
-              .WithDisplayName(IDS_UTILITY_PROCESS_LEDGER_NAME)
-              .WithExtraCommandLineSwitches({ledger_switch})
-              .Pass());
-    } else {
-      content::ServiceProcessHost::Launch(
-          bat_ledger_service_.BindNewPipeAndPassReceiver(),
-          content::ServiceProcessHost::Options()
-              .WithDisplayName(IDS_UTILITY_PROCESS_LEDGER_NAME)
-              .Pass());
-    }
+    content::ServiceProcessHost::Launch(
+        bat_ledger_service_.BindNewPipeAndPassReceiver(),
+        content::ServiceProcessHost::Options()
+            .WithDisplayName(IDS_UTILITY_PROCESS_LEDGER_NAME)
+            .Pass());
+
     bat_ledger_service_.set_disconnect_handler(
       base::Bind(&RewardsServiceImpl::ConnectionClosed, AsWeakPtr()));
   }
@@ -478,7 +464,17 @@ void RewardsServiceImpl::StartLedgerProcessIfNecessary() {
     std::string options = command_line.GetSwitchValueASCII(switches::kRewards);
 
     if (!options.empty()) {
-      HandleFlags(options);
+      HandleFlags(switches::kRewards, options);
+    }
+  }
+
+  // TODO(@jumde) - Remove when brave/brave-browser/issues/15075 is resolved
+  if (command_line.HasSwitch(switches::kPaymentServiceUrl)) {
+    std::string options = command_line.GetSwitchValueASCII(
+        switches::kPaymentServiceUrl);
+
+    if (!options.empty()) {
+      HandleFlags(switches::kPaymentServiceUrl, options);
     }
   }
 
@@ -1534,6 +1530,10 @@ double RewardsServiceImpl::GetDoubleOption(const std::string& name) const {
 std::string RewardsServiceImpl::GetStringOption(const std::string& name) const {
   DCHECK(!name.empty());
 
+  if (name == ledger::option::kPaymentServiceURL) {
+    return payment_service_url_;
+  }
+
   const auto it = kStringOptions.find(name);
   DCHECK(it != kStringOptions.end());
 
@@ -2301,8 +2301,21 @@ void RewardsServiceImpl::Log(
   }
 }
 
-// static
-void RewardsServiceImpl::HandleFlags(const std::string& options) {
+void RewardsServiceImpl::HandleFlags(const std::string& flag,
+                                     const std::string& options) {
+  if (flag == switches::kRewards) {
+    HandleRewardsFlag(options);
+  } else if (flag == switches::kPaymentServiceUrl) {
+    HandlePaymentServiceUrlFlag(options);
+  }
+}
+
+void RewardsServiceImpl::HandlePaymentServiceUrlFlag(
+    const std::string& options) {
+  payment_service_url_ = options;
+}
+
+void RewardsServiceImpl::HandleRewardsFlag(const std::string& options) {
   std::vector<std::string> flags = base::SplitString(
       options, ",", base::KEEP_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
 

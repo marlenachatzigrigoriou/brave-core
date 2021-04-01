@@ -28,7 +28,6 @@
 
         <!-- WebUI Brave BAT checkout dialog resources -->
         <include name="IDR_BRAVE_REWARDS_CHECKOUT_HTML" file="checkout/brave_rewards_checkout.html" type="BINDATA" />
-        <include name="IDR_BRAVE_REWARDS_CHECKOUT_BG" file="ui/components/checkout/dialogFrame/assets/dialog_bg.svg" type="BINDATA" />
       </if>
     </includes>
   </release>

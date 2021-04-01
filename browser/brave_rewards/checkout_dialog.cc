@@ -126,16 +126,14 @@ void CheckoutDialogHandler::RegisterMessages() {
       "paymentRequestComplete",
       base::BindRepeating(&CheckoutDialogHandler::HandlePaymentCompletion,
                           base::Unretained(this)));
-    web_ui()->RegisterMessageCallback(
+  web_ui()->RegisterMessageCallback(
       "getWalletBalance",
       base::BindRepeating(&CheckoutDialogHandler::OnGetWalletBalance,
                           base::Unretained(this)));
-
   web_ui()->RegisterMessageCallback(
       "getExternalWallet",
       base::BindRepeating(&CheckoutDialogHandler::GetExternalWallet,
                           base::Unretained(this)));
-
   web_ui()->RegisterMessageCallback(
       "getRewardsParameters",
       base::BindRepeating(&CheckoutDialogHandler::GetRewardsParameters,
@@ -268,9 +266,9 @@ void CheckoutDialogHandler::GetExternalWalletCallback(
   FireWebUIListener("externalWalletUpdated", data);
 }
 
-void ShowCheckoutDialog(WebContents* initiator,
-                        base::WeakPtr<PaymentRequest> request) {
+void ShowCheckoutDialog(base::WeakPtr<PaymentRequest> request) {
   double total;
+  WebContents* initiator = request->web_contents();
   base::WeakPtr<payments::PaymentRequestSpec> spec = request->spec();
   if (!spec) {
     request->TerminateConnectionWithMessage(

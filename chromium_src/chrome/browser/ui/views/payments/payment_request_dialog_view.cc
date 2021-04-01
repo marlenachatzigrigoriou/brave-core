@@ -8,21 +8,19 @@
 #include "brave/browser/brave_rewards/checkout_dialog.h"
 #include "brave/components/brave_rewards/common/constants.h"
 #include "brave/components/payments/content/bat_payment_app_factory.h"
-#include "components/payments/content/payment_request.h"
 
 namespace payments {
 
 void PaymentRequestDialogView::CloseDialog() {
-  if (BatPaymentAppFactory::IsBatSupportedMethod(request_->spec())) {
+  if (BatPaymentAppFactory::IsBatSupportedMethod(request_)) {
     return;
   }
   PaymentRequestDialogView::CloseDialog_ChromiumImpl();
 }
 
 void PaymentRequestDialogView::ShowDialog() {
-  if (BatPaymentAppFactory::IsBatSupportedMethod(request_->spec())) {
-    brave_rewards::ShowCheckoutDialog(request_->web_contents(),
-                                      request_);
+  if (BatPaymentAppFactory::IsBatSupportedMethod(request_)) {
+    brave_rewards::ShowCheckoutDialog(request_);
     return;
   }
   PaymentRequestDialogView::ShowDialog_ChromiumImpl();

@@ -96,8 +96,7 @@ class CheckoutDialogHandler : public content::WebUIMessageHandler {
   DISALLOW_COPY_AND_ASSIGN(CheckoutDialogHandler);
 };
 
-void ShowCheckoutDialog(content::WebContents* initiator,
-                        base::WeakPtr<payments::PaymentRequest> request);
+void ShowCheckoutDialog(base::WeakPtr<payments::PaymentRequest> request);
 
 }  // namespace brave_rewards
 

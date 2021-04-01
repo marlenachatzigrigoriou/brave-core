@@ -15,6 +15,7 @@
 namespace payments {
 
 class PaymentApp;
+class PaymentRequest;
 
 class BatPaymentAppFactory : public PaymentAppFactory {
  public:
@@ -22,6 +23,7 @@ class BatPaymentAppFactory : public PaymentAppFactory {
   ~BatPaymentAppFactory() override;
 
   static bool IsBatSupportedMethod(base::WeakPtr<PaymentRequestSpec> spec);
+  static bool IsBatSupportedMethod(base::WeakPtr<PaymentRequest> request);
 
   void Create(base::WeakPtr<Delegate> delegate) override;
 

@@ -24,6 +24,7 @@
 #include "chrome/browser/profiles/profile_manager.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/prefs/pref_service.h"
+#include "content/public/browser/browser_context.h"
 #include "content/public/browser/notification_service.h"
 #include "content/public/browser/notification_types.h"
 #include "extensions/buildflags/buildflags.h"
@@ -61,6 +62,22 @@ RewardsService* RewardsServiceFactory::GetForProfile(
   return static_cast<RewardsService*>(
       GetInstance()->GetServiceForBrowserContext(profile, true));
 }
+
+// static
+RewardsService* RewardsServiceFactory::FromBrowserContext(
+    content::BrowserContext* context) {
+  if (testing_service_) {
+    return testing_service_;
+  }
+
+  if (!brave::IsRegularProfile(context)) {
+    return nullptr;
+  }
+
+  return static_cast<RewardsService*>(
+      GetInstance()->GetServiceForBrowserContext(context, true));
+}
+
 
 // static
 RewardsServiceFactory* RewardsServiceFactory::GetInstance() {

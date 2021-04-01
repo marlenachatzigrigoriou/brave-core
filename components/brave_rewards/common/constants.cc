@@ -17,11 +17,8 @@ const char kBraveRewardsNotEnabled[] =
 const char kInvalidData[] = "Invalid data in payment request";
 const char kInvalidPublisher[] = "Unverified publisher";
 const char kInvalidRenderer[] = "Renderer not found";
-const char kMissingSKUTokens[] = "SKU tokens are missing";
 const char kRewardsNotInitialized[] = "Brave rewards is not initialized";
 const char kTransactionCancelled[] = "Transaction cancelled";
-const char kUnavailableInPrivateMode[] =
-    "BAT payment method cannot be used in private mode";
 const char kUnverifiedUserWallet[] = "Unverified user wallet";
 const char kInsufficientBalance[] = "Insufficient Balance";
 

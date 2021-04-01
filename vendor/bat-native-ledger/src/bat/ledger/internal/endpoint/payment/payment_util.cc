@@ -6,8 +6,9 @@
 #include "bat/ledger/internal/endpoint/payment/payment_util.h"
 
 #include "base/command_line.h"
+#include "bat/ledger/internal/ledger_impl.h"
 #include "bat/ledger/ledger.h"
-#include "brave/components/brave_rewards/browser/switches.h"
+#include "bat/ledger/option_keys.h"
 
 namespace ledger {
 namespace endpoint {
@@ -17,16 +18,13 @@ const char kDevelopment[] = "https://payment.rewards.brave.software";
 const char kStaging[] = "https://payment.rewards.bravesoftware.com";
 const char kProduction[] = "https://payment.rewards.brave.com";
 
-std::string GetServerUrl(const std::string& path) {
+std::string GetServerUrl(LedgerImpl* ledger, const std::string& path) {
   DCHECK(!path.empty());
 
-  std::string url;
-  const base::CommandLine& command_line =
-      *base::CommandLine::ForCurrentProcess();
-  if (command_line.HasSwitch(brave_rewards::switches::kPaymentServiceUrl)) {
-    url = command_line.GetSwitchValueASCII(
-        brave_rewards::switches::kPaymentServiceUrl);
-  } else {
+  std::string url = ledger->ledger_client()->GetStringOption(
+      ledger::option::kPaymentServiceURL);
+
+  if (url.empty()) {
     switch (ledger::_environment) {
       case type::Environment::DEVELOPMENT:
         url = kDevelopment;

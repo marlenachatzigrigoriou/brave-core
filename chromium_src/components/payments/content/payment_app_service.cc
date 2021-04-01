@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "brave/components/payments/content/bat_payment_app_factory.h"
+#include "brave/components/payments/content/buildflags/buildflags.h"
 
 #define PaymentAppService PaymentAppService_ChromiumImpl
 #include "../../../../../components/payments/content/payment_app_service.cc"
@@ -17,7 +18,7 @@ namespace payments {
 
 PaymentAppService::PaymentAppService(content::BrowserContext* context)
     : PaymentAppService_ChromiumImpl(context) {
-#if !defined(OS_ANDROID)
+#if BUILDFLAG(ENABLE_PAY_WITH_BAT)
   factories_.emplace_back(std::make_unique<BatPaymentAppFactory>());
 #endif
 }

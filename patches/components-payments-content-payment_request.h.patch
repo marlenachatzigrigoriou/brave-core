@@ -1,13 +1,12 @@
 diff --git a/components/payments/content/payment_request.h b/components/payments/content/payment_request.h
-index cb2230b114f1fa965e5544b5378c7e42e8f3f8d9..1977a6b229ed8ef72b6847af0541fb0772992624 100644
+index cb2230b114f1fa965e5544b5378c7e42e8f3f8d9..698d12240fe2ece8160c96ee6ab06857d71573c6 100644
 --- a/components/payments/content/payment_request.h
 +++ b/components/payments/content/payment_request.h
-@@ -124,6 +124,8 @@ class PaymentRequest : public mojom::PaymentRequest,
-   // such as possibly closing the dialog.
-   void TerminateConnection();
- 
+@@ -47,6 +47,7 @@ class PaymentRequest : public mojom::PaymentRequest,
+                        public PaymentRequestState::Delegate,
+                        public InitializationTask::Observer {
+  public:
 +  BRAVE_PAYMENT_METHOD_UTIL_FUNCTIONS
-+
-   // Called when the user clicks on the "Pay" button.
-   void Pay();
- 
+   class ObserverForTest {
+    public:
+     virtual void OnCanMakePaymentCalled() = 0;

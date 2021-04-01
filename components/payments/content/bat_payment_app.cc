@@ -11,6 +11,7 @@
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "brave/components/brave_rewards/common/constants.h"
+#include "components/payments/content/payment_request_spec.h"
 #include "components/payments/core/payer_data.h"
 
 namespace payments {

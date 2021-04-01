@@ -388,7 +388,11 @@ source_set("browser_process") {
       ]
 
       deps += [
-        "//third_party/libaddressinput"
+        "//base",
+        "//components/payments/content/",
+        "//components/payments/core/",
+        "//components/web_modal/",
+        "//ui/web_dialogs/",
       ]
     }
 

@@ -1,0 +1,14 @@
+include_rules = [
+  "+../../../../../components/payments/content",
+  "+components/payments/content",
+  "+content/public/browser",
+  "+third_party/blink/public/mojom/payments",
+]
+
+# Existing exceptions
+specific_include_rules = {
+  # TODO(@jumde) - Remove when brave/brave-browser/issues/15081 is resolved
+  "payment_request.cc": [
+    "+brave/browser/brave_rewards/rewards_service_factory.h",
+  ],
+}

@@ -10,9 +10,10 @@
 #include <string>
 
 #include "components/payments/content/payment_app.h"
-#include "components/payments/content/payment_request_spec.h"
 
 namespace payments {
+
+class PaymentRequestSpec;
 
 class BatPaymentApp : public PaymentApp {
  public:

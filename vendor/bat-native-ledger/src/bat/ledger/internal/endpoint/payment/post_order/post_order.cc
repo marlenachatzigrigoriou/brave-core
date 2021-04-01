@@ -29,7 +29,7 @@ PostOrder::PostOrder(LedgerImpl* ledger):
 PostOrder::~PostOrder() = default;
 
 std::string PostOrder::GetUrl() {
-  return GetServerUrl("/v1/orders");
+  return GetServerUrl(ledger_, "/v1/orders");
 }
 
 std::string PostOrder::GeneratePayload(
