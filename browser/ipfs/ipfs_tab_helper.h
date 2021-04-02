@@ -24,7 +24,7 @@ class WebContents;
 class PrefService;
 
 namespace ipfs {
-
+struct ImportedData;
 class IPFSHostResolver;
 
 // Determines if IPFS should be active for a given top-level navigation.
@@ -43,6 +43,9 @@ class IPFSTabHelper : public content::WebContentsObserver,
     resolver_ = std::move(resolver);
   }
 
+  void ImportLinkToIpfs(const GURL& url);
+  void ImportTextToIpfs(const std::string& text);
+
  private:
   friend class content::WebContentsUserData<IPFSTabHelper>;
   explicit IPFSTabHelper(content::WebContents* web_contents);
@@ -53,7 +56,7 @@ class IPFSTabHelper : public content::WebContentsObserver,
   void UpdateDnsLinkButtonState();
 
   void MaybeSetupIpfsProtocolHandlers(const GURL& url);
-
+  void OnImportCompleted(const ipfs::ImportedData& data);
   // content::WebContentsObserver
   void DidFinishNavigation(
       content::NavigationHandle* navigation_handle) override;

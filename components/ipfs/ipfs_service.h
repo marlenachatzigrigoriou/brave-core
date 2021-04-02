@@ -9,6 +9,7 @@
 #include <list>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -17,6 +18,7 @@
 #include "base/observer_list.h"
 #include "brave/components/ipfs/addresses_config.h"
 #include "brave/components/ipfs/brave_ipfs_client_updater.h"
+#include "brave/components/ipfs/imported_data.h"
 #include "brave/components/ipfs/ipfs_constants.h"
 #include "brave/components/ipfs/ipfs_p3a.h"
 #include "brave/components/ipfs/node_info.h"
@@ -47,6 +49,7 @@ namespace ipfs {
 class BraveIpfsClientUpdater;
 class IpfsServiceDelegate;
 class IpfsServiceObserver;
+class IpfsImportWorkerBase;
 
 class IpfsService : public KeyedService,
                     public BraveIpfsClientUpdater::Observer {
@@ -94,11 +97,20 @@ class IpfsService : public KeyedService,
 
   void RestartDaemon();
 
+  void ImportLinkToIpfs(const GURL& url, ImportCompletedCallback callback);
+  void ImportTextToIpfs(const std::string& text,
+                        const std::string& host,
+                        ImportCompletedCallback callback);
+
+  void OnImportFinished(ipfs::ImportCompletedCallback callback,
+                        size_t key,
+                        const ipfs::ImportedData& data);
   void GetConnectedPeers(GetConnectedPeersCallback callback,
                          int retries = kPeersDefaultRetries);
   void GetAddressesConfig(GetAddressesConfigCallback callback);
   void LaunchDaemon(LaunchDaemonCallback callback);
   void ShutdownDaemon(ShutdownDaemonCallback callback);
+  void StartDaemonAndLaunch(base::OnceCallback<void(void)> callback);
   void GetConfig(GetConfigCallback);
   void GetRepoStats(GetRepoStatsCallback callback);
   void GetNodeInfo(GetNodeInfoCallback callback);
@@ -132,7 +144,9 @@ class IpfsService : public KeyedService,
   // Launches the ipfs service in an utility process.
   void LaunchIfNotRunning(const base::FilePath& executable_path);
   base::TimeDelta CalculatePeersRetryTime();
-  std::unique_ptr<network::SimpleURLLoader> CreateURLLoader(const GURL& gurl);
+  std::unique_ptr<network::SimpleURLLoader> CreateURLLoader(
+      const GURL& gurl,
+      const std::string& method = "POST");
 
   void OnGetConnectedPeers(SimpleURLLoaderList::iterator iter,
                            GetConnectedPeersCallback,
@@ -174,10 +188,13 @@ class IpfsService : public KeyedService,
 
   GURL server_endpoint_;
 
+  // This member is used to guard public methods that mutate state.
+  bool reentrancy_guard_ = false;
+
   base::FilePath user_data_dir_;
   BraveIpfsClientUpdater* ipfs_client_updater_;
   version_info::Channel channel_;
-
+  std::unordered_map<size_t, std::unique_ptr<IpfsImportWorkerBase>> importers_;
   scoped_refptr<base::SequencedTaskRunner> file_task_runner_;
   IpfsP3A ipfs_p3a;
   base::WeakPtrFactory<IpfsService> weak_factory_;

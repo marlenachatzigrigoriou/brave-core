@@ -26,6 +26,12 @@ source_set("ipfs") {
     "ipfs_ports.h",
     "ipfs_service.cc",
     "ipfs_service.h",
+    "ipfs_import_worker_base.cc",
+    "ipfs_import_worker_base.h",
+    "ipfs_text_import_worker.cc",
+    "ipfs_text_import_worker.h",
+    "ipfs_link_import_worker.cc",
+    "ipfs_link_import_worker.h",
     "ipfs_service_observer.h",
     "ipfs_utils.cc",
     "ipfs_utils.h",
@@ -35,6 +41,8 @@ source_set("ipfs") {
     "pref_names.h",
     "repo_stats.cc",
     "repo_stats.h",
+    "imported_data.cc",
+    "imported_data.h",
   ]
 
   deps = [
