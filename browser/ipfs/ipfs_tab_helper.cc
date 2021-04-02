@@ -15,10 +15,13 @@
 #include "base/location.h"
 #include "base/single_thread_task_runner.h"
 #include "base/strings/string_split.h"
+#include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread_task_runner_handle.h"
 #include "brave/browser/ipfs/ipfs_host_resolver.h"
 #include "brave/browser/ipfs/ipfs_service_factory.h"
+#include "brave/components/ipfs/imported_data.h"
 #include "brave/components/ipfs/ipfs_constants.h"
+#include "brave/components/ipfs/ipfs_service.h"
 #include "brave/components/ipfs/ipfs_utils.h"
 #include "brave/components/ipfs/pref_names.h"
 #include "chrome/browser/browser_process.h"
@@ -34,6 +37,7 @@
 #include "content/public/browser/storage_partition.h"
 #include "content/public/browser/web_contents_delegate.h"
 #include "net/http/http_status_code.h"
+#include "ui/base/clipboard/scoped_clipboard_writer.h"
 
 namespace {
 
@@ -119,6 +123,8 @@ IPFSTabHelper::IPFSTabHelper(content::WebContents* web_contents)
       kIPFSResolveMethod,
       base::BindRepeating(&IPFSTabHelper::UpdateDnsLinkButtonState,
                           base::Unretained(this)));
+  ipfs_service_ = ipfs::IpfsServiceFactory::GetForContext(
+      web_contents->GetBrowserContext());
 }
 
 // static
@@ -265,6 +271,39 @@ void IPFSTabHelper::DidFinishNavigation(content::NavigationHandle* handle) {
     MaybeSetupIpfsProtocolHandlers(handle->GetURL());
   }
   MaybeShowDNSLinkButton(handle);
+}
+
+void IPFSTabHelper::ImportLinkToIpfs(const GURL& url) {
+  DCHECK(ipfs_service_);
+  ipfs_service_->ImportLinkToIpfs(url,
+                            base::BindOnce(&IPFSTabHelper::OnImportCompleted,
+                                           weak_ptr_factory_.GetWeakPtr()));
+}
+
+void IPFSTabHelper::ImportTextToIpfs(const std::string& text) {
+  DCHECK(ipfs_service_);
+  ipfs_service_->ImportTextToIpfs(text, web_contents()->GetURL().host(),
+                            base::BindOnce(&IPFSTabHelper::OnImportCompleted,
+                                           weak_ptr_factory_.GetWeakPtr()));
+}
+
+void IPFSTabHelper::OnImportCompleted(const ipfs::ImportedData& data) {
+  if (data.hash.empty())
+    return;
+  std::string ipfs = ipfs::kIPFSScheme + std::string("://") + data.hash;
+  auto shareable_link =
+      ipfs::ToPublicGatewayURL(GURL(ipfs), web_contents()->GetBrowserContext());
+  if (!shareable_link.is_valid())
+    return;
+  ui::ScopedClipboardWriter(ui::ClipboardBuffer::kCopyPaste)
+      .WriteText(base::UTF8ToUTF16(shareable_link.spec()));
+
+  GURL url  = ResolveWebUIFilesLocation(data.directory, chrome::GetChannel());
+  content::OpenURLParams params(url,
+                                content::Referrer(),
+                                WindowOpenDisposition::NEW_FOREGROUND_TAB,
+                                ui::PAGE_TRANSITION_LINK, false);
+  web_contents()->OpenURL(params);
 }
 
 WEB_CONTENTS_USER_DATA_KEY_IMPL(IPFSTabHelper)
