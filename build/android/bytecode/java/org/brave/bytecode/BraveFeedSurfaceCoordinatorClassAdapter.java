@@ -15,6 +15,8 @@ public class BraveFeedSurfaceCoordinatorClassAdapter extends BraveClassVisitor {
 
     public BraveFeedSurfaceCoordinatorClassAdapter(ClassVisitor visitor) {
         super(visitor);
+        makePublicMethod(sFeedSurfaceCoordinatorClassName, "isEnhancedProtectionPromoEnabled");
+        changeMethodOwner(sFeedSurfaceCoordinatorClassName, "isEnhancedProtectionPromoEnabled", sBraveFeedSurfaceCoordinatorClassName);
 
         deleteField(sBraveFeedSurfaceCoordinatorClassName, "mActivity");
         makeProtectedField(sFeedSurfaceCoordinatorClassName, "mActivity");

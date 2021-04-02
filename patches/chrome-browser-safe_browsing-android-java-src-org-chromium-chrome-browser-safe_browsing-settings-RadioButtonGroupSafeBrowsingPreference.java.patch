@@ -1,0 +1,12 @@
+diff --git a/chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/RadioButtonGroupSafeBrowsingPreference.java b/chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/RadioButtonGroupSafeBrowsingPreference.java
+index bc08c1a16e6273408d703a63f6747ccda455b5f2..370feff1ae9915531df7f4a573b37c8e391a7010 100644
+--- a/chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/RadioButtonGroupSafeBrowsingPreference.java
++++ b/chrome/browser/safe_browsing/android/java/src/org/chromium/chrome/browser/safe_browsing/settings/RadioButtonGroupSafeBrowsingPreference.java
+@@ -99,6 +99,7 @@ public class RadioButtonGroupSafeBrowsingPreference extends Preference
+         }
+         mEnhancedProtection.setVisibility(View.VISIBLE);
+         mEnhancedProtection.setAuxButtonClickedListener(this);
++        mEnhancedProtection.setVisibility(View.GONE);
+         mStandardProtection = (RadioButtonWithDescriptionAndAuxButton) holder.findViewById(
+                 R.id.standard_protection);
+         mStandardProtection.setAuxButtonClickedListener(this);
