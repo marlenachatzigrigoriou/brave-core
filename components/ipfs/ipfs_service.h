@@ -97,7 +97,10 @@ class IpfsService : public KeyedService,
 
   void RestartDaemon();
 
-  void ImportLinkToIpfs(const GURL& url, ImportCompletedCallback callback);
+  void ImportFileToIpfs(const base::FilePath& path,
+                        ImportCompletedCallback callback);
+  void ImportLinkToIpfs(const GURL& url,
+                        ImportCompletedCallback callback);
   void ImportTextToIpfs(const std::string& text,
                         const std::string& host,
                         ImportCompletedCallback callback);

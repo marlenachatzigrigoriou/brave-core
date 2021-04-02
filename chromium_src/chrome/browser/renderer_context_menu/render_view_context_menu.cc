@@ -95,11 +95,11 @@ void RenderViewContextMenu::RegisterMenuShownCallbackForTesting(
 BraveRenderViewContextMenu::BraveRenderViewContextMenu(
     content::RenderFrameHost* render_frame_host,
     const content::ContextMenuParams& params)
-    : RenderViewContextMenu_Chromium(render_frame_host, params)
+    : RenderViewContextMenu_Chromium(render_frame_host, params),
 #if BUILDFLAG(IPFS_ENABLED)
-    , ipfs_submenu_model_(this)
+      ipfs_submenu_model_(this)
 #endif
-    {}
+      {}
 
 bool BraveRenderViewContextMenu::IsCommandIdEnabled(int id) const {
   switch (id) {

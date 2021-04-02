@@ -17,6 +17,7 @@ void ShowBraveWallet(Browser* browser);
 void ShowExtensionSettings(Browser* browser);
 void ShowWalletSettings(Browser* browser);
 void ShowSync(Browser* browser);
+void ShareLocalFileUsingIPFS(Browser* browser);
 
 }  // namespace brave
 

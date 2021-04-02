@@ -13,8 +13,10 @@
 
 #include "brave/browser/ipfs/ipfs_host_resolver.h"
 #include "components/prefs/pref_change_registrar.h"
+#include "content/public/browser/file_select_listener.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_contents_user_data.h"
+#include "ui/shell_dialogs/select_file_dialog.h"
 
 namespace content {
 class NavigationHandle;
@@ -29,12 +31,12 @@ class IPFSHostResolver;
 
 // Determines if IPFS should be active for a given top-level navigation.
 class IPFSTabHelper : public content::WebContentsObserver,
-                      public content::WebContentsUserData<IPFSTabHelper> {
+                      public content::WebContentsUserData<IPFSTabHelper>,
+                      public ui::SelectFileDialog::Listener {
  public:
-  ~IPFSTabHelper() override;
-
   IPFSTabHelper(const IPFSTabHelper&) = delete;
   IPFSTabHelper& operator=(IPFSTabHelper&) = delete;
+  ~IPFSTabHelper() override;
 
   static bool MaybeCreateForWebContents(content::WebContents* web_contents);
   GURL GetIPFSResolvedURL() const;
@@ -45,10 +47,17 @@ class IPFSTabHelper : public content::WebContentsObserver,
 
   void ImportLinkToIpfs(const GURL& url);
   void ImportTextToIpfs(const std::string& text);
+  void ImportFileToIpfs(const base::FilePath& path);
+  void SelectFileForImport();
 
  private:
   friend class content::WebContentsUserData<IPFSTabHelper>;
   explicit IPFSTabHelper(content::WebContents* web_contents);
+
+  void FileSelected(const base::FilePath& path,
+                    int index,
+                    void* params) override;
+  void FileSelectionCanceled(void* params) override;
 
   bool IsDNSLinkCheckEnabled() const;
   void IPFSLinkResolved(const GURL& ipfs);
@@ -67,6 +76,7 @@ class IPFSTabHelper : public content::WebContentsObserver,
                             const std::string& dnslink);
 
   PrefService* pref_service_ = nullptr;
+  scoped_refptr<ui::SelectFileDialog> select_file_dialog_;
   PrefChangeRegistrar pref_change_registrar_;
   GURL ipfs_resolved_url_;
   std::unique_ptr<IPFSHostResolver> resolver_;

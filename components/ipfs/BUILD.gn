@@ -32,6 +32,8 @@ source_set("ipfs") {
     "ipfs_text_import_worker.h",
     "ipfs_link_import_worker.cc",
     "ipfs_link_import_worker.h",
+    "ipfs_file_import_worker.cc",
+    "ipfs_file_import_worker.h",
     "ipfs_service_observer.h",
     "ipfs_utils.cc",
     "ipfs_utils.h",
