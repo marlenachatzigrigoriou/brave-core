@@ -37,6 +37,12 @@ AdBlockSubscriptionServiceManager::~AdBlockSubscriptionServiceManager() {
 void AdBlockSubscriptionServiceManager::CreateSubscription(const GURL list_url) {
   auto subscription_service = AdBlockSubscriptionServiceFactory(list_url, delegate_);
   subscription_service->Start();
+
+  base::PostTask(
+      FROM_HERE, {content::BrowserThread::UI},
+      base::BindOnce(&AdBlockSubscriptionServiceManager::UpdateFilterListPrefs,
+                     base::Unretained(this), list_url, subscription_service->GetInfo()));
+
   subscription_services_.insert(std::make_pair(list_url, std::move(subscription_service)));
 }
 
@@ -66,6 +72,11 @@ void AdBlockSubscriptionServiceManager::DeleteSubscription(const SubscriptionIde
   DCHECK(it != subscription_services_.end());
   it->second->Unregister();
   subscription_services_.erase(it);
+
+  base::PostTask(
+      FROM_HERE, {content::BrowserThread::UI},
+      base::BindOnce(&AdBlockSubscriptionServiceManager::ClearFilterListPrefs,
+                     base::Unretained(this), id));
 }
 
 void AdBlockSubscriptionServiceManager::RefreshSubscription(const SubscriptionIdentifier& id) {
@@ -86,6 +97,27 @@ void AdBlockSubscriptionServiceManager::StartSubscriptionServices() {
   if (!local_state)
     return;
 
+  const base::DictionaryValue* list_subscriptions_dict =
+      local_state->GetDictionary(kAdBlockListSubscriptions);
+  if (list_subscriptions_dict->empty()) {
+    return;
+  }
+
+  for (base::DictionaryValue::Iterator it(*list_subscriptions_dict);
+       !it.IsAtEnd(); it.Advance()) {
+    const std::string uuid = it.key();
+    FilterListSubscriptionInfo info;
+    const base::Value* list_subscription_dict = list_subscriptions_dict->FindDictKey(uuid);
+    if (list_subscription_dict) {
+      info = BuildInfoFromDict(GURL(uuid), list_subscription_dict);
+
+      auto subscription_service = AdBlockSubscriptionServiceFactory(info, delegate_);
+      subscription_service->Start();
+
+      subscription_services_.insert(std::make_pair(uuid, std::move(subscription_service)));
+    }
+  }
+
   initialized_ = true;
 }
 
@@ -95,6 +127,30 @@ void AdBlockSubscriptionServiceManager::UpdateFilterListPrefs(
     const SubscriptionIdentifier& id,
     const FilterListSubscriptionInfo& info) {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+  PrefService* local_state = g_browser_process->local_state();
+  if (!local_state) {
+    return;
+  }
+  DictionaryPrefUpdate update(local_state, kAdBlockListSubscriptions);
+  base::DictionaryValue* subscriptions_dict = update.Get();
+  auto subscription_dict = base::Value(base::Value::Type::DICTIONARY);
+  subscription_dict.SetBoolKey("enabled", info.enabled);
+  subscription_dict.SetIntKey("last_update_attempt", info.last_update_attempt.ToJsTime());
+  subscription_dict.SetBoolKey("last_update_was_successful", info.last_update_was_successful);
+  subscriptions_dict->SetKey(id.spec(), std::move(subscription_dict));
+}
+
+// Updates preferences to remove all state for the specified filter list.
+void AdBlockSubscriptionServiceManager::ClearFilterListPrefs(
+    const SubscriptionIdentifier& id) {
+  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+  PrefService* local_state = g_browser_process->local_state();
+  if (!local_state) {
+    return;
+  }
+  DictionaryPrefUpdate update(local_state, kAdBlockListSubscriptions);
+  base::DictionaryValue* subscriptions_dict = update.Get();
+  subscriptions_dict->RemoveKey(id.spec());
 }
 
 bool AdBlockSubscriptionServiceManager::IsInitialized() const {

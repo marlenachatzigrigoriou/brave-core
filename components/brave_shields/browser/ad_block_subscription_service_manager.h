@@ -73,6 +73,7 @@ class AdBlockSubscriptionServiceManager {
   bool Init();
   void StartSubscriptionServices();
   void UpdateFilterListPrefs(const SubscriptionIdentifier& uuid, const FilterListSubscriptionInfo& info);
+  void ClearFilterListPrefs(const SubscriptionIdentifier& uuid);
 
   brave_component_updater::BraveComponent::Delegate* delegate_;  // NOT OWNED
   bool initialized_;

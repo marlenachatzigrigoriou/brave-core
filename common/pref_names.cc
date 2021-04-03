@@ -29,6 +29,7 @@ const char kAdBlockCheckedDefaultRegion[] =
     "brave.ad_block.checked_default_region";
 const char kAdBlockCustomFilters[] = "brave.ad_block.custom_filters";
 const char kAdBlockRegionalFilters[] = "brave.ad_block.regional_filters";
+const char kAdBlockListSubscriptions[] = "brave.ad_block.list_subscriptions";
 const char kWidevineOptedIn[] = "brave.widevine_opted_in";
 const char kAskWidevineInstall[] = "brave.ask_widevine_install";
 const char kUseAlternativeSearchEngineProvider[] =
