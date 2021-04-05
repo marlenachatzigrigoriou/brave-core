@@ -54,7 +54,7 @@ export default function BalanceSummaryView ({
       return
     }
 
-    handleAssetClick(currency)
+    handleAssetClick(currency, undefined, AssetViews.DETAILS)
   }
 
   return (

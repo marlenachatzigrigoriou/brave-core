@@ -190,11 +190,11 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
     })
   }
 
-  handleAssetClick = (base: string, quote: string, view: AssetViews) => {
+  handleAssetClick = (base: string, quote?: string, view?: AssetViews) => {
     this.setState({
       selectedBase: base,
       selectedQuote: quote || '',
-      currentAssetView: view
+      currentAssetView: view || AssetViews.DETAILS
     })
     this.props.onAssetsDetailsRequested(base, quote ? quote : 'USDT')
   }
