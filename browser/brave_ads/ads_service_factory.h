@@ -12,6 +12,7 @@
 class Profile;
 
 namespace brave_ads {
+
 class AdsService;
 class AdsServiceImpl;
 
@@ -21,8 +22,7 @@ class AdsServiceFactory : public BrowserContextKeyedServiceFactory {
   AdsServiceFactory(const AdsServiceFactory&) = delete;
   AdsServiceFactory& operator=(const AdsServiceFactory&) = delete;
 
-  static brave_ads::AdsService* GetForProfile(Profile* profile);
-  static brave_ads::AdsServiceImpl* GetImplForProfile(Profile* profile);
+  static AdsService* GetForProfile(Profile* profile);
 
   static AdsServiceFactory* GetInstance();
 

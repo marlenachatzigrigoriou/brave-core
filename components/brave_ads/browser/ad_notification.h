@@ -6,32 +6,69 @@
 #ifndef BRAVE_COMPONENTS_BRAVE_ADS_BROWSER_AD_NOTIFICATION_H_
 #define BRAVE_COMPONENTS_BRAVE_ADS_BROWSER_AD_NOTIFICATION_H_
 
-#include <memory>
+#include <string>
+#include <utility>
 
-#include "base/compiler_specific.h"
-#include "base/macros.h"
-#include "build/build_config.h"
-
-namespace message_center {
-class Notification;
-}
-
-namespace ads {
-struct AdNotificationInfo;
-}
+#include "base/memory/ref_counted.h"
+#include "base/strings/string16.h"
+#include "brave/components/brave_ads/browser/ad_notification_delegate.h"
 
 namespace brave_ads {
 
-class Notification;
+class AdNotification {
+ public:
+  // Create a new ad notification with an |id|, |title| text and |body| text.
+  // |delegate| will influence the behaviour of this ad notification and
+  // receives events on its behalf. The delegate may be omitted
+  AdNotification(const std::string& id,
+                 const base::string16& title,
+                 const base::string16& body,
+                 scoped_refptr<AdNotificationDelegate> delegate);
 
-// On Android, this URL must represent an HTTP or HTTPS web origin.
-const char* const kBraveAdsUrlPrefix = "https://www.brave.com/ads/?";
+  // Creates a copy of the |other| ad notification. The delegate, if any, will
+  // be identical for both ad notification instances. The |id| of the ad
+  // notification will be replaced by the given value
+  AdNotification(const std::string& id, const AdNotification& other);
 
-std::unique_ptr<Notification> CreateAdNotification(
-    const ads::AdNotificationInfo& info);
+  // Creates a copy of the |other| ad notification. The delegate will be
+  // replaced by |delegate|
+  AdNotification(scoped_refptr<AdNotificationDelegate> delegate,
+                 const AdNotification& other);
 
-std::unique_ptr<message_center::Notification> CreateMessageCenterNotification(
-    const ads::AdNotificationInfo& info);
+  // Creates a copy of the |other| ad notification. The delegate, if any, will
+  // be identical for both ad notification instances
+  AdNotification(const AdNotification& other);
+
+  AdNotification& operator=(const AdNotification& other);
+
+  virtual ~AdNotification();
+
+  const std::string& id() const { return id_; }
+
+  const base::string16& title() const { return title_; }
+  void set_title(const base::string16& title) { title_ = title; }
+
+  const base::string16& body() const { return body_; }
+  void set_body(const base::string16& body) { body_ = body; }
+
+  AdNotificationDelegate* delegate() const { return delegate_.get(); }
+
+  void set_delegate(scoped_refptr<AdNotificationDelegate> delegate) {
+    DCHECK(!delegate_);
+    delegate_ = std::move(delegate);
+  }
+
+ protected:
+  std::string id_;
+
+  base::string16 title_;
+  base::string16 body_;
+
+ private:
+  // A proxy object that allows access back to the JavaScript object that
+  // represents the notification, for firing events
+  scoped_refptr<AdNotificationDelegate> delegate_;
+};
 
 }  // namespace brave_ads
 

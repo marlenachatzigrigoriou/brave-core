@@ -39,12 +39,12 @@
 #include "bat/ads/pref_names.h"
 #include "bat/ads/resources/grit/bat_ads_resources.h"
 #include "bat/ads/statement_info.h"
-#include "brave/browser/brave_ads/notifications/platform_bridge.h"
+#include "brave/browser/brave_ads/notifications/ad_notification_platform_bridge.h"
 #include "brave/browser/brave_browser_process_impl.h"
 #include "brave/browser/brave_rewards/rewards_service_factory.h"
 #include "brave/browser/profiles/profile_util.h"
 #include "brave/common/brave_channel_info.h"
-#include "brave/components/brave_ads/browser/ad_notification.h"
+#include "brave/components/brave_ads/browser/ad_notification_util.h"
 #include "brave/components/brave_ads/browser/ads_notification_handler.h"
 #include "brave/components/brave_ads/browser/ads_p2a.h"
 #include "brave/components/brave_ads/browser/notification_helper.h"
@@ -66,7 +66,6 @@
 #include "chrome/browser/profiles/profile_manager.h"
 #include "chrome/common/chrome_paths.h"
 #if !defined(OS_ANDROID)
-#include "brave/ui/brave_ads/message_popup_view.h"
 #include "chrome/browser/fullscreen.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_finder.h"
@@ -675,11 +674,7 @@ void AdsServiceImpl::OnInitialize(const int32_t result) {
 
   is_initialized_ = true;
 
-  if (!brave::IsNightlyOrDeveloperBuild()) {
-    SetAdsServiceForNotificationHandler();
-  }
-
-  MaybeViewAdNotification();
+  MaybeOpenNewTabWithAd();
 
   StartCheckIdleStateTimer();
 }
@@ -965,72 +960,70 @@ int AdsServiceImpl::GetIdleTimeThreshold() {
   return GetIntegerPref(ads::prefs::kIdleTimeThreshold);
 }
 
-void AdsServiceImpl::OnShow(Profile* profile, const std::string& uuid) {
+void AdsServiceImpl::OnShowAdNotification(const std::string& notification_id) {
   if (!connected()) {
     return;
   }
 
-  bat_ads_->OnAdNotificationEvent(uuid, ads::AdNotificationEventType::kViewed);
+  bat_ads_->OnAdNotificationEvent(notification_id,
+                                  ads::AdNotificationEventType::kViewed);
 }
 
-void AdsServiceImpl::OnClose(Profile* profile,
-                             const GURL& origin,
-                             const std::string& uuid,
-                             const bool by_user,
-                             base::OnceClosure completed_closure) {
-  StopNotificationTimeoutTimer(uuid);
+void AdsServiceImpl::OnCloseAdNotification(const std::string& notification_id,
+                                           const bool by_user) {
+  StopNotificationTimeoutTimer(notification_id);
 
-  if (connected()) {
-    const ads::AdNotificationEventType event_type =
-        by_user ? ads::AdNotificationEventType::kDismissed
-                : ads::AdNotificationEventType::kTimedOut;
-
-    bat_ads_->OnAdNotificationEvent(uuid, event_type);
-  }
-
-  if (completed_closure) {
-    std::move(completed_closure).Run();
-  }
-}
-
-void AdsServiceImpl::MaybeViewAdNotification() {
-  if (retry_viewing_ad_notification_with_uuid_.empty()) {
+  if (!connected()) {
     return;
   }
 
-  ViewAdNotification(retry_viewing_ad_notification_with_uuid_);
+  const ads::AdNotificationEventType event_type =
+      by_user ? ads::AdNotificationEventType::kDismissed
+              : ads::AdNotificationEventType::kTimedOut;
 
-  retry_viewing_ad_notification_with_uuid_ = "";
+  bat_ads_->OnAdNotificationEvent(notification_id, event_type);
 }
 
-void AdsServiceImpl::ViewAdNotification(const std::string& uuid) {
+void AdsServiceImpl::OnClickAdNotification(const std::string& notification_id) {
+  if (!connected()) {
+    return;
+  }
+
+  OpenNewTabWithAd(notification_id);
+
+  bat_ads_->OnAdNotificationEvent(notification_id,
+                                  ads::AdNotificationEventType::kClicked);
+}
+
+void AdsServiceImpl::MaybeOpenNewTabWithAd() {
+  if (retry_opening_new_tab_for_ad_with_uuid_.empty()) {
+    return;
+  }
+
+  OpenNewTabWithAd(retry_opening_new_tab_for_ad_with_uuid_);
+
+  retry_opening_new_tab_for_ad_with_uuid_ = "";
+}
+
+void AdsServiceImpl::OpenNewTabWithAd(const std::string& uuid) {
   if (StopNotificationTimeoutTimer(uuid)) {
     VLOG(1) << "Cancelled timeout for ad notification with uuid " << uuid;
   }
 
   if (!connected() || !is_initialized_) {
-    RetryViewingAdNotification(uuid);
+    RetryOpeningNewTabWithAd(uuid);
     return;
   }
 
-  VLOG(1) << "View ad notification with uuid " << uuid;
-
   bat_ads_->GetAdNotification(
-      uuid, base::BindOnce(&AdsServiceImpl::OnViewAdNotification, AsWeakPtr()));
+      uuid, base::BindOnce(&AdsServiceImpl::OnOpenNewTabWithAd, AsWeakPtr()));
 }
 
-void AdsServiceImpl::OnViewAdNotification(const std::string& json) {
+void AdsServiceImpl::OnOpenNewTabWithAd(const std::string& json) {
   ads::AdNotificationInfo notification;
   notification.FromJson(json);
 
   OpenNewTabWithUrl(notification.target_url);
-
-  if (!connected()) {
-    return;
-  }
-
-  bat_ads_->OnAdNotificationEvent(notification.uuid,
-                                  ads::AdNotificationEventType::kClicked);
 }
 
 void AdsServiceImpl::OnNewTabPageAdEvent(
@@ -1055,23 +1048,9 @@ void AdsServiceImpl::OnPromotedContentAdEvent(
   bat_ads_->OnPromotedContentAdEvent(uuid, creative_instance_id, event_type);
 }
 
-void AdsServiceImpl::RetryViewingAdNotification(const std::string& uuid) {
-  VLOG(1) << "Retry viewing ad notification with uuid " << uuid;
-  retry_viewing_ad_notification_with_uuid_ = uuid;
-}
-
-void AdsServiceImpl::SetAdsServiceForNotificationHandler() {
-  auto* unowned_ptr = static_cast<AdsNotificationHandler::UnownedPointer*>(
-      profile_->GetUserData(AdsNotificationHandler::UserDataKey()));
-  CHECK(unowned_ptr);
-  unowned_ptr->get()->SetAdsService(this);
-}
-
-void AdsServiceImpl::ClearAdsServiceForNotificationHandler() {
-  auto* unowned_ptr = static_cast<AdsNotificationHandler::UnownedPointer*>(
-      profile_->GetUserData(AdsNotificationHandler::UserDataKey()));
-  CHECK(unowned_ptr);
-  unowned_ptr->get()->SetAdsService(nullptr);
+void AdsServiceImpl::RetryOpeningNewTabWithAd(const std::string& uuid) {
+  VLOG(1) << "Retry opening new tab for ad with uuid " << uuid;
+  retry_opening_new_tab_for_ad_with_uuid_ = uuid;
 }
 
 void AdsServiceImpl::OpenNewTabWithUrl(const std::string& url) {
@@ -1758,24 +1737,23 @@ std::string AdsServiceImpl::LoadDataResourceAndDecompressIfNeeded(
   return data_resource;
 }
 
-// Custom Notifications and Message Center notifications use 2 different
-// types of notification.h
-void AdsServiceImpl::ShowNotification(
-    const ads::AdNotificationInfo& ad_notification) {
+void AdsServiceImpl::ShowNotification(const ads::AdNotificationInfo& info) {
   if (brave::IsNightlyOrDeveloperBuild()) {
-    auto notification = CreateAdNotification(ad_notification);
+    std::unique_ptr<AdNotificationPlatformBridge> platform_bridge =
+        std::make_unique<AdNotificationPlatformBridge>(profile_);
 
-    std::unique_ptr<PlatformBridge> platform_bridge =
-        std::make_unique<PlatformBridge>(profile_);
+    const AdNotification ad_notification = CreateAdNotification(info);
 
-    platform_bridge->Display(profile_, notification);
+    platform_bridge->ShowAdNotification(ad_notification);
   } else {
-    auto notification = CreateMessageCenterNotification(ad_notification);
+    std::unique_ptr<message_center::Notification> notification =
+        CreateLegacyAdNotification(info);
+
     display_service_->Display(NotificationHandler::Type::BRAVE_ADS,
                               *notification, /*metadata=*/nullptr);
   }
 
-  StartNotificationTimeoutTimer(ad_notification.uuid);
+  StartNotificationTimeoutTimer(info.uuid);
 }
 
 void AdsServiceImpl::StartNotificationTimeoutTimer(const std::string& uuid) {
@@ -1821,12 +1799,13 @@ bool AdsServiceImpl::ShouldShowNotifications() {
 
 void AdsServiceImpl::CloseNotification(const std::string& uuid) {
   if (brave::IsNightlyOrDeveloperBuild()) {
-    std::unique_ptr<PlatformBridge> platform_bridge =
-        std::make_unique<PlatformBridge>(profile_);
-    platform_bridge->Close(profile_, uuid);
+    std::unique_ptr<AdNotificationPlatformBridge> platform_bridge =
+        std::make_unique<AdNotificationPlatformBridge>(profile_);
+
+    platform_bridge->CloseAdNotification(uuid);
   } else {
 #if defined(OS_ANDROID)
-    const std::string brave_ads_url_prefix = kBraveAdsUrlPrefix;
+    const std::string brave_ads_url_prefix = kAdNotificationUrlPrefix;
     const GURL service_worker_scope =
         GURL(brave_ads_url_prefix.substr(0, brave_ads_url_prefix.size() - 1));
     BraveNotificationPlatformBridgeHelperAndroid::MaybeRegenerateNotification(

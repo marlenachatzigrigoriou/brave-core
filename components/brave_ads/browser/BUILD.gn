@@ -40,6 +40,8 @@ source_set("browser") {
     sources += [
       "ad_notification.cc",
       "ad_notification.h",
+      "ad_notification_util.cc",
+      "ad_notification_util.h",
       "ads_notification_handler.cc",
       "ads_notification_handler.h",
       "ads_p2a.cc",
