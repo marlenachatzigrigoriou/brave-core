@@ -269,9 +269,9 @@ declare namespace chrome.cryptoDotCom {
   const getChartData: (asset: string, callback: (data: ChartDataPoint[]) => void) => {}
   const getSupportedPairs: (callback: (pairs: SupportedPair[]) => void) => {}
   const getAssetRankings: (callback: (assets: Record<string, AssetRanking[]>) => void) => {}
-  const getAccountBalances: (callback: (balances: AccountBalances, success: boolean) => void) => {}
-  const getDepositAddress: (asset: string, callback: (address: DepositAddress, success: boolean) => void) => {}
-  const getNewsEvents: (callback: (newsEvents: NewsEvent[], success: boolean) => void) => {}
+  const getAccountBalances: (callback: (balances: AccountBalances) => void) => {}
+  const getDepositAddress: (asset: string, callback: (address: DepositAddress) => void) => {}
+  const getNewsEvents: (callback: (newsEvents: NewsEvent[]) => void) => {}
   const createMarketOrder: (order: Order, callback: (result: OrderResult) => void) => {}
   const getClientUrl: (callback: (url: string) => void) => {}
   const disconnect: (callback: (success: boolean) => void) => {}

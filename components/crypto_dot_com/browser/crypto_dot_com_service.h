@@ -65,11 +65,10 @@ class CryptoDotComService : public KeyedService {
         base::OnceCallback<void(const CryptoDotComSupportedPairs&)>;
   using GetAssetRankingsCallback =
         base::OnceCallback<void(const CryptoDotComAssetRankings&)>;
-  using GetAccountBalancesCallback =
-      base::OnceCallback<void(base::Value, bool)>;
+  using GetAccountBalancesCallback = base::OnceCallback<void(base::Value)>;
   using IsConnectedCallback = base::OnceCallback<void(bool)>;
-  using GetNewsEventsCallback = base::OnceCallback<void(base::Value, bool)>;
-  using GetDepositAddressCallback = base::OnceCallback<void(base::Value, bool)>;
+  using GetNewsEventsCallback = base::OnceCallback<void(base::Value)>;
+  using GetDepositAddressCallback = base::OnceCallback<void(base::Value)>;
   using CreateMarketOrderCallback = base::OnceCallback<void(base::Value)>;
 
   bool GetTickerInfo(const std::string& asset,

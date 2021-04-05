@@ -37,8 +37,7 @@ function getCryptoDotComSupportedPairs () {
 
 function getCryptoDotComAccountBalances () {
   return new Promise((resolve: Function) => {
-    // TODO(simonhong): Handle success state.
-    chrome.cryptoDotCom.getAccountBalances((balance: chrome.cryptoDotCom.AccountBalances, success: boolean) => {
+    chrome.cryptoDotCom.getAccountBalances((balance: chrome.cryptoDotCom.AccountBalances) => {
       resolve(balance)
     })
   })
@@ -46,8 +45,7 @@ function getCryptoDotComAccountBalances () {
 
 function getCryptoDotComNewsEvents () {
   return new Promise((resolve: Function) => {
-    // TODO(simonhong): Handle success state.
-    chrome.cryptoDotCom.getNewsEvents((newsEvents: chrome.cryptoDotCom.NewsEvent[], success: boolean) => {
+    chrome.cryptoDotCom.getNewsEvents((newsEvents: chrome.cryptoDotCom.NewsEvent[]) => {
       resolve(newsEvents)
     })
   })
@@ -55,8 +53,7 @@ function getCryptoDotComNewsEvents () {
 
 function getCryptoDotComDepositAddress (asset: string) {
   return new Promise((resolve: Function) => {
-    // TODO(simonhong): Handle success state.
-    chrome.cryptoDotCom.getDepositAddress(asset, (address: chrome.cryptoDotCom.DepositAddress, success: boolean) => {
+    chrome.cryptoDotCom.getDepositAddress(asset, (address: chrome.cryptoDotCom.DepositAddress) => {
       resolve(address)
     })
   })

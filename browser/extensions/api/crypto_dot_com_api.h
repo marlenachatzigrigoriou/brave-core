@@ -84,7 +84,7 @@ class CryptoDotComGetAccountBalancesFunction : public ExtensionFunction {
  protected:
   ~CryptoDotComGetAccountBalancesFunction() override {}
   ResponseAction Run() override;
-  void OnGetAccountBalancesResult(base::Value balances, bool success);
+  void OnGetAccountBalancesResult(base::Value balances);
 };
 
 class CryptoDotComGetClientUrlFunction : public ExtensionFunction {
@@ -131,7 +131,7 @@ class CryptoDotComGetNewsEventsFunction : public ExtensionFunction {
  protected:
   ~CryptoDotComGetNewsEventsFunction() override {}
   ResponseAction Run() override;
-  void OnGetNewsEventsResult(base::Value events, bool success);
+  void OnGetNewsEventsResult(base::Value events);
 };
 
 class CryptoDotComGetDepositAddressFunction : public ExtensionFunction {
@@ -141,7 +141,7 @@ class CryptoDotComGetDepositAddressFunction : public ExtensionFunction {
  protected:
   ~CryptoDotComGetDepositAddressFunction() override {}
   ResponseAction Run() override;
-  void OnGetDepositAddressResult(base::Value address, bool connected);
+  void OnGetDepositAddressResult(base::Value address);
 };
 
 class CryptoDotComCreateMarketOrderFunction : public ExtensionFunction {

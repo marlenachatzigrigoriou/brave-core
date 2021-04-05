@@ -212,10 +212,10 @@ void CryptoDotComService::OnGetAccountBalances(
   auto value = CryptoDotComJSONParser::GetValidAccountBalances(body);
   if (value.is_none()) {
     auto empty_balance = base::JSONReader::Read(kEmptyAccountBalances);
-    return std::move(callback).Run(std::move(*empty_balance), false);
+    return std::move(callback).Run(std::move(*empty_balance));
   }
 
-  std::move(callback).Run(std::move(value), true);
+  std::move(callback).Run(std::move(value));
 }
 
 bool CryptoDotComService::IsLoggedIn() {
@@ -286,10 +286,10 @@ void CryptoDotComService::OnGetDepositAddress(
   auto value = CryptoDotComJSONParser::GetValidDepositAddress(body);
   if (value.is_none()) {
     auto empty_deposit = base::JSONReader::Read(kEmptyDepositAddress);
-    return std::move(callback).Run(std::move(*empty_deposit), false);
+    return std::move(callback).Run(std::move(*empty_deposit));
   }
 
-  std::move(callback).Run(std::move(value), true);
+  std::move(callback).Run(std::move(value));
 }
 
 bool CryptoDotComService::GetNewsEvents(GetNewsEventsCallback callback) {
@@ -312,10 +312,10 @@ void CryptoDotComService::OnGetNewsEvents(
   if (value.is_none()) {
     auto empty_news_events = base::JSONReader::Read(kEmptyNewsEvents);
     return std::move(callback).Run(
-        empty_news_events->FindListKey("events")->Clone(), false);
+        empty_news_events->FindListKey("events")->Clone());
   }
 
-  std::move(callback).Run(std::move(value), true);
+  std::move(callback).Run(std::move(value));
 }
 
 bool CryptoDotComService::CreateMarketOrder(

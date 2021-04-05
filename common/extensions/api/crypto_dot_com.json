@@ -261,10 +261,6 @@
                     "items": { "$ref": "AccountBalance" }
                   }
                 }
-              },
-              {
-                "name": "success",
-                "type": "boolean"
               }
             ]
           }
@@ -351,10 +347,6 @@
                 "name": "events",
                 "type": "array",
                 "items": { "$ref": "NewsEvent" }
-              },
-              {
-                "name": "success",
-                "type": "boolean"
               }
             ]
           }
@@ -376,10 +368,6 @@
               {
                 "name": "data",
                 "$ref": "DepositAddress"
-              },
-              {
-                "name": "success",
-                "type": "boolean"
               }
             ]
           }

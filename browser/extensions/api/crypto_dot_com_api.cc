@@ -224,9 +224,8 @@ CryptoDotComGetAccountBalancesFunction::Run() {
 }
 
 void CryptoDotComGetAccountBalancesFunction::OnGetAccountBalancesResult(
-    base::Value balances,
-    bool success) {
-  Respond(TwoArguments(std::move(balances), base::Value(success)));
+    base::Value balances) {
+  Respond(OneArgument(std::move(balances)));
 }
 
 ExtensionFunction::ResponseAction CryptoDotComGetClientUrlFunction::Run() {
@@ -294,9 +293,8 @@ ExtensionFunction::ResponseAction CryptoDotComGetNewsEventsFunction::Run() {
 }
 
 void CryptoDotComGetNewsEventsFunction::OnGetNewsEventsResult(
-    base::Value events,
-    bool success) {
-  Respond(TwoArguments(std::move(events), base::Value(success)));
+    base::Value events) {
+  Respond(OneArgument(std::move(events)));
 }
 
 ExtensionFunction::ResponseAction CryptoDotComGetDepositAddressFunction::Run() {
@@ -324,9 +322,8 @@ ExtensionFunction::ResponseAction CryptoDotComGetDepositAddressFunction::Run() {
 }
 
 void CryptoDotComGetDepositAddressFunction::OnGetDepositAddressResult(
-    base::Value address,
-    bool success) {
-  Respond(TwoArguments(std::move(address), base::Value(success)));
+    base::Value address) {
+  Respond(OneArgument(std::move(address)));
 }
 
 ExtensionFunction::ResponseAction CryptoDotComCreateMarketOrderFunction::Run() {

@@ -263,13 +263,12 @@ class CryptoDotComAPIBrowserTest : public InProcessBrowserTest {
     wait_for_request_->Run();
   }
 
-  void OnGetValue(base::Value value, bool success) {
+  void OnGetValue(base::Value value) {
     if (wait_for_request_) {
       wait_for_request_->Quit();
     }
 
     EXPECT_EQ(expected_value_, value);
-    EXPECT_FALSE(success);
   }
 
   void WaitForValueResponse(base::Value expected_value) {
