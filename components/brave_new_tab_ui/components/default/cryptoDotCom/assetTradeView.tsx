@@ -42,6 +42,7 @@ interface Props {
   tickerPrices: Record<string, chrome.cryptoDotCom.TickerPrice>
   handleBackClick: () => void
   handleAssetClick: (base: string, quote?: string, view?: AssetViews) => void
+  createCryptoDotComMarketOrder: (order: chrome.cryptoDotCom.Order, callback: (result: chrome.cryptoDotCom.OrderResult) => void) => void
 }
 
 export default function AssetTradeView ({
@@ -51,6 +52,7 @@ export default function AssetTradeView ({
   availableBalanceQuote,
   handleBackClick,
   handleAssetClick,
+  createCryptoDotComMarketOrder,
   tickerPrices,
   priceDecimals,
   quantityDecimals
@@ -150,7 +152,7 @@ export default function AssetTradeView ({
       order['quantity'] = decimalizeCurrency(tradeAmount.toString(), Number(quantityDecimals))
     }
 
-    chrome.cryptoDotCom.createMarketOrder(order , makeOrderCallback)
+    createCryptoDotComMarketOrder(order, makeOrderCallback)
     clearTimers()
     setConfirmScreen(false)
   }

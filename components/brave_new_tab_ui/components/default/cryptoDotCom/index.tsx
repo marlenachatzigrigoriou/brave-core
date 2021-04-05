@@ -82,10 +82,12 @@ interface Props {
   onIsConnected: (connected: boolean) => void
   disconnect: () => void
   cancelDisconnect: () => void
+  isCryptoDotComLoggedIn: (callback: (loggedIn: boolean) => void) => void
+  isCryptoDotComConnected: (callback: (isConnected: boolean) => void) => void
+  getCryptoDotComClientUrl: (callback: (clientAuthUrl: string) => void) => void
+  createCryptoDotComMarketOrder: (order: chrome.cryptoDotCom.Order, callback: (result: chrome.cryptoDotCom.OrderResult) => void) => void
 }
 
-// TODO(simonhong): Don't cache account related infos in local storage.
-// We should fetch every time when we refer to.
 class CryptoDotCom extends React.PureComponent<Props, State> {
   private refreshDataInterval: any
   private checkConnectedStateInterval: any
@@ -126,12 +128,12 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
       return
     }
 
-    chrome.cryptoDotCom.isLoggedIn(async (loggedIn: boolean) => {
+    this.props.isCryptoDotComLoggedIn(async (loggedIn: boolean) => {
       if (loggedIn) {
         // Periodically check connect status if logged in.
         this.setCheckIsConnectedInterval()
 
-        chrome.cryptoDotCom.isConnected(async (isConnected: boolean) => {
+        this.props.isCryptoDotComConnected(async (isConnected: boolean) => {
           await this.props.onUpdateActions()
           this.checkSetRefreshInterval()
           this.props.onIsConnected(isConnected)
@@ -145,7 +147,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   }
 
   getClientURL = () => {
-    chrome.cryptoDotCom.getClientUrl((clientAuthUrl: string) => {
+    this.props.getCryptoDotComClientUrl((clientAuthUrl: string) => {
       this.setState({ clientAuthUrl })
     })
   }
@@ -153,7 +155,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
   setCheckIsConnectedInterval = () => {
     if (!this.checkConnectedStateInterval) {
       this.checkConnectedStateInterval = setInterval(() => {
-        chrome.cryptoDotCom.isConnected((isConnected: boolean) => {
+        this.props.isCryptoDotComConnected((isConnected: boolean) => {
           this.props.onIsConnected(isConnected)
         })
       }, 30000)
@@ -341,6 +343,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
           quantityDecimals={pair[0] ? pair[0].quantity : '0'}
           handleBackClick={this.clearAsset}
           handleAssetClick={this.handleAssetClick}
+          createCryptoDotComMarketOrder={this.props.createCryptoDotComMarketOrder}
         />
       )
     }
@@ -424,6 +427,7 @@ class CryptoDotCom extends React.PureComponent<Props, State> {
                     losersGainers={this.props.losersGainers || {}}
                     tickerPrices={this.props.tickerPrices}
                     onBTCPriceOptedIn={this.props.onBtcPriceOptIn}
+                    getCryptoDotComClientUrl={this.props.getCryptoDotComClientUrl}
                   />
                 )}
               </>

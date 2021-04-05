@@ -1022,6 +1022,10 @@ class NewTabPage extends React.Component<Props, State> {
         onSetHideBalance={this.setCryptoDotComHideBalance}
         disconnect={this.disconnectCryptoDotCom}
         cancelDisconnect={this.cancelCryptoDotComDisconnect}
+        isCryptoDotComLoggedIn={chrome.cryptoDotCom.isLoggedIn}
+        isCryptoDotComConnected={chrome.cryptoDotCom.isConnected}
+        getCryptoDotComClientUrl={chrome.cryptoDotCom.getClientUrl}
+        createCryptoDotComMarketOrder={chrome.cryptoDotCom.createMarketOrder}
       />
     )
   }

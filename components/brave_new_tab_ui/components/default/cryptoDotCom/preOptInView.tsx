@@ -27,13 +27,15 @@ interface Props {
   losersGainers: Record<string, chrome.cryptoDotCom.AssetRanking[]>
   tickerPrices: Record<string, chrome.cryptoDotCom.TickerPrice>
   onBTCPriceOptedIn: () => void
+  getCryptoDotComClientUrl: (callback: (clientAuthUrl: string) => void) => void
 }
 
 export default function PreOptInView ({
   optInBTCPrice,
   tickerPrices,
   losersGainers,
-  onBTCPriceOptedIn
+  onBTCPriceOptedIn,
+  getCryptoDotComClientUrl
 }: Props) {
   const currency = 'BTC'
   const { price = null } = tickerPrices[`${currency}_USDT`] || {}
@@ -46,7 +48,7 @@ export default function PreOptInView ({
     window.open(clientAuthUrl, '_self', 'noopener')
   }
 
-  chrome.cryptoDotCom.getClientUrl((clientAuthUrl: string) => {
+  getCryptoDotComClientUrl((clientAuthUrl: string) => {
     setClientAuthUrl(clientAuthUrl)
   })
 
